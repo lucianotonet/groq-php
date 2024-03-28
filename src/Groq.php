@@ -11,7 +11,7 @@ namespace LucianoTonet\GroqPHP;
 class Groq
 {
     private string $apiKey;
-    private string $apiBase = 'https://api.groq.com/openai/v1';
+    private string $baseUrl;
     private array $options;
 
     /**
@@ -19,10 +19,14 @@ class Groq
      * @param string $apiKey
      * @param array $options
      */
+    // Start of Selection
     public function __construct(string $apiKey = null, array $options = [])
     {
-        $this->apiKey = $apiKey ?? getenv('GROQ_API_KEY');
+        $this->apiKey = $apiKey ?? getenv('GROQ_API_KEY');        
         $this->options = $options;
+
+        $baseUrl = getenv('GROQ_API_BASE_URL') ?? 'https://api.groq.com/openai/v1';
+        $this->baseUrl = $options['baseUrl'] ?? $baseUrl;
     }
     /**
      * @param array $options
@@ -56,10 +60,15 @@ class Groq
             "Authorization: Bearer " . $this->apiKey,
         ];
 
+        // response_format json_object cannot be combined with tool/function calling
+        if (isset($params['response_format']) && isset($params['tools'])) {
+            unset($params['response_format']);
+        }
+
         $data = json_encode($params);
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => $this->apiBase . $path,
+            CURLOPT_URL => $this->baseUrl . $path,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,

@@ -1,10 +1,8 @@
-# Groq PHP Library
+# Groq PHP
 
 [![PHP version](https://img.shields.io/packagist/dependency-v/lucianotonet/groq-php/php)](https://packagist.org/packages/lucianotonet/groq-php)
 
-Unofficial library to provide a convenient access to the Groq REST API from server-side PHP.
-
-The REST API documentation can be found [on console.groq.com](https://console.groq.com/docs).
+PHP library to provide access to the [Groq REST API](https://console.groq.com/docs).
 
 ## Installation
 
@@ -137,13 +135,11 @@ $groq->chat()->completions()->create([
 ]);
 ```
 
-On timeout, an `APIConnectionTimeoutError` is thrown.
-
 Note that requests which time out will be [retried twice by default](#retries).
 
 ## Advanced Usage
 
-### Streaming
+### Streaming (WIP)
 ```php
 // Exemplo de streaming
 $stream = $groq->chat()->completions()->create([
@@ -154,7 +150,7 @@ $stream = $groq->chat()->completions()->create([
             'content' => 'Explain the importance of low latency LLMs'
         ],
     ]
-], ['stream' => true]);
+], ['stream' => true]); // TODO
 
 foreach ($stream as $chunk) {
     echo $chunk['choices'][0]['delta']['content'];

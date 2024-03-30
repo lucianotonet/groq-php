@@ -1,8 +1,11 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace LucianoTonet\GroqPHP;
+
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Psr7\Request;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class Groq
@@ -19,15 +22,14 @@ class Groq
      * @param string $apiKey
      * @param array $options
      */
-    // Start of Selection
     public function __construct(string $apiKey = null, array $options = [])
     {
-        $this->apiKey = $apiKey ?? getenv('GROQ_API_KEY');        
+        $this->apiKey = $apiKey ?? getenv('GROQ_API_KEY');
         $this->options = $options;
-
         $baseUrl = getenv('GROQ_API_BASE_URL') ?? 'https://api.groq.com/openai/v1';
         $this->baseUrl = $options['baseUrl'] ?? $baseUrl;
     }
+
     /**
      * @param array $options
      */
@@ -43,107 +45,30 @@ class Groq
     {
         return new Chat($this);
     }
-
+    
     /**
-     * @param string $method
-     * @param string $path
-     * @param array $params
-     * @return array
-     * @throws \RuntimeException
+     * This PHP function takes a Request object as a parameter and uses a Client object to send the
+     * request, returning a ResponseInterface.
+     * 
+     * @param Request request The `makeRequest` function takes a `Request` object as a parameter and
+     * returns a `ResponseInterface` object. The `Request` object likely contains information about the
+     * HTTP request to be made, such as the URL, method, headers, and body.
+     * 
+     * @return ResponseInterface An instance of `ResponseInterface` is being returned.
      */
-    public function makeRequest(string $method, string $path, array $params = []): array
+    public function makeRequest(Request $request): ResponseInterface
     {
-        $curl = curl_init();
-
-        $headers = [
-            "Content-Type: application/json",
-            "Authorization: Bearer " . $this->apiKey,
-        ];
-
-        // response_format json_object cannot be combined with tool/function calling
-        if (isset($params['response_format']) && isset($params['tools'])) {
-            unset($params['response_format']);
-        }
-
-        $data = json_encode($params);
-
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $this->baseUrl . $path,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => $this->options['timeout'] ?? 6000,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_POSTFIELDS => $data,
-            CURLOPT_HTTPHEADER => $headers,
-        ]);
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-            throw new \RuntimeException('cURL Error #: ' . $err);
-        }
-
-        return json_decode($response, true);
-    }
-}
-
-/**
- * Class Chat
- * @package LucianoTonet\GroqPHP
- */
-class Chat
-{
-    private Groq $groq;
-
-    /**
-     * Chat constructor.
-     * @param Groq $groq
-     */
-    public function __construct(Groq $groq)
-    {
-        $this->groq = $groq;
+        $client = new Client();
+        return $client->send($request);
     }
 
-    /**
-     * @return Completions
-     */
-    public function completions(): Completions
+    public function baseUrl(): string
     {
-        return new Completions($this->groq);
-    }
-}
-
-/**
- * Class Completions
- * @package LucianoTonet\GroqPHP
- */
-class Completions
-{
-    private Groq $groq;
-
-    /**
-     * Completions constructor.
-     * @param Groq $groq
-     */
-    public function __construct(Groq $groq)
-    {
-        $this->groq = $groq;
+        return $this->baseUrl;
     }
 
-    /**
-     * @param array $params
-     * @return array
-     * @throws \RuntimeException
-     */
-    public function create(array $params): array
+    public function apiKey(): string
     {
-        $response = $this->groq->makeRequest('POST', '/chat/completions', $params);
-
-        return $response;
+        return $this->apiKey;
     }
 }

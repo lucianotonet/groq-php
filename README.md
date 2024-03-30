@@ -151,9 +151,12 @@ $stream = $groq->chat()->completions()->create([
         ],
     ]
 ], ['stream' => true]);
+    
+foreach ($stream->chunks() as $chunk) {
+    echo $chunk['choices'][0]['delta']['role'] ?? $chunk['choices'][0]['delta']['content'] ?? '';
 
-foreach ($stream as $chunk) {
-    echo $chunk['choices'][0]['delta']['content'];
+    ob_flush();
+    flush();
 }
 ```
 

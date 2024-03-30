@@ -139,7 +139,7 @@ Note that requests which time out will be [retried twice by default](#retries).
 
 ## Advanced Usage
 
-### Streaming (WIP)
+### Streaming
 ```php
 // Exemplo de streaming
 $stream = $groq->chat()->completions()->create([
@@ -150,7 +150,7 @@ $stream = $groq->chat()->completions()->create([
             'content' => 'Explain the importance of low latency LLMs'
         ],
     ]
-], ['stream' => true]); // TODO
+], ['stream' => true]);
 
 foreach ($stream as $chunk) {
     echo $chunk['choices'][0]['delta']['content'];

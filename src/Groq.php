@@ -26,7 +26,7 @@ class Groq
     {
         $this->apiKey = $apiKey ?? getenv('GROQ_API_KEY');
         $this->options = $options;
-        $baseUrl = getenv('GROQ_API_BASE_URL') ?? 'https://api.groq.com/openai/v1';
+        $baseUrl = getenv('GROQ_API_BASE_URL') ?: 'https://api.groq.com/openai/v1';
         $this->baseUrl = $options['baseUrl'] ?? $baseUrl;
     }
 

@@ -12,7 +12,6 @@ composer require lucianotonet/groq-php
 
 ## Usage
 
-<!-- prettier-ignore -->
 ```php
 use LucianoTonet\Groq;
 
@@ -23,12 +22,17 @@ $chatCompletion = $groq->chat()->completions()->create([
   'messages' => [
     [
       'role'    => 'user',
-      'content' => 'Explain the importance of low latency LLMs']
+      'content' => 'Explain the importance of low latency LLMs'
     ],
+  ]
 ]);
 
 echo $chatCompletion['choices'][0]['message']['content'];
 ```
+
+## Examples
+
+The most common usage examples is on the [examples folder](/examples).
 
 ## Handling errors
 
@@ -36,7 +40,6 @@ When the library is unable to connect to the API,
 or if the API returns a non-success status code (i.e., 4xx or 5xx response),
 a subclass of `APIError` will be thrown:
 
-<!-- prettier-ignore -->
 ```php
 use LucianoTonet\Groq;
 
@@ -86,23 +89,22 @@ Connection errors (for example, due to a network connectivity problem), 408 Requ
 
 You can use the `maxRetries` option to configure or disable this:
 
-<!-- prettier-ignore -->
 ```php
 $groq->setOptions(['maxRetries' => 0]); // default is 2
 
 // Or, configure per-request:
 $groq->chat()->completions()->create([
-    'messages' => [
-        [
-          'role' => 'system',
-          'content' => 'You are a helpful assisstant.'
-        ],
-        [
-          'role' => 'user',
-          'content' => 'Explain the importance of low latency LLMs'
-        ]
+  'model' => 'mixtral-8x7b-32768',
+  'messages' => [
+    [
+      'role' => 'system',
+      'content' => 'You are a helpful assisstant.'
     ],
-    'model' => 'mixtral-8x7b-32768'
+    [
+      'role' => 'user',
+      'content' => 'Explain the importance of low latency LLMs'
+    ]
+  ],
 ], ['maxRetries' => 5]);
 ```
 
@@ -110,7 +112,6 @@ $groq->chat()->completions()->create([
 
 Requests time out after 1 minute by default. You can configure this with a `timeout` option:
 
-<!-- prettier-ignore -->
 ```php
 // Configure the default for all requests:
 $groq = new Groq([
@@ -119,6 +120,7 @@ $groq = new Groq([
 
 // Override per-request:
 $groq->chat()->completions()->create([
+  'model' => 'mixtral-8x7b-32768',
   'messages' => [
     [
       'role' => 'system', 
@@ -129,10 +131,7 @@ $groq->chat()->completions()->create([
       'content' => 'Explain the importance of low latency LLMs'
     ]
   ],
-  'model' => 'mixtral-8x7b-32768'
-], [
-  'timeout' => 5 * 1000,
-]);
+], ['timeout' => 5 * 1000]); // 5 seconds
 ```
 
 Note that requests which time out will be [retried twice by default](#retries).
@@ -141,7 +140,6 @@ Note that requests which time out will be [retried twice by default](#retries).
 
 ### Streaming
 ```php
-// Exemplo de streaming
 $stream = $groq->chat()->completions()->create([
     'model' => 'mixtral-8x7b-32768',
     'messages' => [
@@ -149,11 +147,18 @@ $stream = $groq->chat()->completions()->create([
             'role' => 'user',
             'content' => 'Explain the importance of low latency LLMs'
         ],
-    ]
-], ['stream' => true]);
+    ],
+    'stream' => true
+  ]);
     
 foreach ($stream->chunks() as $chunk) {
-    echo $chunk['choices'][0]['delta']['role'] ?? $chunk['choices'][0]['delta']['content'] ?? '';
+    if(isset($chunk['choices'][0]['delta']['role'])) {
+        echo $chunk['choices'][0]['delta']['role']; // 'assistant'
+    }
+
+    if (isset($chunk['choices'][0]['delta']['content'])) {
+        echo $chunk['choices'][0]['delta']['content']; // '
+    }
 
     ob_flush();
     flush();
@@ -162,7 +167,7 @@ foreach ($stream->chunks() as $chunk) {
 
 ### STOP sequence
 ```php
-// Exemplo com stop sequence
+// Stop sequence example
 $chatCompletion = $groq->chat()->completions()->create([
     'model' => 'mixtral-8x7b-32768',
     'messages' => [
@@ -175,26 +180,25 @@ $chatCompletion = $groq->chat()->completions()->create([
 ]);
 
 echo $chatCompletion['choices'][0]['message']['content'];
+// 1, 2, 3, 4, 5, 6
 ```
 
 ### JSON mode
 ```php
-// Exemplo de modo JSON
-$recipe = new Recipe();
 $chatCompletion = $groq->chat()->completions()->create([
     'model' => 'mixtral-8x7b-32768',
     'messages' => [
         [
             'role' => 'system',
-            'content' => "You are a recipe database that outputs recipes in JSON.\n The JSON object must use the schema: " . json_encode($recipe->getJsonSchema(), JSON_PRETTY_PRINT),
+            'content' => "You are an API and shall responde only with valid JSON.",
         ],
         [
             'role' => 'user',
-            'content' => 'Fetch a recipe for apple pie',
+            'content' => 'Explain the importance of low latency LLMs',
         ],
     ],
-    'response_format' => ['type' => 'json_object'],
-], ['stream' => false]);
+    'response_format' => ['type' => 'json_object']
+  ]);
 
 $recipe = $recipe->fromJson($chatCompletion['choices'][0]['message']['content']);
 ```
@@ -210,5 +214,3 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 ## Requirements
 
 PHP >= 8.1
-
-

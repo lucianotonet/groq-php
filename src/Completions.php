@@ -57,11 +57,15 @@ class Completions
             $data
         );
 
-        if (isset($params['stream']) && $params['stream']) {
-            return $this->streamResponse($request);
-        } else {
-            $response = $this->groq->makeRequest($request);
-            return json_decode($response->getBody()->getContents(), true);
+        try {
+            if (isset($params['stream']) && $params['stream']) {
+                return $this->streamResponse($request);
+            } else {
+                $response = $this->groq->makeRequest($request);
+                return json_decode($response->getBody()->getContents(), true);
+            }
+        } catch (GuzzleException $e) {
+            throw new \RuntimeException('Erro ao fazer a solicitação: ' . $e->getMessage(), 0, $e);
         }
     }
 
@@ -76,9 +80,12 @@ class Completions
      */
     private function streamResponse(Request $request): Stream
     {
-        $client = new Client();
-        $response = $client->send($request, ['stream' => true]);
-
-        return new Stream($response);
+        try {
+            $client = new Client();
+            $response = $client->send($request, ['stream' => true]);
+            return new Stream($response);
+        } catch (GuzzleException $e) {
+            throw new \RuntimeException('Erro ao fazer a solicitação: ' . $e->getMessage(), 0, $e);
+        }
     }
 }

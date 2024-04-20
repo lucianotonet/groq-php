@@ -1,7 +1,6 @@
 /.phpunit.cache
 /.php-cs-fixer.cache
 /.php-cs-fixer.php
-/composer.lock
 /phpunit.xml
 /vendor/
 *.swp
@@ -9,5 +8,3 @@
 playground/*
 .idea
 .env
-/examples/.env
-/examples/vendor/

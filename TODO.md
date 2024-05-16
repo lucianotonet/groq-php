@@ -1,43 +1,63 @@
-# Tarefas Atuais e Próximos Passos para a Biblioteca PHP Groq
+### TODO
 
-## Progresso Atual
+Plano detalhado e organizado para o desenvolvimento e implementação das funcionalidades faltantes no pacote Groq PHP:
 
-- Implementação bem-sucedida do streaming
-  - Adição do parâmetro `stream`
-  - Atualização do método `create()`
-  - Criação da classe `Stream`
-  - Adição da lógica básica de processamento
+#### Implementar o endpoint de modelos
 
-- Adição dos testes unitários iniciais
+• Criar a classe Models
+• Implementar o método list()
+• Fazer a requisição GET para /openai/v1/models
+• Processar a resposta e retornar a lista de modelos
+• Adicionar testes unitários para a classe Models
 
-- Aplicação parcial das boas práticas
+#### Implementar o endpoint de transcrições de áudio
 
-## Próximos Passos
+• Criar a classe AudioTranscriptions
+• Implementar o método create()
+• Fazer a requisição POST para /openai/v1/audio/transcriptions
+• Lidar com o envio de arquivos de áudio no corpo da requisição
+• Processar a resposta e retornar a transcrição
+• Adicionar testes unitários para a classe AudioTranscriptions
 
-- Aprimorar os testes unitários
-  - Alcançar cobertura completa dos casos de uso
-  - Implementar mocks de respostas
-  - Realizar simulação de erros
+#### Implementar o endpoint de traduções de áudio
 
-- Aperfeiçoar o tratamento de erros
-  - Lidar com mais cenários
-  - Implementar logs e notificações
+• Criar a classe AudioTranslations
+• Implementar o método create()
+• Fazer a requisição POST para /openai/v1/audio/translations
+• Lidar com o envio de arquivos de áudio no corpo da requisição
+• Processar a resposta e retornar a tradução
+• Adicionar testes unitários para a classe AudioTranslations
 
-- Documentar o uso e exemplos
-  - Explorar a funcionalidade de streaming
-  - Criar um guia de início rápido
+#### Atualizar a documentação
 
-- Realizar a integração com o Laravel
-  - Em um projeto dedicado
+• Atualizar o arquivo README.md
+• Adicionar exemplos de uso para os novos endpoints
+• Descrever os novos endpoints e suas opções
+• Implementar testes unitários
 
-- Realizar análise de performance
-  - Identificar e otimizar possíveis gargalos
+#### Criar novos casos de teste no arquivo tests/GroqTest.php
 
-- Publicar no Packagist
-  - Automatizar o build e a publicação
+• Cobrir as novas funcionalidades implementadas
+• Implementar mocks de respostas e simulação de erros
+• Refatorar e aplicar boas práticas
 
-## Geral
+#### Revisar o código existente
 
-- O código fonte está disponível em https://github.com/lucianotonet/groq-php
-- Utilizar o Git flow
-- Solicitar feedback da comunidade
+• Aplicar princípios de boas práticas (SOLID, Clean Code)
+• Separar responsabilidades em classes e métodos menores
+• Implementar padrões de projeto (Injeção de Dependência, Adapter)
+
+#### Realizar análise de performance
+
+• Identificar e otimizar possíveis gargalos
+• Implementar técnicas de cache e otimização de requisições
+
+#### Publicar no Packagist
+
+• Atualizar a versão do pacote no arquivo composer.json
+• Automatizar o processo de build e publicação
+
+#### Solicitar feedback da comunidade
+
+• Compartilhar o pacote atualizado em fóruns e comunidades
+• Coletar feedback e sugestões para melhorias futuras

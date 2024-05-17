@@ -1,44 +1,19 @@
-## Version 0.0.4
+# Changelog
 
-### New Features
 
-* Examples of usage added to the examples directory.
+## Versão v0.0.4
+* 20/04/2024 - Add examples folder + some improvements: - Add support for response streaming and JSON mode. - Improve error handling with more descriptive errors. - Add usage examples. - Fix bugs related to streaming and JSON mode. - Update minimum PHP version. - Add unit tests.
+* 13/04/2024 - Fix: Cannot assign bool to property LucianoTonet\GroqPHP\Groq::$baseUrl of type string
+* 30/03/2024 - Update README
 
-### Improvements
+## Versão v0.0.3
+* 30/03/2024 - Add stream funcionality + some refactor
+* 30/03/2024 - Add stream funcionality + some refactor
+* 28/03/2024 - Add Changelog
 
-* Error handling improved with more descriptive error messages.
-* Support for response streaming.
-* Support for stop sequence in streaming.
-* Support for JSON mode.
+## Versão v0.0.2
+* 28/03/2024 - Add some examples and improvements.
+* 28/03/2024 - Add license file
 
-### Bug Fixes
-
-* Fixed an error that prevented response streaming.
-* Fixed an error that prevented the use of JSON mode.
-
-### Other Changes
-
-* Minimum PHP requirement updated to 8.1.
-* Unit tests added for new features and bug fixes.
-
-## Version 0.0.3
-
-### Fixes
-- Added stream functionality + some refactors
-
-## Version 0.0.2
-
-### Fixes
-- Fixed the error when passing the 'response_format' parameter along with 'tools', we encountered an error: "response_format` json_object cannot be combined with tool/function calling".
-
-### News
-- Introduced examples and other changes:
-  - Updated description in README.md
-  - Changed the model used in examples/chat.php
-  - Added a new file examples/function-calling.php
-  - Created a new file examples/index.php
-  - Updated the constructor in the Groq class in src/Groq.php
-
-## Version 0.0.1
-
-- First functional version.
+## Versão v0.0.1
+* 22/03/2024 - First commit

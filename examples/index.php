@@ -64,12 +64,12 @@ $models = new Models($groq);
         <h3 class="text-md font-bold">Models:</h3>
 
         <?php
-        $resposta = $models->list();
-        $listaModelos = json_decode($resposta->getBody(), true);
+        $response = $models->list();
+        $modelsList = json_decode($response->getBody(), true);
         ?>
         <ul class="gap-10">
-            <?php foreach ($listaModelos['data'] as $modelo): ?>
-                <li><?= $modelo['id'] ?> | <small class="text-xs"><?= $modelo['owned_by'] ?></small></li>
+            <?php foreach ($modelsList['data'] as $model): ?>
+                <li><?= $model['id'] ?> | <small class="text-xs"><?= $model['owned_by'] ?></small></li>
             <?php endforeach; ?>
         </ul>
     </div>

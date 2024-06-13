@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // First inference
     $response = $groq->chat()->completions()->create([
-        'model' => 'gemma-7b-it', //llama3-70b-8192, llama3-8b-8192, llama2-70b-4096, mixtral-8x7b-32768, gemma-7b-it
+        'model' => 'mixtral-8x7b-32768', //llama3-70b-8192, llama3-8b-8192, mixtral-8x7b-32768, gemma-7b-it
         'messages' => $messages,
         "temperature" => 0,
         "tool_choice" => "auto",
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Second inference
         $response = $groq->chat()->completions()->create([
-            'model' => 'gemma-7b-it',
+            'model' => 'mixtral-8x7b-32768',
             'messages' => $messages
         ]);
     }

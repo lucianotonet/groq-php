@@ -28,7 +28,7 @@ class GroqTest extends TestCase
     //     $groq = new Groq('[PUT YOUR KEY HERE]');
 
     //     $actualResponse = $groq->chat()->completions()->create([
-    //         'model' => 'llama2-70b-4096',
+    //         'model' => 'mixtral-8x7b-32768',
     //         'messages' => [
     //             [
     //                 'role' => 'user',

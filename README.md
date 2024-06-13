@@ -81,33 +81,6 @@ Error codes are as followed:
 | >=500       | `InternalServerError`      |
 | N/A         | `APIConnectionError`       |
 
-### Retries
-
-Certain errors will be automatically retried 2 times by default, with a short exponential backoff.
-Connection errors (for example, due to a network connectivity problem), 408 Request Timeout, 409 Conflict,
-429 Rate Limit, and >=500 Internal errors will all be retried by default.
-
-You can use the `maxRetries` option to configure or disable this:
-
-```php
-$groq->setOptions(['maxRetries' => 0]); // default is 2
-
-// Or, configure per-request:
-$groq->chat()->completions()->create([
-  'model' => 'mixtral-8x7b-32768',
-  'messages' => [
-    [
-      'role' => 'system',
-      'content' => 'You are a helpful assisstant.'
-    ],
-    [
-      'role' => 'user',
-      'content' => 'Explain the importance of low latency LLMs'
-    ]
-  ],
-], ['maxRetries' => 5]);
-```
-
 ### Timeouts
 
 Requests time out after 1 minute by default. You can configure this with a `timeout` option:

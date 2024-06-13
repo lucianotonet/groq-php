@@ -4,7 +4,7 @@ Funcionalidades planejadas para implementação:
 
 ### Groq API REST endpoints:
 
-#### Models Endpoint
+#### Models Endpoint ✅
 
 • GET /openai/v1/models
 • Retorna uma lista de todos os modelos ativos

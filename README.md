@@ -13,7 +13,7 @@ composer require lucianotonet/groq-php
 ## Usage
 
 ```php
-use LucianoTonet\Groq;
+use LucianoTonet\GroqPHP\Groq;
 
 $groq = new Groq(getenv('GROQ_API_KEY'));
 
@@ -41,7 +41,7 @@ or if the API returns a non-success status code (i.e., 4xx or 5xx response),
 a subclass of `APIError` will be thrown:
 
 ```php
-use LucianoTonet\Groq;
+use LucianoTonet\GroqPHP\Groq;
 
 $groq = new Groq(getenv('GROQ_API_KEY'));
 

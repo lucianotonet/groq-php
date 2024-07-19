@@ -24,54 +24,33 @@ $models = new Models($groq);
 
 <body class="w-full p-24 ">
 
-    <div class="container mx-auto max-w-screen-xl gap-10 prose flex flex-col
-    ">
+    <div class="container mx-auto max-w-screen-xl gap-12 prose flex">
 
-        <h3 class="text-md font-bold">Examples:</h3>
+        <div class="flex flex-col">
+            <h3 class="text-md font-bold">Examples:</h3>
 
-        <ul class="list-disc">
-            <li>
-                <a href="?page=chat">Chat example</a>
-            </li>
-            <li>
-                <a href="?page=chat-streaming">Chat stream example</a>
-            </li>
-            <li>
-                <a href="?page=json-mode">JSON mode example</a>
-            </li>
-            <li>
-                <a href="?page=tool-calling">Tool calling example</a>
-            </li>
-            <li>
-                <a href="?page=tool-calling-advanced">Tool calling advanced example</a>
-            </li>
-        </ul>
-
-        <div id="content" class="prose">
+            <ul class="list-disc">
+                <li><a class="focus:font-bold" href="?page=models">List Models</a></li>
+                <li><a class="focus:font-bold" href="?page=chat">Chat</a></li>
+                <li><a class="focus:font-bold" href="?page=chat-streaming">Chat stream</a></li>
+                <li><a class="focus:font-bold" href="?page=json-mode">JSON mode</a></li>
+                <li><a class="focus:font-bold" href="?page=tool-calling">Tool calling</a></li>
+                <li><a class="focus:font-bold" href="?page=tool-calling-advanced">Tool calling advanced</a></li>
+                <li><a class="focus:font-bold" href="?page=audio-transcriptions">Speech to Text Transcription</a></li>
+                <li><a class="focus:font-bold" href="?page=audio-translations">Speech to Text Translation</a></li>
+            </ul>
+        </div>
+        <div id="content" class="flex flex-1 gap-12">
 
             <?php
             if (isset($_GET['page'])) {
                 require __DIR__ . '/' . $_GET['page'] . '.php';
             } else {
-                echo "Select an example ☝🏼";
+                echo "← Select an example";
             }
             ?>
 
         </div>
-
-        <hr>
-
-        <h3 class="text-md font-bold">Models:</h3>
-
-        <?php
-        $response = $models->list();
-        $modelsList = json_decode($response->getBody(), true);
-        ?>
-        <ul class="gap-10">
-            <?php foreach ($modelsList['data'] as $model): ?>
-                <li><?= $model['id'] ?> | <small class="text-xs"><?= $model['owned_by'] ?></small></li>
-            <?php endforeach; ?>
-        </ul>
     </div>
 
 </body>

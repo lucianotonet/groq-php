@@ -1,7 +1,7 @@
 {
     "name": "lucianotonet/groq-php",
     "description": "PHP library to provide access to the Groq REST API",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "type": "package",
     "require": {
         "php": "^8.1.0",

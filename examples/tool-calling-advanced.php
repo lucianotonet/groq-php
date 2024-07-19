@@ -4,7 +4,7 @@ require __DIR__ . '/_input.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = $_POST['message'];
 
-    echo "<strong>user :</strong> $message <br>";
+    echo "<strong>user :</strong><br>$message<br>";
 
     /** Example "Calendar" tool */
     function calendar_tool($parameters = [])

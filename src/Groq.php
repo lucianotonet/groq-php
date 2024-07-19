@@ -45,6 +45,14 @@ class Groq
     {
         return new Chat($this);
     }
+
+    /**
+     * @return Audio
+     */
+    public function audio(): Audio
+    {
+        return new Audio($this);
+    }
     
     /**
      * This PHP function takes a Request object as a parameter and uses a Client object to send the

@@ -22,12 +22,11 @@ class Groq
      * @param string $apiKey
      * @param array $options
      */
-    public function __construct(string $apiKey = null, array $options = [])
+    public function __construct(?string $apiKey = null, array $options = [])
     {
-        $this->apiKey = $apiKey ?? getenv('GROQ_API_KEY');
+        $this->apiKey  = $apiKey ?? $_ENV['GROQ_API_KEY'] ?? null;
         $this->options = $options;
-        $baseUrl = getenv('GROQ_API_BASE') ?: 'https://api.groq.com/openai/v1';
-        $this->baseUrl = $options['baseUrl'] ?? $baseUrl;
+        $this->baseUrl = $options['baseUrl'] ?? $_ENV['GROQ_API_BASE'] ?? 'https://api.groq.com/openai/v1';
     }
 
     /**

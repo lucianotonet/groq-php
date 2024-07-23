@@ -29,7 +29,7 @@ class Stream
         }
 
         if ($this->response->getStatusCode() >= 400) {
-            throw new \RuntimeException('Error response received');
+            throw new GroqException('Error response received', $this->response->getStatusCode(), 'ResponseError');
         }
 
         $body = $this->response->getBody();
@@ -51,21 +51,13 @@ class Stream
                 $response = json_decode($data, true, flags: JSON_THROW_ON_ERROR);
 
                 if (isset($response['error'])) {
-                    throw new \ErrorException($response['error']);
+                    throw new GroqException($response['error'], 0, 'ResponseError');
                 }
-
-                // print_r($response['id']);
-                // print_r($response['object']);
-                // print_r($response['model']);
-                // print_r($response['system_fingerprint']);
-                // print_r($response['choices'][0]['index']);
-                // print_r($response['choices'][0]['delta']);
 
                 yield $response;
             }
         } catch (\Throwable $e) {
-            // Log or rethrow exception
-            error_log($e->getMessage());
+            throw new GroqException('Error processing chunks: ' . $e->getMessage(), $e->getCode(), 'ChunksProcessingException');
         } finally {
             $body->close();
         }

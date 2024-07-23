@@ -60,7 +60,7 @@ class Transcriptions
 
             return $this->handleResponse($response, $params['response_format'] ?? 'json');
         } catch (GuzzleException $e) {            
-            throw new \RuntimeException('Erro ao realizar a solicitação: ' . $e->getMessage(), 0, $e);
+            throw new GroqException('Erro ao realizar a solicitação: ' . $e->getMessage(), $e->getCode(), 'RequestError');
         }
     }
 
@@ -147,7 +147,7 @@ class Transcriptions
         $data = json_decode($body, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('Erro ao decodificar a resposta JSON: ' . json_last_error_msg());
+            throw new GroqException('Erro ao decodificar a resposta JSON: ' . json_last_error_msg(), 0, 'JsonDecodeError');
         }
 
         return $data;
@@ -165,7 +165,7 @@ class Transcriptions
             $response = $client->send($request, array_merge($options, ['stream' => true]));
             return new Stream($response);
         } catch (GuzzleException $e) {
-            throw new \RuntimeException('Erro ao realizar a solicitação: ' . $e->getMessage(), 0, $e);
+            throw new GroqException('Erro ao realizar a solicitação: ' . $e->getMessage(), $e->getCode(), 'RequestError');
         }
     }
 }

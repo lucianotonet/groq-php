@@ -5,7 +5,6 @@
     <label for="language" class="text-sm mt-4">Idioma:</label>
     <select id="language" class="border border-transparent p-2 w-96" readonly disabled>
         <option value="en" selected>en - English</option>
-        <!-- Adicione outros idiomas conforme necessário -->
     </select>
 
     <label for="response_format" class="text-sm mt-4">Formato da Resposta:</label>
@@ -26,25 +25,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $originalFileName = $_FILES['audio']['name'];
     $tmpFilePath = $_FILES['audio']['tmp_name'];
     $newFilePath = sys_get_temp_dir() . '/' . $originalFileName;
-    move_uploaded_file($tmpFilePath, $newFilePath);
 
-    $translationParams = [
-        'file' => $newFilePath,
-        'model' => 'whisper-large-v3',
-        'response_format' => $_POST['response_format'] ?? 'json',
-        'temperature' => $_POST['temperature'] ?? 0.0,
-    ];
+    try {
+        move_uploaded_file($tmpFilePath, $newFilePath);
 
-    if (isset($_POST['prompt'])) {
-        $translationParams['prompt'] = $_POST['prompt'];
+        $translationParams = [
+            'file' => $newFilePath,
+            'model' => 'whisper-large-v3',
+            'response_format' => $_POST['response_format'] ?? 'json',
+            'temperature' => $_POST['temperature'] ?? 0.0,
+        ];
+
+        if (isset($_POST['prompt'])) {
+            $translationParams['prompt'] = $_POST['prompt'];
+        }
+
+        $translation = $groq->audio()->translations()->create($translationParams);
+
+        if ($translationParams['response_format'] === 'text') {
+            echo $translation; // Retorna a resposta em texto diretamente
+        } else {
+            echo json_encode($translation, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); // Retorna a resposta em JSON
+        }
+    } catch (LucianoTonet\GroqPHP\GroqException $e) {
+        echo "<strong>Error:</strong> <br><pre>" . htmlspecialchars($e->getMessage()) . "</pre>";
+    } finally {
+        if (file_exists($newFilePath)) {
+            unlink($newFilePath);
+        }
     }
-
-    $translation = $groq->audio()->translations()->create($translationParams);
-
-    if ($translationParams['response_format'] === 'text') {
-        echo $translation; // Retorna a resposta em texto diretamente
-    } else {
-        echo json_encode($translation, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); // Retorna a resposta em JSON
-    }
-    unlink($newFilePath);
 }

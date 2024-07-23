@@ -26,16 +26,16 @@ class Translations
     }
 
     /**
-     * Uso da Tradução
-     * Este método traduz palavras faladas em arquivos de áudio ou vídeo para o idioma especificado.
+     * Translation Usage
+     * This method translates spoken words in audio or video files to the specified language.
      *
-     * Parâmetros Opcionais:
-     * - prompt: Fornece contexto ou especifica a ortografia de palavras desconhecidas.
-     * - response_format: Define o formato da resposta. O padrão é "json".
-     *   Use "verbose_json" para receber timestamps para segmentos de áudio.
-     *   Use "text" para retornar uma resposta em texto.
-     *   Formatos vtt e srt não são suportados.
-     * - temperature: Especifica um valor entre 0 e 1 para controlar a variabilidade da saída da tradução.
+     * Optional Parameters:
+     * - prompt: Provides context or specifies the spelling of unknown words.
+     * - response_format: Defines the format of the response. The default is "json".
+     *   Use "verbose_json" to receive timestamps for audio segments.
+     *   Use "text" to return a text response.
+     *   vtt and srt formats are not supported.
+     * - temperature: Specifies a value between 0 and 1 to control the variability of the translation output.
      *
      * @param array $params
      * @return array|string|Stream
@@ -57,12 +57,12 @@ class Translations
 
             return $this->handleResponse($response, $params['response_format'] ?? 'json');
         } catch (GuzzleException $e) {
-            throw new \RuntimeException('Erro ao realizar a solicitação: ' . $e->getMessage(), 0, $e);
+            throw new GroqException('Error performing the request: ' . $e->getMessage(), $e->getCode(), 'RequestError');
         }
     }
 
     /**
-     * Valida os parâmetros de entrada.
+     * Validates the input parameters.
      *
      * @param array $params
      * @throws \InvalidArgumentException
@@ -70,15 +70,15 @@ class Translations
     private function validateParams(array $params): void
     {
         if (empty($params['file'])) {
-            throw new \InvalidArgumentException('O parâmetro "file" é obrigatório.');
+            throw new \InvalidArgumentException('The "file" parameter is required.');
         }
         if (!file_exists($params['file'])) {
-            throw new \InvalidArgumentException('O arquivo especificado não existe.');
+            throw new \InvalidArgumentException('The specified file does not exist.');
         }
     }
 
     /**
-     * Constrói a estrutura multipart para a requisição.
+     * Builds the multipart structure for the request.
      *
      * @param array $params
      * @return array
@@ -118,7 +118,7 @@ class Translations
     }
 
     /**
-     * Manipula a resposta da requisição.
+     * Handles the response of the request.
      *
      * @param ResponseInterface $response
      * @param string $responseFormat
@@ -129,13 +129,13 @@ class Translations
         $body = $response->getBody()->getContents();
         
         if ($responseFormat === 'text') {
-            return $body; // Retorna o corpo da resposta diretamente
+            return $body; // Returns the body of the response directly
         }
 
         $data = json_decode($body, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('Erro ao decodificar a resposta JSON: ' . json_last_error_msg());
+            throw new GroqException('Error decoding the JSON response: ' . json_last_error_msg(), 0, 'JsonDecodeError');
         }
 
         return $data;
@@ -153,7 +153,7 @@ class Translations
             $response = $client->send($request, array_merge($options, ['stream' => true]));
             return new Stream($response);
         } catch (GuzzleException $e) {
-            throw new \RuntimeException('Erro ao realizar a solicitação: ' . $e->getMessage(), 0, $e);
+            throw new GroqException('Error performing the request: ' . $e->getMessage(), $e->getCode(), 'RequestError');
         }
     }
 }

@@ -56,36 +56,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $originalFileName = $_FILES['audio']['name'];
     $tmpFilePath = $_FILES['audio']['tmp_name'];
     $newFilePath = sys_get_temp_dir() . '/' . $originalFileName;
-    move_uploaded_file($tmpFilePath, $newFilePath);
-
-    $transcriptionParams = [
-        'file' => $newFilePath,
-        'model' => 'whisper-large-v3',
-        'response_format' => $_POST['response_format'] ?? 'json',
-        'temperature' => $_POST['temperature'] ?? 0.0,
-    ];
-
-    if (isset($_POST['language'])) {
-        $transcriptionParams['language'] = $_POST['language'] ?? 'en';
-    }
-
-    if (isset($_POST['prompt'])) {
-        $transcriptionParams['prompt'] = $_POST['prompt'];
-    }
-
-    $transcription = $groq->audio()->transcriptions()->create($transcriptionParams);
     
-    if ($_POST['response_format'] === 'verbose_json') {
-        // Aqui você pode processar a transcrição para incluir timestamps, se necessário
-        echo json_encode($transcription, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-    } elseif ($_POST['response_format'] === 'text') {
-        // Retorna apenas o texto da transcrição
-        echo $transcription['text'] ?? '';
-    } else {
-        // Formato padrão é json
-        echo json_encode($transcription, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    try {
+        move_uploaded_file($tmpFilePath, $newFilePath);
+
+        $transcriptionParams = [
+            'file' => $newFilePath,
+            'model' => 'whisper-large-v3',
+            'response_format' => $_POST['response_format'] ?? 'json',
+            'temperature' => $_POST['temperature'] ?? 0.0,
+        ];
+
+        if (isset($_POST['language'])) {
+            $transcriptionParams['language'] = $_POST['language'] ?? 'en';
+        }
+
+        if (isset($_POST['prompt'])) {
+            $transcriptionParams['prompt'] = $_POST['prompt'];
+        }
+
+        $transcription = $groq->audio()->transcriptions()->create($transcriptionParams);
+        
+        if ($_POST['response_format'] === 'verbose_json') {
+            // Aqui você pode processar a transcrição para incluir timestamps, se necessário
+            echo json_encode($transcription, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        } elseif ($_POST['response_format'] === 'text') {
+            // Retorna apenas o texto da transcrição
+            echo $transcription['text'] ?? '';
+        } else {
+            // Formato padrão é json
+            echo json_encode($transcription, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        }
+    } catch (LucianoTonet\GroqPHP\GroqException $e) {
+        echo "<strong>Error:</strong> <br><pre>" . htmlspecialchars($e->getMessage()) . "</pre>";
+    } finally {
+        if (file_exists($newFilePath)) {
+            unlink($newFilePath);
+        }
     }
-    unlink($newFilePath);
 }
 ?>
 </pre>

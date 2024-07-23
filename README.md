@@ -202,9 +202,11 @@ $translation = $groq->audio()->translations()->create([
 echo json_encode($translation, JSON_PRETTY_PRINT);
 ```
 
-## Error Handling 🚩🚧
+## Error Handling
 
 ```php
+use LucianoTonet\GroqPHP\GroqException;
+
 try {
     $response = $groq->chat()->completions()->create([
         'model' => 'mixtral-8x7b-32768',
@@ -215,10 +217,12 @@ try {
             ]
         ]
     ]);
-} catch (Groq\APIError $err) {
-    echo $err->status;  // e.g., 400
-    echo $err->name;    // e.g., BadRequestError
-    echo $err->headers; // ['server' => 'nginx', ...]
+} catch (GroqException $err) {
+    echo "<strong>Error code:</strong> " . $err->getCode() . "<br>"; // e.g., 400
+    echo "<strong>Menssage:</strong> " . $err->getMessage() . "<br>";    // Descrição detalhada do erro
+    echo "<strong>Type:</strong> " . $err->getType() . "<br>";           // e.g., invalid_request_error
+    echo "<strong>Headers:</strong><br>"; 
+    print_r($err->getHeaders()); // ['server' => 'nginx', ...]
 }
 ```
 

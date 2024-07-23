@@ -4,34 +4,34 @@ Funcionalidades planejadas para implementação:
 
 ### Groq API REST endpoints:
 
-#### Models Endpoint ✅
+#### ✅ Models Endpoint 
 
 - GET /openai/v1/models
 - Retorna uma lista de todos os modelos ativos
 - Exemplo: curl https://api.groq.com/openai/v1/models
 
-#### Chat Completion Endpoint ✅
+#### ✅ Chat Completion Endpoint 
 
 - POST /openai/v1/chat/completions
 - Realiza uma conclusão de chat
 - Corpo da Requisição: Objeto JSON com os campos prompt e model
 - Exemplo: curl -X POST -H "Content-Type: application/json" -d '{"prompt": "Hello", "model": "llama3-8b-8192"}' https://api.groq.com/openai/v1/chat/completions
 
-#### Transcriptions Endpoint ✅
+#### ✅ Transcriptions Endpoint 
 
 - POST /openai/v1/audio/transcriptions
 - Transcreve arquivos de áudio para texto
 - Corpo da Requisição: multipart/form-data com os campos file e model
 - Exemplo: curl -X POST -F "file=@sample_audio.m4a" -F "model=whisper-large-v3" https://api.groq.com/openai/v1/audio/transcriptions
 
-#### Translations Endpoint ✅
+#### ✅ Translations Endpoint 
 
 - POST /openai/v1/audio/translations
 - Traduz o conteúdo falado em um arquivo de áudio para o inglês
 - Corpo da Requisição: multipart/form-data com os campos file e model
 - Exemplo: curl -X POST -F "file=@sample_audio.m4a" -F "model=whisper-large-v3" https://api.groq.com/openai/v1/audio/translations
 
-#### Tratamento de Erros 🚩🚧
+#### 🚧 Tratamento de Erros 
 
 - A API utiliza códigos de status de resposta HTTP padrão para indicar o sucesso ou falha de uma solicitação à API.
 - Em casos de erros, o corpo da resposta conterá um objeto JSON com detalhes sobre o erro.

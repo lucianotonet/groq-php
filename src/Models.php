@@ -23,6 +23,7 @@ class Models
 
     /**
      * @return array
+     * @throws GroqException
      */
     public function list(): array
     {
@@ -30,7 +31,11 @@ class Models
             'Authorization' => 'Bearer ' . $this->groq->apiKey()
         ]);
 
-        $response = $this->groq->makeRequest($request);
-        return json_decode($response->getBody()->getContents(), true);
+        try {
+            $response = $this->groq->makeRequest($request);
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (\Exception $e) {
+            throw new GroqException('Error while listing models: ' . $e->getMessage(), $e->getCode(), 'ListModelsException', []);
+        }
     }
 }

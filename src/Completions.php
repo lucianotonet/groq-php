@@ -26,18 +26,17 @@ class Completions
 
     
     /**
-     * The function `create` sends a POST request to a specific endpoint with JSON data and returns
-     * either an array or a Stream based on the input parameters.
+     * The `create` function sends a POST request to a specific endpoint with JSON data and returns
+     * an array or a Stream based on the input parameters.
      * 
-     * @param array params The `create` function you provided seems to be a method that handles the
-     * creation of a resource, possibly related to chat completions. It takes an array of parameters as
-     * input and based on the conditions provided in the code, it either returns an array or a Stream
-     * object.
+     * @param array $params The `create` function handles the creation of a resource, possibly related
+     * to chat completions. It accepts an array of parameters as input and, based on the conditions
+     * provided in the code, returns an array or a Stream object.
      * 
-     * @return array|Stream The `create` function returns either an array or a Stream object. If the
-     * `stream` parameter is set to true in the input ``, then the function returns a Stream
-     * object using the `streamResponse` method. Otherwise, it makes a request using the `makeRequest`
-     * method and returns the decoded JSON response as an array.
+     * @return array|Stream The `create` function returns an array or a Stream object. If the `stream`
+     * parameter is set to true in the input parameters, the function returns a Stream object using the
+     * `streamResponse` method. Otherwise, it makes a request using the `makeRequest` method and returns
+     * the JSON-decoded response as an array.
      */
     public function create(array $params): array|Stream
     {
@@ -64,17 +63,17 @@ class Completions
                 $response = $this->groq->makeRequest($request);
                 return json_decode($response->getBody()->getContents(), true);
             }
-        } catch (GuzzleException $e) {
-            throw new \RuntimeException('Erro ao fazer a solicitação: ' . $e->getMessage(), 0, $e);
+        } catch (\Exception $e) {
+            throw new GroqException('Unexpected error: ' . $e->getMessage(), $e->getCode(), 'UnexpectedException', []);
         }
     }
 
     /**
-     * This PHP function streams a response from a client request using the Guzzle HTTP client library.
+     * This PHP function streams a response from a client request using the Guzzle HTTP library.
      * 
-     * @param Request request The `Request` parameter in the `streamResponse` function is likely an object
-     * representing an HTTP request. It contains information such as the request method, headers, body, and
-     * other details needed to make an HTTP request.
+     * @param Request $request The `Request` parameter in the `streamResponse` function is an object
+     * representing an HTTP request. It contains information such as the request method, headers,
+     * body, and other details necessary to make an HTTP request.
      * 
      * @return Stream An instance of the Stream class is being returned.
      */
@@ -84,8 +83,8 @@ class Completions
             $client = new Client();
             $response = $client->send($request, ['stream' => true]);
             return new Stream($response);
-        } catch (GuzzleException $e) {
-            throw new \RuntimeException('Erro ao fazer a solicitação: ' . $e->getMessage(), 0, $e);
+        } catch (\Exception $e) {
+            throw new GroqException('Unexpected error while streaming the response: ' . $e->getMessage(), $e->getCode(), 'UnexpectedException', []);
         }
     }
 }

@@ -1,3 +1,4 @@
+<div>
 <?php
 require __DIR__ . '/_input.php';
 
@@ -85,12 +86,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]
     ];
 
-    $response = $groq->chat()->completions()->create([
-        'model' => 'mixtral-8x7b-32768', // mixtral-8x7b-32768, gemma-7b-it
-        'messages' => $messages,
-        "tool_choice" => "auto",
-        "tools" => $tools
-    ]);
+    try {
+        $response = $groq->chat()->completions()->create([
+            'model' => 'llama3-groq-70b-8192-tool-use-preview',
+            // 'model' => 'mixtral-8x7b-32768', // mixtral-8x7b-32768, gemma-7b-it
+            'messages' => $messages,
+            "tool_choice" => "auto",
+            "tools" => $tools
+        ]);
+    } catch (\LucianoTonet\GroqPHP\GroqException $err) {
+        echo $err->getCode() . "<br>" . $err->getMessage() . "<br>" . $err->getType() . "<br>";
+        print_r($err->getHeaders());
+        echo "<strong>assistant:</strong><br>Desculpe, não consegui entender sua solicitação. Tente novamente.<br>";
+        exit;
+    }
 
     echo "<strong>assistant:</strong> " . "<br>";
 
@@ -115,10 +124,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        $response = $groq->chat()->completions()->create([
-            'model' => 'mixtral-8x7b-32768',
-            'messages' => $messages
-        ]);
+        try {
+            $response = $groq->chat()->completions()->create([
+                'model' => 'llama3-groq-70b-8192-tool-use-preview',
+                // 'model' => 'mixtral-8x7b-32768',
+                'messages' => $messages
+            ]);
+        } catch (\LucianoTonet\GroqPHP\GroqException $err) {
+            echo $err->getCode() . "<br>" . $err->getMessage() . "<br>" . $err->getType() . "<br>";
+            print_r($err->getHeaders());
+            echo "<strong>assistant:</strong><br>Desculpe, não consegui entender sua solicitação. Tente novamente.<br>";
+            exit;
+        }
     }
 
     echo "<strong>" . $response['choices'][0]['message']['role'] . ":</strong> " . "<br>";
@@ -126,3 +143,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
     echo "<small>Ask about NBA game scores.<br/>Results will be mocked for demo purposes.</small><br><br>";
 }
+?>
+</div>

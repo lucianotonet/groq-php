@@ -1,31 +1,28 @@
+<div>
 <?php
 require __DIR__ . '/_input.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = $_POST['message'];
+    echo "<strong>user:</strong><br>$message<br>";
 
-    echo "<strong>user :</strong><br>$message<br>";
-
-    /** Example "Calendar" tool */
-    function calendar_tool($parameters = [])
+    function getCurrentDateTimeTool(array $parameters = []): string
     {
-        $format = $parameters['format'] ?: 'h:i:s';
-        return date($format);
+        $time_zone = $parameters['time_zone'] ?? 'UTC';
+        date_default_timezone_set($time_zone);
+        return date('Y-m-d H:i:s') . " ($time_zone)";
     }
 
-    /** Example “Weather” tool */
-    function weather_tool($parameters = [])
+    function getCurrentWeatherTool(array $parameters = []): string
     {
-        $location = isset($parameters['location']) ? $parameters['location'] : 'New York';
-        // get weather data from API and return. Faking for demo purposes...
-        $weather = '30°C, sunny in ' . $location;
-        return $weather;
+        $location = $parameters['location'] ?? 'New York';
+        return '30°C, sunny in ' . $location; // Simulation of weather data
     }
 
     $messages = [
         [
             'role' => 'system',
-            'content' => 'You are a helpful AI assistant. Answer always in a concise way. You shall execute any of "calendar_tool" or "weather_tool" functions to ensure you can respond to the user correctly.'
+            'content' => 'You are a helpful AI assistant. Always answer in a concise manner. Execute the functions "getCurrentDateTimeTool" or "getCurrentWeatherTool" to answer the user correctly, if needed.'
         ],
         [
             'role' => 'user',
@@ -37,32 +34,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         [
             "type" => "function",
             "function" => [
-                "name" => "calendar_tool",
-                "description" => "Use this function to get the current time in the h:i:s format, or d-m-Y, or any other format supported by the PHP date() function.",
+                "name" => "getCurrentDateTimeTool",
+                "description" => "Get the current time in any format supported by PHP's date() function, considering the time zone.",
                 "parameters" => [
                     "type" => "object",
                     "properties" => [
-                        "format" => [
+                        "time_zone" => [
                             "type" => "string",
-                            "description" => "The format of the time to return. Valid options are any format supported by the PHP date() function."
+                            "description" => "Time zone for which to get the time."
                         ],
                     ],
-                    "required" => ["format"],
-                    "default" => ["format" => "d-m-Y"]
+                    "required" => ["time_zone"],
+                    "default" => ["time_zone" => "UTC"]
                 ],
             ]
         ],
         [
             "type" => "function",
             "function" => [
-                "name" => "weather_tool",
-                "description" => "Use this function to get the current weather in a specific location.",
+                "name" => "getCurrentWeatherTool",
+                "description" => "Get the current weather in a specific location.",
                 "parameters" => [
                     "type" => "object",
                     "properties" => [
                         "location" => [
                             "type" => "string",
-                            "description" => "The location for which to get the weather."
+                            "description" => "Location for which to get the weather."
                         ],
                     ],
                     "required" => ["location"],
@@ -72,28 +69,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]
     ];
 
-    // First inference
-    $response = $groq->chat()->completions()->create([
-        'model' => 'mixtral-8x7b-32768', //llama3-70b-8192, llama3-8b-8192, mixtral-8x7b-32768, gemma-7b-it
-        'messages' => $messages,
-        "temperature" => 0,
-        "tool_choice" => "auto",
-        "tools" => $tools
-    ]);
+    try {
+        $response = $groq->chat()->completions()->create([
+            'model' => 'llama3-groq-70b-8192-tool-use-preview',
+            'messages' => $messages,
+            "temperature" => 0,
+            "tool_choice" => "auto",
+            "tools" => $tools
+        ]);
+    } catch (\LucianoTonet\GroqPHP\GroqException $err) {
+        echo $err->getCode() . "<br>" . $err->getMessage() . "<br>" . $err->getType() . "<br>";
+        print_r($err->getHeaders());
+        echo "<strong>assistant:</strong><br>Sorry, I couldn't understand your request. Please try again.<br>";
+        exit;
+    }
 
-    echo "<strong>assistant:</strong> " . "<br>";
+    echo "<strong>" . $response['choices'][0]['message']['role'] . ":</strong><br>";
 
-    if (isset($response['choices'][0]['message']['tool_calls'])) {
-        $tool_calls = $response['choices'][0]['message']['tool_calls'];
-        foreach ($tool_calls as $tool_call) {
+    if (!empty($response['choices'][0]['message']['tool_calls'])) {
+        foreach ($response['choices'][0]['message']['tool_calls'] as $tool_call) {
             if ($tool_call['function']['name']) {
                 $function_args = json_decode($tool_call['function']['arguments'], true);
-
-                echo "<i>> Calling tool...</i>" . "<br>";
-
-                $function_response = $tool_call['function']['name']($function_args); // <- call the function
-
-                echo "<i>> Building response...</i>" . "<br>";
+                echo "<i>> Calling tool...</i><br>";
+                $function_response = $tool_call['function']['name']($function_args);
+                echo "<i>> Building response...</i><br>";
 
                 $messages[] = [
                     'tool_call_id' => $tool_call['id'],
@@ -104,15 +103,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Second inference
-        $response = $groq->chat()->completions()->create([
-            'model' => 'mixtral-8x7b-32768',
-            'messages' => $messages
-        ]);
+        try {
+            $response = $groq->chat()->completions()->create([
+                'model' => 'llama3-groq-70b-8192-tool-use-preview',
+                // 'model' => 'mixtral-8x7b-32768',
+                'messages' => $messages
+            ]);
+        } catch (\LucianoTonet\GroqPHP\GroqException $err) {
+            echo $err->getCode() . "<br>" . $err->getMessage() . "<br>" . $err->getType() . "<br>";
+            print_r($err->getHeaders());
+            echo "<strong>assistant:</strong><br>Sorry, I couldn't understand your request. Please try again.<br>";
+            exit;
+        }
     }
 
-    echo "<strong>" . $response['choices'][0]['message']['role'] . ":</strong> " . "<br>";
     echo $response['choices'][0]['message']['content'] . "<br>";
 } else {
-    echo "<small>Ask things like \"What's the time?\" or \"What's the weather in London?\".<br/>Results will be mocked for demo purposes.</small><br><br>";
+    echo "<small>Ask questions like \"What time is it in UTC-3?\" or \"How is the weather in London?\".<br/>Results will be simulated for demonstration purposes.</small><br><br>";
 }
+?>
+</div>

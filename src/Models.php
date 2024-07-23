@@ -3,7 +3,6 @@
 namespace LucianoTonet\GroqPHP;
 
 use GuzzleHttp\Psr7\Request;
-use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class Models
@@ -13,17 +12,25 @@ class Models
 {
     private Groq $groq;
 
+    /**
+     * Models constructor.
+     * @param Groq $groq
+     */
     public function __construct(Groq $groq)
     {
         $this->groq = $groq;
     }
 
-    public function list(): ResponseInterface
+    /**
+     * @return array
+     */
+    public function list(): array
     {
         $request = new Request('GET', $this->groq->baseUrl() . '/models', [
             'Authorization' => 'Bearer ' . $this->groq->apiKey()
         ]);
 
-        return $this->groq->makeRequest($request);
+        $response = $this->groq->makeRequest($request);
+        return json_decode($response->getBody()->getContents(), true);
     }
 }

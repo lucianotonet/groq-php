@@ -2,13 +2,11 @@
 require __DIR__ . '/vendor/autoload.php';
 
 use LucianoTonet\GroqPHP\Groq;
-use LucianoTonet\GroqPHP\Models;
 
 $dotenv = Dotenv\Dotenv::createUnsafeImmutable(__DIR__);
 $dotenv->load();
 
-$groq = new Groq(getenv('GROQ_API_KEY'));
-$models = new Models($groq);
+$groq = new Groq();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,8 +38,8 @@ $models = new Models($groq);
                 <li><a class="focus:font-bold" href="?page=audio-translations">Speech to Text Translation</a></li>
             </ul>
         </div>
+        
         <div id="content" class="flex flex-1 gap-12">
-
             <?php
             if (isset($_GET['page'])) {
                 require __DIR__ . '/' . $_GET['page'] . '.php';
@@ -49,8 +47,8 @@ $models = new Models($groq);
                 echo "← Select an example";
             }
             ?>
-
         </div>
+
     </div>
 
 </body>

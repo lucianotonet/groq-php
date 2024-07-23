@@ -52,6 +52,14 @@ class Groq
     {
         return new Audio($this);
     }
+
+    /**
+     * @return Models
+     */
+    public function models(): Models
+    {
+        return new Models($this);
+    }
     
     /**
      * This PHP function takes a Request object as a parameter and uses a Client object to send the

@@ -2,6 +2,9 @@
 
 
  *🚧 Next Relesase*
+* [23/07/2024](https://github.com/lucianotonet/groq-php/commits/4dd948bf543e084c003a5a574182012409105ac7) Test: Validate API key and integrate model listing
+* [23/07/2024](https://github.com/lucianotonet/groq-php/commits/0692c0be5be92570b953918a7704dab5154866d1) Refactor: Enhance Error Handling and Improve Code Quality
+* [23/07/2024](https://github.com/lucianotonet/groq-php/commits/0a063da770ba4764625de376338db1689c58316b) docs: Update Changelog
 * [23/07/2024](https://github.com/lucianotonet/groq-php/commits/0f4c5f021f701e3c9ffaf00283467f98ccf5872d) feat: Add list models feature
 * [23/07/2024](https://github.com/lucianotonet/groq-php/commits/dca5448832b32fd065b73f1591606aa44374db2d) chore: Update to use $_ENV instead of getenv() for improved reliability
 * [23/07/2024](https://github.com/lucianotonet/groq-php/commits/3b585af351edf39897389ed4491b53d5e22ca092) chore: Change GROQ_API_BASE_URL env var to GROQ_API_BASE

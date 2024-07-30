@@ -1,6 +1,8 @@
 # Groq PHP
 
-[![PHP version](https://img.shields.io/packagist/dependency-v/lucianotonet/groq-php/php)](https://packagist.org/packages/lucianotonet/groq-php)
+[![Version](https://img.shields.io/github/v/release/lucianotonet/groq-php)](https://packagist.org/release/lucianotonet/groq-php)
+[![Total Downloads](https://img.shields.io/packagist/dt/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
+[![License](https://img.shields.io/packagist/l/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
 
 PHP library to access the [Groq REST API](https://console.groq.com/docs).
 
@@ -260,4 +262,4 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 ## Requirements
 
-PHP >= 8.1
+[![PHP version](https://img.shields.io/packagist/dependency-v/lucianotonet/groq-php/php)](https://packagist.org/packages/lucianotonet/groq-php)

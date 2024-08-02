@@ -2,6 +2,8 @@
 
 
  *🚧 Next Relesase*
+* [02/08/2024](https://github.com/lucianotonet/groq-php/commits/bc86d82a4c64be6d7118101b49fa3e5fe5779870) feat: Update examples
+* [02/08/2024](https://github.com/lucianotonet/groq-php/commits/2a118e3cdbe1ef8305a942c1ca7be2441fb48faf) feat: Enhance error handling and improve API response management
 * [30/07/2024](https://github.com/lucianotonet/groq-php/commits/220d8e9b84c95a7dc2ceec9afcc65600df86d292) chore: Update badges in README.md
 
 ## v0.0.7

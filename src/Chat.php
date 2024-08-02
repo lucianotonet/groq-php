@@ -2,12 +2,6 @@
 
 namespace LucianoTonet\GroqPHP;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Psr7\Request;
-use Psr\Http\Message\ResponseInterface;
-
-
 /**
  * Class Chat
  * @package LucianoTonet\GroqPHP
@@ -15,10 +9,6 @@ use Psr\Http\Message\ResponseInterface;
 class Chat
 {
     private Groq $groq;
-
-
-
-    
 
     /**
      * Chat constructor.

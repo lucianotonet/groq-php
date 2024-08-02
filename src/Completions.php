@@ -4,8 +4,9 @@ namespace LucianoTonet\GroqPHP;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
-use Psr\Http\Message\ResponseInterface;
+use LucianoTonet\GroqPHP\GroqException;
 
 /**
  * Class Completions
@@ -24,7 +25,7 @@ class Completions
         $this->groq = $groq;
     }
 
-    
+
     /**
      * The `create` function sends a POST request to a specific endpoint with JSON data and returns
      * an array or a Stream based on the input parameters.
@@ -43,9 +44,7 @@ class Completions
         if (isset($params['response_format']) && isset($params['tools'])) {
             unset($params['response_format']);
         }
-
         $data = json_encode($params);
-
         $request = new Request(
             'POST',
             $this->groq->baseUrl() . '/chat/completions',
@@ -55,7 +54,6 @@ class Completions
             ],
             $data
         );
-
         try {
             if (isset($params['stream']) && $params['stream']) {
                 return $this->streamResponse($request);
@@ -63,8 +61,25 @@ class Completions
                 $response = $this->groq->makeRequest($request);
                 return json_decode($response->getBody()->getContents(), true);
             }
+        } catch (RequestException $e) {
+            $responseBody = $e->getResponse() ? (string) $e->getResponse()->getBody() : 'Corpo da resposta não disponível';
+            $errorData = json_decode($responseBody);
+            if (json_last_error() === JSON_ERROR_NONE && isset($errorData->error)) {
+                $message = $errorData->error->message ?? 'Erro desconhecido';
+                $type = $errorData->error->type ?? 'Erro Desconhecido';
+                $code = (int) ($errorData->error->code ?? 0);
+                $failedGeneration = $errorData->error->failed_generation ?? null; // Captura o campo failed_generation, se disponível
+            } else {
+                $message = 'Erro desconhecido';
+                $type = 'Erro Desconhecido';
+                $code = 0;
+                $failedGeneration = null;
+            }
+            throw new GroqException($message, $code, $type, [], null, $failedGeneration);
+        } catch (GuzzleException $e) {
+            throw new GroqException('Erro inesperado ao criar a conclusão: ' . $e->getMessage(), $e->getCode(), 'GuzzleException', []);
         } catch (\Exception $e) {
-            throw new GroqException('Unexpected error: ' . $e->getMessage(), $e->getCode(), 'UnexpectedException', []);
+            throw new GroqException('Erro inesperado: ' . $e->getMessage(), $e->getCode(), 'ExcecaoInesperada', []);
         }
     }
 
@@ -83,6 +98,11 @@ class Completions
             $client = new Client();
             $response = $client->send($request, ['stream' => true]);
             return new Stream($response);
+        } catch (RequestException $e) {
+            $responseBody = $e->getResponse() ? (string) $e->getResponse()->getBody() : 'No response body available';
+            throw new GroqException('Failed to stream the response: ' . $responseBody, $e->getCode(), 'RequestException', []);
+        } catch (GuzzleException $e) {
+            throw new GroqException('Unexpected error while trying to stream the response: ' . $e->getMessage(), $e->getCode(), 'GuzzleException', []);
         } catch (\Exception $e) {
             throw new GroqException('Unexpected error while streaming the response: ' . $e->getMessage(), $e->getCode(), 'UnexpectedException', []);
         }

@@ -15,12 +15,13 @@ class GroqTest extends TestCase
         $this->groq = new Groq($_ENV['GROQ_API_KEY']);
     }
 
-    public function testChatCompletionWithInvalidApiKey()
+    public function testInvalidApiKey()
     {
         $groq = new Groq('invalid_api_key');
 
         $this->expectException(GroqException::class);
-        $this->expectExceptionCode(401);
+        $this->expectExceptionCode(0); // O código de erro será 0 para chaves de API inválidas
+        $this->expectExceptionMessage('Invalid API Key'); // A mensagem de erro será 'Invalid API Key'
 
         $groq->chat()->completions()->create([
             'model' => 'mixtral-8x7b-32768',
@@ -30,12 +31,13 @@ class GroqTest extends TestCase
         ]);
     }
 
-    public function testModelList()
+    public function testListModels()
     {
-        $models = $this->groq->models()->list();
+        $models = $this->groq->models()->list();        
 
         $this->assertIsArray($models);
         $this->assertNotEmpty($models);
+        $this->assertArrayHasKey('data', $models); // Verifica se a chave 'data' está presente
     }
 
     public function testChatCompletionWithValidApiKey()

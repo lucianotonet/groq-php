@@ -5,6 +5,7 @@ namespace LucianoTonet\GroqPHP;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
+use LucianoTonet\GroqPHP\GroqException;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -25,6 +26,11 @@ class Groq
     public function __construct(?string $apiKey = null, array $options = [])
     {
         $this->apiKey  = $apiKey ?? $_ENV['GROQ_API_KEY'] ?? null;
+
+        if (!$this->apiKey) {
+            throw GroqException::apiKeyNotSet();
+        }
+        
         $this->options = $options;
         $this->baseUrl = $options['baseUrl'] ?? $_ENV['GROQ_API_BASE'] ?? 'https://api.groq.com/openai/v1';
     }

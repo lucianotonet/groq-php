@@ -4,12 +4,16 @@ namespace LucianoTonet\GroqPHP;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\ResponseInterface;
 use LucianoTonet\GroqPHP\Stream;
 
 /**
  * Class Translations
+ * This class handles the translation of spoken words in audio or video files 
+ * to the specified language.
+ * 
  * @package LucianoTonet\GroqPHP
  */
 class Translations
@@ -57,7 +61,16 @@ class Translations
 
             return $this->handleResponse($response, $params['response_format'] ?? 'json');
         } catch (GuzzleException $e) {
-            throw new GroqException('Error performing the request: ' . $e->getMessage(), $e->getCode(), 'RequestError');
+            if ($e instanceof RequestException && $e->hasResponse()) {
+                $responseBody = $e->getResponse()->getBody();
+                $responseBodyString = $responseBody ? (string) $responseBody : 'Response body is empty or null';
+                if (trim($responseBodyString) === '') {
+                    $responseBodyString = 'Response body is empty or null';
+                }
+                throw GroqException::createFromResponse($e->getResponse());
+            } else {
+                throw new GroqException('Unexpected error while creating translations: ' . $e->getMessage(), $e->getCode(), 'UnexpectedException', []);
+            }
         }
     }
 
@@ -106,7 +119,7 @@ class Translations
                 'contents' => $params['prompt']
             ];
         }
-        
+
         if (!empty($params['response_format'])) {
             $multipart[] = [
                 'name' => 'response_format',
@@ -127,13 +140,13 @@ class Translations
     private function handleResponse(ResponseInterface $response, string $responseFormat): array|string|Stream
     {
         $body = $response->getBody()->getContents();
-        
+
         if ($responseFormat === 'text') {
             return $body; // Returns the body of the response directly
         }
 
         $data = json_decode($body, true);
-        
+
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new GroqException('Error decoding the JSON response: ' . json_last_error_msg(), 0, 'JsonDecodeError');
         }
@@ -142,6 +155,8 @@ class Translations
     }
 
     /**
+     * Streams the response from the request.
+     *
      * @param Request $request
      * @param array $options
      * @return Stream
@@ -152,8 +167,12 @@ class Translations
             $client = new Client();
             $response = $client->send($request, array_merge($options, ['stream' => true]));
             return new Stream($response);
+        } catch (RequestException $e) {
+            $responseBody = $e->getResponse() ? $e->getResponse()->getBody() : null;
+            $responseBodyString = $responseBody ? (string) $responseBody : 'No response body available';
+            throw new GroqException('Failed to stream the response: ' . $responseBodyString, $e->getCode(), 'RequestException', []);
         } catch (GuzzleException $e) {
-            throw new GroqException('Error performing the request: ' . $e->getMessage(), $e->getCode(), 'RequestError');
+            throw new GroqException('An unexpected error occurred: ' . $e->getMessage(), $e->getCode(), 'UnexpectedException', []);
         }
     }
 }

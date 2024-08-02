@@ -7,7 +7,6 @@
 PHP library to access the [Groq REST API](https://console.groq.com/docs).
 
 ## Installation
-
 ```bash
 composer require lucianotonet/groq-php
 ```
@@ -159,22 +158,38 @@ echo $response['choices'][0]['message']['content'];
 ### JSON Mode
 
 ```php
-$response = $groq->chat()->completions()->create([
-    'model' => 'mixtral-8x7b-32768',
-    'messages' => [
-        [
-            'role' => 'system',
-            'content' => "You are an API and shall respond only with valid JSON.",
-        ],
-        [
-            'role' => 'user',
-            'content' => 'Explain the importance of low latency LLMs',
-        ],
-    ],
-    'response_format' => ['type' => 'json_object']
-]);
+use LucianoTonet\GroqPHP\GroqException;
 
-$jsonResponse = json_decode($response['choices'][0]['message']['content'], true);
+try {
+    $response = $groq->chat()->completions()->create([
+        'model' => 'mixtral-8x7b-32768',
+        'messages' => [
+            [
+                'role' => 'system',
+                'content' => "You are an API and shall respond only with valid JSON.",
+            ],
+            [
+                'role' => 'user',
+                'content' => 'Explain the importance of low latency LLMs',
+            ],
+        ],
+        'response_format' => ['type' => 'json_object']
+    ]);
+
+    $jsonResponse = json_decode($response['choices'][0]['message']['content'], true);
+
+    // Accessing the JSON response
+    print_r($jsonResponse); 
+
+} catch (GroqException $err) {
+    echo $err->getCode() . "<br>"; 
+    echo $err->getMessage() . "<br>";    
+    echo $err->getType() . "<br>";           
+
+    if($e->getFailedGeneration()) {
+        print_r($e->getFailedGeneration());
+    }
+}
 ```
 
 ### Audio Transcription

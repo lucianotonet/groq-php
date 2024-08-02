@@ -31,7 +31,8 @@ Funcionalidades planejadas para implementação:
 - Corpo da Requisição: multipart/form-data com os campos file e model
 - Exemplo: curl -X POST -F "file=@sample_audio.m4a" -F "model=whisper-large-v3" https://api.groq.com/openai/v1/audio/translations
 
-#### 🚧 Tratamento de Erros 
+#### ✅ Tratamento de Erros 
 
-- A API utiliza códigos de status de resposta HTTP padrão para indicar o sucesso ou falha de uma solicitação à API.
+- A API utiliza códigos de status de resposta HTTP personalisados para indicar falhas de solicitações à API (https://console.groq.com/docs/errors).
 - Em casos de erros, o corpo da resposta conterá um objeto JSON com detalhes sobre o erro.
+- Em casos de resposta tipo json_object com erros, poderá ser retornado um campo chamado "failed_generation" com o JSON inválido que causou o erro - isto não está referenciado na documentação oficial.

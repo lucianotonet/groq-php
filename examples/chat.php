@@ -1,5 +1,6 @@
 <div>
 <?php
+use LucianoTonet\GroqPHP\GroqException;
 require __DIR__ . '/_input.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -9,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $response = $groq->chat()->completions()->create([
-            'model' => 'llama3-8b-8192', // llama3-8b-8192, mixtral-8x7b-32768, gemma-7b-it
+            'model' => 'llama-3.1-8b-instant',
             'messages' => [
                 [
                     'role' => 'user',
@@ -20,8 +21,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         echo "<strong>assistant: </strong> ";
         echo $response['choices'][0]['message']['content'];
-    } catch (\LucianoTonet\GroqPHP\GroqException $err) {
-        echo "<strong>assistant:</strong><br>Sorry, an error occurred: " . $err->getMessage() . "<br>";
+    } catch (GroqException $err) {
+        echo "<strong>assistant:</strong><br>".$err->getMessage()."<br>";
+
+        echo "<pre>";
+        print_r($err->getError());
+
+        echo "</pre>";
     }
 }
 ?>

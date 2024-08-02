@@ -2,7 +2,11 @@
 
 
  *🚧 Next Relesase*
-* [23/07/2024](https://github.com/lucianotonet/groq-php/commits/4dd948bf543e084c003a5a574182012409105ac7) Test: Validate API key and integrate model listing
+* [30/07/2024](https://github.com/lucianotonet/groq-php/commits/220d8e9b84c95a7dc2ceec9afcc65600df86d292) chore: Update badges in README.md
+
+## v0.0.7
+* [23/07/2024](https://github.com/lucianotonet/groq-php/commits/24ef05e3b3e0cee44468a3459ddecd6c998b09f9) chore: Bump version to 0.0.7
+* [23/07/2024](https://github.com/lucianotonet/groq-php/commits/e94092448e8e18f9f88066d617d360f5ab173e46) Test: Validate API key and integrate model listing
 * [23/07/2024](https://github.com/lucianotonet/groq-php/commits/0692c0be5be92570b953918a7704dab5154866d1) Refactor: Enhance Error Handling and Improve Code Quality
 * [23/07/2024](https://github.com/lucianotonet/groq-php/commits/0a063da770ba4764625de376338db1689c58316b) docs: Update Changelog
 * [23/07/2024](https://github.com/lucianotonet/groq-php/commits/0f4c5f021f701e3c9ffaf00283467f98ccf5872d) feat: Add list models feature

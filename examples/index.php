@@ -2,11 +2,18 @@
 require __DIR__ . '/vendor/autoload.php';
 
 use LucianoTonet\GroqPHP\Groq;
+use LucianoTonet\GroqPHP\GroqException;
 
-$dotenv = Dotenv\Dotenv::createUnsafeImmutable(__DIR__);
+ // Start of Selection
+$dotenv = Dotenv\Dotenv::createUnsafeImmutable(__DIR__, '../.env', true);
 $dotenv->load();
 
-$groq = new Groq();
+try {
+    $groq = new Groq();
+} catch (GroqException $e) {
+    echo $e->getMessage();
+    die();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

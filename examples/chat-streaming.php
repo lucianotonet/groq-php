@@ -1,6 +1,7 @@
 <div>
 <?php
 require __DIR__ . '/_input.php';
+ob_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = $_POST['message'];
@@ -9,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $response = $groq->chat()->completions()->create([
-            'model' => 'mixtral-8x7b-32768',
+            'model' => 'llama-3.1-8b-instant',
             'messages' => [
                 [
                     'role' => 'user',
@@ -28,11 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo $chunk['choices'][0]['delta']['content'];
             }
 
-            ob_flush();
-            flush();
+            // Chame ob_flush() e flush() na ordem correta
+            ob_flush(); // Limpa o buffer de saída
+            flush(); // Envia os dados para o cliente
         }
     } catch (\LucianoTonet\GroqPHP\GroqException $err) {
-        echo "<strong>assistant:</strong><br>Sorry, an error occurred: " . $err->getMessage() . "<br>";
+        echo "<strong>assistant:</strong><br>Desculpe, ocorreu um erro: " . $err->getMessage() . "<br>";
     }
 }
 ?>

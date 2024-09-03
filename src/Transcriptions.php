@@ -112,15 +112,21 @@ class Transcriptions
                 'name' => 'model',
                 'contents' => $params['model'] ?? 'whisper-large-v3'
             ],
-            [
-                'name' => 'temperature',
-                'contents' => $params['temperature'] ?? 0.0
-            ],
-            [
-                'name' => 'language',
-                'contents' => $params['language'] ?? 'en'
-            ]
         ];
+
+        if (isset($params['temperature'])) {
+            $multipart[] = [
+                'name' => 'temperature',
+                'contents' => $params['temperature']
+            ];
+        }
+
+        if (isset($params['language'])) {
+            $multipart[] = [
+                'name' => 'language',
+                'contents' => $params['language']
+            ];
+        }
 
         if (isset($params['prompt'])) {
             $multipart[] = [

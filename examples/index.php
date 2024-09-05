@@ -43,6 +43,10 @@ try {
                 <li><a class="focus:font-bold" href="?page=tool-calling-advanced">Tool calling advanced</a></li>
                 <li><a class="focus:font-bold" href="?page=audio-transcriptions">Speech to Text Transcription</a></li>
                 <li><a class="focus:font-bold" href="?page=audio-translations">Speech to Text Translation</a></li>
+                <li><a class="focus:font-bold" href="?page=vision-simple">Vision Simple</a></li>
+                <li><a class="focus:font-bold" href="?page=vision-url">Vision URL</a></li>
+                <li><a class="focus:font-bold" href="?page=vision-multiple">Vision Multiple</a></li>
+                <li><a class="focus:font-bold" href="?page=vision-feedback">Vision Feedback</a></li>
             </ul>
         </div>
         

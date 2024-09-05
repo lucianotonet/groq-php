@@ -1,6 +1,8 @@
 # Groq PHP
 
-[![Version](https://img.shields.io/github/v/release/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
+![Groq PHP](./art.png)
+
+[![Version](https://img.shields.io/github/v/release/lucianotonet/groq-php)](https://packagist.org/release/lucianotonet/groq-php)
 [![Total Downloads](https://img.shields.io/packagist/dt/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
 [![License](https://img.shields.io/packagist/l/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
 

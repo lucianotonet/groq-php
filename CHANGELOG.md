@@ -4,6 +4,13 @@
  *🚧 Next Relesase*
 
 
+## v0.0.9
+* [04/09/2024](https://github.com/lucianotonet/groq-php/commits/899f755f5ddc81007f074f3f37229e54f08fa34b) Merge tag 'v0.0.9'
+* [04/09/2024](https://github.com/lucianotonet/groq-php/commits/af7a725e45c8b26ec515e7ec0d7d64e83e82bd4f) Merge pull request #6 from tgeorgel/main
+* [04/09/2024](https://github.com/lucianotonet/groq-php/commits/948455b251b56e51ae1e1ef172471064771b36ea) Add Vision functionality for image analysis and examples:
+* [03/09/2024](https://github.com/lucianotonet/groq-php/commits/cca3e7e073cbe38a5b4cf121fd9ad83761f9eb45) fix: Prevent the language to be forced on the transcript endpoint
+* [02/08/2024](https://github.com/lucianotonet/groq-php/commits/6f3ed06528ef3f2da49153ac32bef97568c3fac2) Update Groq PHP package version to 0.0.8
+
 ## v0.0.8
 * [02/08/2024](https://github.com/lucianotonet/groq-php/commits/5b1ee7018ac4f2f5a521120bfcfbb0f6a72dc011) Update Groq PHP package version to 0.0.8
 * [02/08/2024](https://github.com/lucianotonet/groq-php/commits/bc86d82a4c64be6d7118101b49fa3e5fe5779870) feat: Update examples

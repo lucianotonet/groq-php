@@ -4,16 +4,17 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
 [![License](https://img.shields.io/packagist/l/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
 
-PHP library to access the [Groq REST API](https://console.groq.com/docs).
+**A powerful PHP library for seamless integration with the Groq API. This library simplifies interactions with Groq, allowing developers to effortlessly leverage its advanced language models, audio processing and vision capabilities.**
 
 ## Installation
+
 ```bash
 composer require lucianotonet/groq-php
 ```
 
 ## Configuration
 
-Get a key at [console.groq.com/keys](https://console.groq.com/keys) and set it on your environment:
+**Obtain your API key from the [Groq Console](https://console.groq.com/keys) and set it as an environment variable:**
 
 ```bash
 GROQ_API_KEY=your_key_here
@@ -21,13 +22,17 @@ GROQ_API_KEY=your_key_here
 
 ## Usage
 
+**Initialize the Groq client:**
+
 ```php
 use LucianoTonet\GroqPHP\Groq;
 
 $groq = new Groq();
 ```
 
-## List models
+## Listing Models
+
+**Retrieve a list of available models:**
 
 ```php
 $models = $groq->models()->list();
@@ -35,13 +40,15 @@ $models = $groq->models()->list();
 foreach ($models['data'] as $model) {
     echo 'Model ID: ' . $model['id'] . PHP_EOL;
     echo 'Developer: ' . $model['owned_by'] . PHP_EOL;
-    echo 'Context window: ' . $model['context_window'] . PHP_EOL;
+    echo 'Context Window: ' . $model['context_window'] . PHP_EOL;
 }
 ```
 
-## Chat
+## Chat Capabilities
 
-### Basic
+### Basic Chat
+
+**Send a chat completion request:**
 
 ```php
 $response = $groq->chat()->completions()->create([
@@ -57,7 +64,9 @@ $response = $groq->chat()->completions()->create([
 echo $response['choices'][0]['message']['content'];
 ```
 
-### Streaming
+### Streaming Chat
+
+**Stream a chat completion response:**
 
 ```php
 $response = $groq->chat()->completions()->create([
@@ -81,6 +90,8 @@ foreach ($response->chunks() as $chunk) {
 ```
 
 ### Tool Calling
+
+**Utilize tools in chat completions:**
 
 ```php
 $tools = [
@@ -124,6 +135,7 @@ $tools = [
 ];
 
 // First inference...
+ // Start of Selection
 $response = $groq->chat()->completions()->create([
     'model' => 'mixtral-8x7b-32768',
     'messages' => $messages,
@@ -135,12 +147,17 @@ foreach ($response['choices'][0]['message']['tool_calls'] as $tool_call) {
     $function_args = json_decode($tool_call['function']['arguments'], true);
     
     // Call the tool...
-    $function_response = $tool_call['function']['name']($function_args);
+    $function_name = $tool_call['function']['name'];
+    if (function_exists($function_name)) {
+        $function_response = $function_name($function_args);
+    } else {
+        $function_response = "Function $function_name not defined.";
+    }
 
     $messages[] = [
         'tool_call_id' => $tool_call['id'],
         'role' => 'tool',
-        'name' => $tool_call['function']['name'],
+        'name' => $function_name,
         'content' => $function_response,
     ];
 }
@@ -156,6 +173,8 @@ echo $response['choices'][0]['message']['content'];
 ```
 
 ### JSON Mode
+
+**Request a JSON object as the response format:**
 
 ```php
 use LucianoTonet\GroqPHP\GroqException;
@@ -186,13 +205,15 @@ try {
     echo $err->getMessage() . "<br>";    
     echo $err->getType() . "<br>";           
 
-    if($e->getFailedGeneration()) {
-        print_r($e->getFailedGeneration());
+    if($err->getFailedGeneration()) {
+        print_r($err->getFailedGeneration());
     }
 }
 ```
 
 ### Audio Transcription
+
+**Transcribe audio content:**
 
 ```php
 $transcription = $groq->audio()->transcriptions()->create([
@@ -208,6 +229,8 @@ echo json_encode($transcription, JSON_PRETTY_PRINT);
 
 ### Audio Translation
 
+**Translate audio content:**
+
 ```php
 $translation = $groq->audio()->translations()->create([
     'file' => '/path/to/audio/file.mp3',
@@ -219,7 +242,19 @@ $translation = $groq->audio()->translations()->create([
 echo json_encode($translation, JSON_PRETTY_PRINT);
 ```
 
+### Vision Capabilities
+
+**Analyze an image with a prompt:**
+
+```php
+$analysis = $groq->vision()->analyze('/path/to/your/image.jpg', 'Describe this image');
+
+echo $analysis['choices'][0]['message']['content'];
+```
+
 ## Error Handling
+
+**Handle potential errors gracefully:**
 
 ```php
 use LucianoTonet\GroqPHP\GroqException;
@@ -236,7 +271,7 @@ try {
     ]);
 } catch (GroqException $err) {
     echo "<strong>Error code:</strong> " . $err->getCode() . "<br>"; // e.g., 400
-    echo "<strong>Menssage:</strong> " . $err->getMessage() . "<br>";    // Descrição detalhada do erro
+    echo "<strong>Message:</strong> " . $err->getMessage() . "<br>";    // Detailed error description
     echo "<strong>Type:</strong> " . $err->getType() . "<br>";           // e.g., invalid_request_error
     echo "<strong>Headers:</strong><br>"; 
     print_r($err->getHeaders()); // ['server' => 'nginx', ...]
@@ -247,6 +282,8 @@ try {
 
 ### Global Timeout Configuration
 
+**Set a global timeout for all requests (in milliseconds):**
+
 ```php
 $groq = new Groq([
     'timeout' => 20 * 1000, // 20 seconds
@@ -254,6 +291,8 @@ $groq = new Groq([
 ```
 
 ### Per-Request Timeout
+
+**Specify a timeout for a specific request (in milliseconds):**
 
 ```php
 $groq->chat()->completions()->create([
@@ -269,11 +308,11 @@ $groq->chat()->completions()->create([
 
 ## Semantic Versioning
 
-This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) conventions, although certain backwards-incompatible changes may be released under minor versions:
+This package follows [SemVer](https://semver.org/spec/v2.0.0.html) conventions. However, backward-incompatible changes might be released under minor versions in the following cases:
 
-1. Changes that only affect static types, without breaking runtime behavior.
-2. Changes to library internals that are technically public, but not intended or documented for external use. _(Open a GitHub issue to let us know if you are relying on such internals)_.
-3. Changes that we do not expect to affect the vast majority of users in practice.
+1. Changes that only affect static types and do not impact runtime behavior.
+2. Modifications to internal library components that are technically public but not intended for external use. _(Please submit a GitHub issue if you rely on such internals)_.
+3. Changes that are not expected to affect most users in practical scenarios.
 
 ## Requirements
 

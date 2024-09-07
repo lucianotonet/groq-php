@@ -8,6 +8,8 @@
 
 **A powerful PHP library for seamless integration with the Groq API. This library simplifies interactions with Groq, allowing developers to effortlessly leverage its advanced language models, audio processing and vision capabilities.**
 
+Using on Laravel? Check this out: [GroqLaravel](https://github.com/lucianotonet/groq-laravel?tab=readme-ov-file#readme)
+
 ## Installation
 
 ```bash

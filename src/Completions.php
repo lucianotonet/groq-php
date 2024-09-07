@@ -122,17 +122,28 @@ class Completions
     }
 
     /**
-     * Creates a new HTTP request for the completion.
+     * Creates a request object for the API.
      *
      * @param array $params The parameters for the request.
-     * @return Request The constructed HTTP request.
+     * @return Request The created request object.
      */
     private function createRequest(array $params): Request
     {
-        $body = json_encode([
+        $body = json_encode(array_filter([
             'model' => $params['model'],
             'messages' => $params['messages'],
-        ]);
+            'stream' => $params['stream'] ?? false,
+            'response_format' => $params['response_format'] ?? null,
+            'tools' => $params['tools'] ?? null,
+            'tool_choice' => $params['tool_choice'] ?? null,
+            'max_tokens' => $params['max_tokens'] ?? null,
+            'temperature' => $params['temperature'] ?? null,
+            'top_p' => $params['top_p'] ?? null,
+            'stop' => $params['stop'] ?? null,
+            'seed' => $params['seed'] ?? null,
+        ], function ($value) {
+            return $value !== null;
+        }));
 
         return new Request(
             'POST',

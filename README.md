@@ -1,6 +1,6 @@
 # Groq PHP
 
-![Groq PHP](./art.png)
+![Groq PHP](https://raw.githubusercontent.com/lucianotonet/groq-php/v0.0.9/art.png)
 
 [![Version](https://img.shields.io/github/v/release/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
 [![Total Downloads](https://img.shields.io/packagist/dt/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)

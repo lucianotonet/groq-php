@@ -32,13 +32,14 @@ class Groq
      */
     public function __construct(?string $apiKey = null, array $options = [])
     {
-        $this->apiKey  = $apiKey ?? $_ENV['GROQ_API_KEY'] ?? null;
+        $apiKey = $apiKey ?? $_ENV['GROQ_API_KEY'];
 
-        if (!$this->apiKey) {
+        if (!$apiKey) {
             throw GroqException::apiKeyNotSet(); // Throw exception if API key is not provided
         }
-        
-        $this->options = $options;
+
+        $this->apiKey = $apiKey; // Set the API key
+        $this->options = $options; // Set the options
         $this->baseUrl = $options['baseUrl'] ?? $_ENV['GROQ_API_BASE'] ?? 'https://api.groq.com/openai/v1'; // Set base URL
     }
 

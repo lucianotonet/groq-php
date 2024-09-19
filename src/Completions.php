@@ -141,6 +141,14 @@ class Completions
             'top_p' => $params['top_p'] ?? null,
             'stop' => $params['stop'] ?? null,
             'seed' => $params['seed'] ?? null,
+            'parallel_tool_calls' => $params['parallel_tool_calls'] ?? null,
+            'frequency_penalty' => $params['frequency_penalty'] ?? 0, // Penaliza a repetição de tokens
+            'presence_penalty' => $params['presence_penalty'] ?? 0, // Penaliza a repetição de tópicos
+            'n' => $params['n'] ?? 1, // Número de escolhas de completions
+            'logprobs' => $params['logprobs'] ?? false, // Retorna log probabilities
+            'function_call' => $params['function_call'] ?? null, // Controla a chamada de funções
+            'logit_bias' => $params['logit_bias'] ?? null, // Modifica a probabilidade de tokens
+            'top_logprobs' => $params['top_logprobs'] ?? null, // Retorna os tokens mais prováveis
         ], function ($value) {
             return $value !== null;
         }));

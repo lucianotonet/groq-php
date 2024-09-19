@@ -14,6 +14,11 @@ try {
     echo $e->getMessage();
     die();
 }
+
+if ($_SERVER['HTTP_ACCEPT'] === 'application/json') {
+    require __DIR__ . '/' . $_GET['page'] . '.php';
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -46,7 +51,7 @@ try {
                 <li><a class="focus:font-bold" href="?page=vision-simple">Vision Simple</a></li>
                 <li><a class="focus:font-bold" href="?page=vision-url">Vision URL</a></li>
                 <li><a class="focus:font-bold" href="?page=vision-multiple">Vision Multiple</a></li>
-                <li><a class="focus:font-bold" href="?page=vision-feedback">Vision Feedback</a></li>
+                <li><a class="focus:font-bold" href="?page=vision-feedback">Vision Feedback</a></li>                
             </ul>
         </div>
         

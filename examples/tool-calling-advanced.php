@@ -75,7 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'messages' => $messages,
             "temperature" => 0,
             "tool_choice" => "auto",
-            "tools" => $tools
+            "tools" => $tools,
+            "parallel_tool_calls" => false
         ]);
     } catch (\LucianoTonet\GroqPHP\GroqException $err) {
         echo $err->getCode() . "<br>" . $err->getMessage() . "<br>" . $err->getType() . "<br>";

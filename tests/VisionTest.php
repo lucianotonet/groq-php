@@ -18,14 +18,14 @@ class VisionTest extends TestCase
     public function testVisionAnalysisWithLocalImage()
     {
         $imagePath = __DIR__ . '/images/australian_shepherd_puppies.png';
-        $prompt = "O que você vê nesta imagem?";
+        $prompt = "What do you see in this image?";
 
         try {
             $response = $this->groq->vision()->analyze($imagePath, $prompt);
         } catch (GroqException $e) {
-            $this->fail("Erro ao analisar a imagem local: " . $e->getMessage() . " - Código: " . $e->getCode() . " - Arquivo: " . $e->getFile());
+            $this->fail("Error analyzing local image: " . $e->getMessage() . " - Code: " . $e->getCode() . " - File: " . $e->getFile());
         } catch (ArgumentCountError $e) {
-            $this->fail("Erro de contagem de argumentos: " . $e->getMessage());
+            $this->fail("Argument count error: " . $e->getMessage());
         }
 
         $this->assertArrayHasKey('choices', $response);
@@ -36,15 +36,15 @@ class VisionTest extends TestCase
 
     public function testVisionAnalysisWithUrlImage()
     {
-        $imageUrl = "https://raw.githubusercontent.com/groq/groq-api-cookbook/main/tutorials/llava-image-processing/images/pointer.png";
-        $prompt = "O que você vê nesta imagem?";
+        $imageUrl = "https://raw.githubusercontent.com/groq/groq-api-cookbook/d4f9b68e85989e107e2c50caae9d4ad86a46f375/tutorials/multimodal-image-processing/images/australian_shepherd_puppies.png";
+        $prompt = "What do you see in this image?";
 
         try {
             $response = $this->groq->vision()->analyze($imageUrl, $prompt);
         } catch (GroqException $e) {
-            $this->fail("Erro ao analisar a imagem da URL: " . $e->getMessage() . " - Código: " . $e->getCode() . " - Arquivo: " . $e->getFile());
+            $this->fail("Error analyzing URL image: " . $e->getMessage() . " - Code: " . $e->getCode() . " - File: " . $e->getFile());
         } catch (ArgumentCountError $e) {
-            $this->fail("Erro de contagem de argumentos: " . $e->getMessage());
+            $this->fail("Argument count error: " . $e->getMessage());
         }
 
         $this->assertArrayHasKey('choices', $response);

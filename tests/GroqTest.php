@@ -80,4 +80,74 @@ class GroqTest extends TestCase
     //     $this->assertArrayHasKey('text', $response);
     //     $this->assertNotEmpty($response['text']);
     // }
+
+    public function testSetOptions()
+    {
+        // Setup
+        $initialApiKey = $_ENV['GROQ_API_KEY'];
+        $groq = new Groq($initialApiKey);
+        
+        // Test setting new options
+        $newOptions = [
+            'apiKey' => 'new_test_key',
+            'baseUrl' => 'https://test-api.groq.com/v1',
+            'timeout' => 30000,
+            'maxRetries' => 3,
+            'headers' => ['X-Custom-Header' => 'test'],
+            'proxy' => 'http://proxy.test',
+            'verify' => false,
+            'debug' => true,
+            'stream' => true,
+            'responseFormat' => 'json'
+        ];
+        
+        $groq->setOptions($newOptions);
+        
+        // Verify API key was updated
+        $this->assertEquals('new_test_key', $groq->apiKey());        
+        
+        // Get actual options
+        $actualOptions = $groq->options;
+        
+        // Verify all options were set correctly
+        $this->assertEquals($newOptions['baseUrl'], $groq->baseUrl);
+        $this->assertEquals($newOptions['timeout'], $actualOptions['timeout']);
+        $this->assertEquals($newOptions['maxRetries'], $actualOptions['maxRetries']);
+        $this->assertEquals($newOptions['headers'], $actualOptions['headers']);
+        $this->assertEquals($newOptions['proxy'], $actualOptions['proxy']);
+        $this->assertEquals($newOptions['verify'], $actualOptions['verify']);
+        $this->assertEquals($newOptions['debug'], $actualOptions['debug']);
+        $this->assertEquals($newOptions['stream'], $actualOptions['stream']);
+        $this->assertEquals($newOptions['responseFormat'], $actualOptions['responseFormat']);
+    }
+
+    public function testSetOptionsPartial()
+    {
+        // Setup
+        $initialApiKey = $_ENV['GROQ_API_KEY'];
+        $groq = new Groq($initialApiKey, ['timeout' => 10000]);
+        
+        // Test setting only some options
+        $newOptions = [
+            'timeout' => 20000,
+            'debug' => true
+        ];
+        
+        $groq->setOptions($newOptions);
+        
+        // Create a reflection class to access private properties
+        $reflection = new \ReflectionClass($groq);
+        $optionsProperty = $reflection->getProperty('options');
+        $optionsProperty->setAccessible(true);
+        
+        // Get actual options
+        $actualOptions = $optionsProperty->getValue($groq);
+        
+        // Verify specific options were updated
+        $this->assertEquals(20000, $actualOptions['timeout']);
+        $this->assertEquals(true, $actualOptions['debug']);
+        
+        // Verify API key remained unchanged
+        $this->assertEquals($initialApiKey, $groq->apiKey());
+    }
 }

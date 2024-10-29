@@ -19,8 +19,8 @@ use LucianoTonet\GroqPHP\Vision; // Adicionando a importação da classe Vision
 class Groq
 {
     private string $apiKey; // API key for authentication
-    private string $baseUrl; // Base URL for the API
-    private array $options; // Additional options for configuration
+    public string $baseUrl; // Base URL for the API
+    public array $options; // Additional options for configuration
 
     /**
      * Groq constructor.
@@ -47,10 +47,29 @@ class Groq
      * Sets additional options for the Groq instance.
      *
      * @param array $options Options to be merged with existing options
+     *   - apiKey: (string) The API key for authentication
+     *   - baseUrl: (string) The base URL for API requests (default: https://api.groq.com/openai/v1)
+     *   - timeout: (int) Request timeout in milliseconds
+     *   - maxRetries: (int) Maximum number of retry attempts for failed requests
+     *   - headers: (array) Additional headers to include in requests
+     *   - proxy: (string) Proxy configuration for requests
+     *   - verify: (bool) Whether to verify SSL certificates
+     *   - debug: (bool) Enable debug mode for detailed logging
+     *   - stream: (bool) Enable response streaming
+     *   - responseFormat: (string) Preferred response format (json|text)
      */
     public function setOptions(array $options): void
     {
-        $this->options = array_merge($this->options, $options); // Merge new options with existing ones
+        // Update API key if provided
+        if (isset($options['apiKey'])) {
+            $this->apiKey = $options['apiKey'];
+        }
+        // Update base URL if provided
+        if (isset($options['baseUrl'])) {
+            $this->baseUrl = $options['baseUrl'];
+        }
+        // Merge new options with existing ones
+        $this->options = array_merge($this->options, $options);
     }
 
     /**

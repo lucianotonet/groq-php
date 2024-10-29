@@ -34,6 +34,36 @@ use LucianoTonet\GroqPHP\Groq;
 $groq = new Groq();
 ```
 
+You can also pass the API key directly to the constructor:
+
+```php
+$groq = new Groq('your_key_here');
+```
+
+## Configuration
+
+You can set all configuration options via the constructor:
+
+```php
+$groq = new Groq([
+    'apiKey' => 'your_key_here',
+    'temperature' => 0.5,
+    // ...
+]);
+```
+
+Or using the `setConfig` method at any time:
+
+```php
+$groq = new Groq();
+
+$groq->setConfig([
+    'apiKey' => 'another_key_here',
+    'max_tokens' => 1024,
+    // ...
+]);
+```
+
 ## Listing Models
 
 **Retrieve a list of available models:**
@@ -65,7 +95,7 @@ $response = $groq->chat()->completions()->create([
     ],
 ]);
 
-echo $response['choices'][0]['message']['content'];
+echo $response['choices'][0]['message']['content']; // "Low latency LLMs are important because ..."
 ```
 
 ### Streaming Chat

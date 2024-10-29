@@ -4,7 +4,28 @@
  *🚧 Next Relesase*
 
 
+## v0.0.10
+* [29/10/2024](https://github.com/lucianotonet/groq-php/commits/fb6fcf34cbe9bc8c46b27f7093f65d2b3296e790) Update version to 0.0.10 in composer.json, add API key options in README.
+* [29/10/2024](https://github.com/lucianotonet/groq-php/commits/87fae1976b1827ebafcc69986cd729b9ce63cee1) Merge pull request #8 from lucianotonet/develop
+* [29/10/2024](https://github.com/lucianotonet/groq-php/commits/db48f4475badca9e51aef9f9dacf5892913188ae) Merge branch 'hotfix/test-vision-with-url' into main
+* [29/10/2024](https://github.com/lucianotonet/groq-php/commits/5f04b293dea29381b90b099a488b1b50ed50b36e) Merge branch 'hotfix/test-vision-with-url' into develop
+* [29/10/2024](https://github.com/lucianotonet/groq-php/commits/632b93cf05dc7328f366ba5a1a7a6079cb68ee40) Translate messages
+* [29/10/2024](https://github.com/lucianotonet/groq-php/commits/49ba8cfddeb40d76e5de78ea4dff36ff8a93201e) hotfix: Update image URL in VisionTest
+* [29/10/2024](https://github.com/lucianotonet/groq-php/commits/e9796cbf8a94cfce642a1b42cb4df6c7e6a658d9) Merge branch 'feature/apikey-on-runtime' into develop
+* [29/10/2024](https://github.com/lucianotonet/groq-php/commits/6c17c9146b4097fddda5eb2d81984e0002cbe054) feat: Update Groq class properties and setOptions method.
+* [19/09/2024](https://github.com/lucianotonet/groq-php/commits/96062eb2ac9fb40ac3088cd3220825f532778367) feat: Ensure API key is explicitly set during initialization
+* [19/09/2024](https://github.com/lucianotonet/groq-php/commits/9ce4c02e4328023e9038c134a3bfeb5ed82a3211) feat(Vision): add default model and enhance analyze method
+* [19/09/2024](https://github.com/lucianotonet/groq-php/commits/a50320ea121d4cb9862a53a4d8490e30509e5c5a) feat: add parallel tool calls and additional parameters for flexibility
+* [08/09/2024](https://github.com/lucianotonet/groq-php/commits/2f7094aa675f13841046e3bbea1f11a5f4856a6c) Update image URL in README for Groq PHP project
+
 ## v0.0.9
+* [06/09/2024](https://github.com/lucianotonet/groq-php/commits/d8263d8b0c831d489c69e67554ddfaf98b3e4d8c) Merge remote-tracking branch 'origin/main'
+* [06/09/2024](https://github.com/lucianotonet/groq-php/commits/a6939768fd4048de6f264e5d2d86bf2ae57c5f25) Fix: Re-added missing parameters on request
+* [06/09/2024](https://github.com/lucianotonet/groq-php/commits/2e790ae361c6499f90cde6a80183bea0c7f973a4) Update README.md
+* [05/09/2024](https://github.com/lucianotonet/groq-php/commits/ed15619457b09cd1712c95738889f9e67bf047f6) Update package URL in README for consistency and clarity.
+* [05/09/2024](https://github.com/lucianotonet/groq-php/commits/94eec8615b2dfe81072078433d1582fac8abe0cf) Add image to README for Groq PHP project
+* [04/09/2024](https://github.com/lucianotonet/groq-php/commits/de8186902da024a163dee5b8aa9163f7eedf867f) Update README.md
+* [04/09/2024](https://github.com/lucianotonet/groq-php/commits/0a066d80b719b54e054e5d79052faec8b380ab22) Merge tag 'v0.0.9' and add Vision functionality for image analysis. - Merge tag 'v0.0.9' - Add Vision functionality for image analysis and examples
 * [04/09/2024](https://github.com/lucianotonet/groq-php/commits/899f755f5ddc81007f074f3f37229e54f08fa34b) Merge tag 'v0.0.9'
 * [04/09/2024](https://github.com/lucianotonet/groq-php/commits/af7a725e45c8b26ec515e7ec0d7d64e83e82bd4f) Merge pull request #6 from tgeorgel/main
 * [04/09/2024](https://github.com/lucianotonet/groq-php/commits/948455b251b56e51ae1e1ef172471064771b36ea) Add Vision functionality for image analysis and examples:

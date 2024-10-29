@@ -36,7 +36,7 @@ class VisionTest extends TestCase
 
     public function testVisionAnalysisWithUrlImage()
     {
-        $imageUrl = "https://raw.githubusercontent.com/groq/groq-api-cookbook/main/tutorials/llava-image-processing/images/pointer.png";
+        $imageUrl = "https://raw.githubusercontent.com/groq/groq-api-cookbook/d4f9b68e85989e107e2c50caae9d4ad86a46f375/tutorials/multimodal-image-processing/images/australian_shepherd_puppies.png";
         $prompt = "O que você vê nesta imagem?";
 
         try {

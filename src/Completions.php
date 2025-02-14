@@ -133,22 +133,25 @@ class Completions
             'model' => $params['model'],
             'messages' => $params['messages'],
             'stream' => $params['stream'] ?? false,
+            'stream_options' => $params['stream_options'] ?? null,
             'response_format' => $params['response_format'] ?? null,
             'tools' => $params['tools'] ?? null,
             'tool_choice' => $params['tool_choice'] ?? null,
-            'max_tokens' => $params['max_tokens'] ?? null,
+            'max_completion_tokens' => $params['max_completion_tokens'] ?? null,
             'temperature' => $params['temperature'] ?? null,
             'top_p' => $params['top_p'] ?? null,
             'stop' => $params['stop'] ?? null,
             'seed' => $params['seed'] ?? null,
             'parallel_tool_calls' => $params['parallel_tool_calls'] ?? null,
-            'frequency_penalty' => $params['frequency_penalty'] ?? 0, // Penaliza a repetição de tokens
-            'presence_penalty' => $params['presence_penalty'] ?? 0, // Penaliza a repetição de tópicos
-            'n' => $params['n'] ?? 1, // Número de escolhas de completions
-            'logprobs' => $params['logprobs'] ?? false, // Retorna log probabilities
-            'function_call' => $params['function_call'] ?? null, // Controla a chamada de funções
-            'logit_bias' => $params['logit_bias'] ?? null, // Modifica a probabilidade de tokens
-            'top_logprobs' => $params['top_logprobs'] ?? null, // Retorna os tokens mais prováveis
+            'frequency_penalty' => $params['frequency_penalty'] ?? 0, 
+            'presence_penalty' => $params['presence_penalty'] ?? 0, 
+            'n' => $params['n'] ?? 1,
+            'logprobs' => $params['logprobs'] ?? false, 
+            'logit_bias' => $params['logit_bias'] ?? null,
+            'top_logprobs' => $params['top_logprobs'] ?? null, 
+            'reasoning_format' => $params['reasoning_format'] ?? null,
+            'service_tier' => $params['service_tier'] ?? null,
+            'user' => $params['user'] ?? null,
         ], function ($value) {
             return $value !== null;
         }));

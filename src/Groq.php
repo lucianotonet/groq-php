@@ -143,4 +143,14 @@ class Groq
     {
         return new Vision($this); // Return a new Vision instance
     }
+
+    /**
+     * Creates a new Reasoning instance.
+     *
+     * @return Reasoning A new instance of the Reasoning class
+     */
+    public function reasoning(): Reasoning
+    {
+        return new Reasoning($this); // Return a new Reasoning instance
+    }
 }

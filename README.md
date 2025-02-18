@@ -52,14 +52,13 @@ $groq = new Groq([
 ]);
 ```
 
-Or using the `setConfig` method at any time:
+Or using the `setOptions` method at any time:
 
 ```php
 $groq = new Groq();
 
-$groq->setConfig([
+$groq->setOptions([
     'apiKey' => 'another_key_here',
-    'max_tokens' => 1024,
     // ...
 ]);
 ```

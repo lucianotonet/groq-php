@@ -5,7 +5,7 @@ namespace LucianoTonet\GroqPHP;
 class Vision
 {
     private Groq $groq;
-    private string $defaultModel = 'llava-v1.5-7b-4096-preview';
+    private string $defaultModel = 'llama-3.2-90b-vision-preview';
 
     public function __construct(Groq $groq)
     {
@@ -48,8 +48,8 @@ class Vision
         if (isset($options['temperature'])) {
             $requestOptions['temperature'] = $options['temperature'];
         }
-        if (isset($options['max_tokens'])) {
-            $requestOptions['max_tokens'] = $options['max_tokens'];
+        if (isset($options['max_completion_tokens'])) {
+            $requestOptions['max_completion_tokens'] = $options['max_completion_tokens'];
         }
 
         return $this->groq->chat()->completions()->create($requestOptions);

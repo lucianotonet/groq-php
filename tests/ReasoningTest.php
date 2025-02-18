@@ -40,7 +40,7 @@ class ReasoningTest extends TestCase
         $prompt = "Explain the process of photosynthesis.";
         $options = [
             'temperature' => 0.6,
-            'max_tokens' => 1024,
+            'max_completion_tokens' => 1024,
             'model' => "deepseek-r1-distill-llama-70b",
             'reasoning_format' => "raw"
         ];

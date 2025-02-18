@@ -33,7 +33,7 @@ class Reasoning
      * @param array $options Additional options for the reasoning
      *   - model: (string) The model to use (required)
      *   - temperature: (float) Controls randomness (0.0 to 2.0)
-     *   - max_tokens: (int) Maximum tokens in response
+     *   - max_completion_tokens: (int) Maximum tokens in response
      *   - stream: (bool) Whether to stream the response
      *   - top_p: (float) Controls diversity (0.0 to 1.0)
      *   - frequency_penalty: (float) Penalizes repeated tokens

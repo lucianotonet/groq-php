@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $options = [
         'model' => $_POST['model'] ?? 'deepseek-r1-distill-llama-70b',
         'temperature' => isset($_POST['temperature']) ? floatval($_POST['temperature']) : null,
-        'max_tokens' => isset($_POST['max_tokens']) ? intval($_POST['max_tokens']) : null,
+        'max_completion_tokens' => isset($_POST['max_completion_tokens']) ? intval($_POST['max_completion_tokens']) : null,
         'top_p' => isset($_POST['top_p']) ? floatval($_POST['top_p']) : null,
         'frequency_penalty' => isset($_POST['frequency_penalty']) ? floatval($_POST['frequency_penalty']) : null,
         'presence_penalty' => isset($_POST['presence_penalty']) ? floatval($_POST['presence_penalty']) : null,
@@ -81,8 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 class="w-full border border-gray-300 rounded p-2 text-sm">
         </div>
         <div>
-            <label for="max_tokens" class="block text-sm font-medium text-gray-700 mb-1">Max Tokens</label>
-            <input type="number" name="max_tokens" min="1" required value="1024"
+            <label for="max_completion_tokens" class="block text-sm font-medium text-gray-700 mb-1">Max Tokens</label>
+            <input type="number" name="max_completion_tokens" min="1" required value="1024"
                 class="w-full border border-gray-300 rounded p-2 text-sm">
         </div>
         <div>

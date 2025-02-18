@@ -47,16 +47,37 @@ class Groq
      * Sets additional options for the Groq instance.
      *
      * @param array $options Options to be merged with existing options
+     * 
+     * Authentication:
      *   - apiKey: (string) The API key for authentication
      *   - baseUrl: (string) The base URL for API requests (default: https://api.groq.com/openai/v1)
+     * 
+     * Request Configuration:
      *   - timeout: (int) Request timeout in milliseconds
-     *   - maxRetries: (int) Maximum number of retry attempts for failed requests
-     *   - headers: (array) Additional headers to include in requests
-     *   - proxy: (string) Proxy configuration for requests
-     *   - verify: (bool) Whether to verify SSL certificates
-     *   - debug: (bool) Enable debug mode for detailed logging
-     *   - stream: (bool) Enable response streaming
-     *   - responseFormat: (string) Preferred response format (json|text)
+     * 
+     * Model Parameters:
+     *   - model: (string) ID of the model to use
+     *   - temperature: (float) Sampling temperature between 0 and 2 (default: 1)
+     *   - max_completion_tokens: (int) Maximum tokens to generate
+     *   - top_p: (float) Nucleus sampling between 0 and 1 (default: 1)
+     *   - frequency_penalty: (float) Number between -2.0 and 2.0 (default: 0)
+     *   - presence_penalty: (float) Number between -2.0 and 2.0 (default: 0)
+     * 
+     * Response Options:
+     *   - stream: (bool) Enable streaming responses (default: false)
+     *   - response_format: (array) Format specification for model output
+     *     Example: ['type' => 'json_object'] for JSON mode
+     * 
+     * Tool Options:
+     *   - tool_choice: (string|array) Tool selection mode (auto|none|specific)
+     *   - parallel_tool_calls: (bool) Enable parallel tool calls (default: true)
+     *   - tools: (array) List of tools the model may use
+     * 
+     * Additional Options:
+     *   - seed: (int|null) Integer for deterministic sampling
+     *   - stop: (string|array|null) Up to 4 sequences where generation should stop
+     *   - user: (string|null) Unique identifier for end-user tracking
+     *   - service_tier: (string|null) Service tier to use (auto|flex)
      */
     public function setOptions(array $options): void
     {
@@ -64,10 +85,12 @@ class Groq
         if (isset($options['apiKey'])) {
             $this->apiKey = $options['apiKey'];
         }
+        
         // Update base URL if provided
         if (isset($options['baseUrl'])) {
             $this->baseUrl = $options['baseUrl'];
         }
+        
         // Merge new options with existing ones
         $this->options = array_merge($this->options, $options);
     }
@@ -142,5 +165,15 @@ class Groq
     public function vision(): Vision
     {
         return new Vision($this); // Return a new Vision instance
+    }
+
+    /**
+     * Creates a new Reasoning instance.
+     *
+     * @return Reasoning A new instance of the Reasoning class
+     */
+    public function reasoning(): Reasoning
+    {
+        return new Reasoning($this); // Return a new Reasoning instance
     }
 }

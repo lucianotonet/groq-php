@@ -51,7 +51,8 @@ if ($_SERVER['HTTP_ACCEPT'] === 'application/json') {
                 <li><a class="focus:font-bold" href="?page=vision-simple">Vision Simple</a></li>
                 <li><a class="focus:font-bold" href="?page=vision-url">Vision URL</a></li>
                 <li><a class="focus:font-bold" href="?page=vision-multiple">Vision Multiple</a></li>
-                <li><a class="focus:font-bold" href="?page=vision-feedback">Vision Feedback</a></li>                
+                <li><a class="focus:font-bold" href="?page=vision-feedback">Vision Feedback</a></li>      
+                <li><a class="focus:font-bold" href="?page=reasoning">Reasoning</a></li>
             </ul>
         </div>
         

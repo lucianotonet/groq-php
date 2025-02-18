@@ -76,8 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <div class="grid grid-cols-2 gap-4">
         <div>
-            <label for="temperature" class="block text-sm font-medium text-gray-700 mb-1">Temperature (0.0 - 1.0)</label>
-            <input type="number" name="temperature" min="0" max="1" step="0.1"
+            <label for="temperature" class="block text-sm font-medium text-gray-700 mb-1">Temperature (0.0 - 2.0)</label>
+            <input type="number" name="temperature" min="0" max="2" step="0.1"
                 class="w-full border border-gray-300 rounded p-2 text-sm">
         </div>
         <div>

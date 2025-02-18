@@ -145,7 +145,7 @@ class Completions
             'parallel_tool_calls' => $params['parallel_tool_calls'] ?? null,
             'frequency_penalty' => $params['frequency_penalty'] ?? 0, 
             'presence_penalty' => $params['presence_penalty'] ?? 0, 
-            'n' => $params['n'] ?? 1,
+            'n' => $params['n'] ?? null,
             'logprobs' => $params['logprobs'] ?? false, 
             'logit_bias' => $params['logit_bias'] ?? null,
             'top_logprobs' => $params['top_logprobs'] ?? null, 

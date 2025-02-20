@@ -32,8 +32,10 @@ class Groq
      */
     public function __construct(?string $apiKey = null, array $options = [])
     {
-        $apiKey = $apiKey ?? $_ENV['GROQ_API_KEY'];
-
+        $apiKey = $apiKey
+            ?? (isset($_ENV['GROQ_API_KEY']) ? $_ENV['GROQ_API_KEY'] : null)
+            ?? getenv('GROQ_API_KEY');
+        
         if (!$apiKey) {
             throw GroqException::apiKeyNotSet(); // Throw exception if API key is not provided
         }

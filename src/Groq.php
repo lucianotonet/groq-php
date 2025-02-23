@@ -6,8 +6,10 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
 use LucianoTonet\GroqPHP\GroqException;
+use LucianoTonet\GroqPHP\FileManager;
+use LucianoTonet\GroqPHP\BatchManager;
 use Psr\Http\Message\ResponseInterface;
-use LucianoTonet\GroqPHP\Vision; // Adicionando a importação da classe Vision
+use LucianoTonet\GroqPHP\Vision;
 
 /**
  * Class Groq
@@ -32,7 +34,9 @@ class Groq
      */
     public function __construct(?string $apiKey = null, array $options = [])
     {
-        $apiKey = $apiKey ?? $_ENV['GROQ_API_KEY'];
+        $apiKey = $apiKey
+            ?? (isset($_ENV['GROQ_API_KEY']) ? $_ENV['GROQ_API_KEY'] : null)
+            ?? getenv('GROQ_API_KEY');
 
         if (!$apiKey) {
             throw GroqException::apiKeyNotSet(); // Throw exception if API key is not provided
@@ -40,7 +44,10 @@ class Groq
 
         $this->apiKey = $apiKey; // Set the API key
         $this->options = $options; // Set the options
-        $this->baseUrl = $options['baseUrl'] ?? $_ENV['GROQ_API_BASE'] ?? 'https://api.groq.com/openai/v1'; // Set base URL
+        
+        // Get base URL and ensure it ends with a forward slash
+        $baseUrl = $options['baseUrl'] ?? $_ENV['GROQ_API_BASE'] ?? getenv('GROQ_API_BASE') ?? 'https://api.groq.com/openai/v1';
+        $this->baseUrl = rtrim($baseUrl, '/') . '/'; // Ensure trailing slash
     }
 
     /**
@@ -85,12 +92,12 @@ class Groq
         if (isset($options['apiKey'])) {
             $this->apiKey = $options['apiKey'];
         }
-        
+
         // Update base URL if provided
         if (isset($options['baseUrl'])) {
             $this->baseUrl = $options['baseUrl'];
         }
-        
+
         // Merge new options with existing ones
         $this->options = array_merge($this->options, $options);
     }
@@ -124,7 +131,7 @@ class Groq
     {
         return new Models($this); // Return a new Models instance
     }
-    
+
     /**
      * Sends an HTTP request using the Guzzle client and returns the response.
      *
@@ -133,8 +140,16 @@ class Groq
      */
     public function makeRequest(Request $request): ResponseInterface
     {
-        $client = new Client(); // Create a new Guzzle client
-        return $client->send($request); // Send the request and return the response
+        $client = new Client([
+            'base_uri' => $this->baseUrl,
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->apiKey
+            ]
+        ]); // Create a new Guzzle client
+
+        $response = $client->send($request); // Send the request and return the response
+
+        return $response;
     }
 
     /**
@@ -175,5 +190,25 @@ class Groq
     public function reasoning(): Reasoning
     {
         return new Reasoning($this); // Return a new Reasoning instance
+    }
+
+    /**
+     * Creates a new Files instance.
+     *
+     * @return FileManager A new instance of the FileManager class
+     */
+    public function files(): FileManager
+    {
+        return new FileManager($this);
+    }
+
+    /**
+     * Creates a new Batches instance.
+     *
+     * @return BatchManager A new instance of the BatchManager class
+     */
+    public function batches(): BatchManager
+    {
+        return new BatchManager($this);
     }
 }

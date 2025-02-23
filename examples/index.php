@@ -9,16 +9,22 @@ $dotenv = Dotenv\Dotenv::createUnsafeImmutable(__DIR__, '../.env', true);
 $dotenv->load();
 
 try {
-    $groq = new Groq();
+    $groq = new Groq(getenv('GROQ_API_KEY'), [
+        'baseUrl' => getenv('GROQ_API_BASE')
+    ]);
 } catch (GroqException $e) {
     echo $e->getMessage();
     die();
 }
 
-if ($_SERVER['HTTP_ACCEPT'] === 'application/json') {
+$accept = isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : '';
+$accept = explode(',', $accept);
+
+if (!in_array('text/html', $accept)) {
     require __DIR__ . '/' . $_GET['page'] . '.php';
     exit;
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,7 +44,6 @@ if ($_SERVER['HTTP_ACCEPT'] === 'application/json') {
 
         <div class="flex flex-col">
             <h3 class="text-md font-bold">Examples:</h3>
-
             <ul class="list-disc">
                 <li><a class="focus:font-bold" href="?page=models">List Models</a></li>
                 <li><a class="focus:font-bold" href="?page=chat">Chat</a></li>
@@ -53,6 +58,12 @@ if ($_SERVER['HTTP_ACCEPT'] === 'application/json') {
                 <li><a class="focus:font-bold" href="?page=vision-multiple">Vision Multiple</a></li>
                 <li><a class="focus:font-bold" href="?page=vision-feedback">Vision Feedback</a></li>      
                 <li><a class="focus:font-bold" href="?page=reasoning">Reasoning</a></li>
+            </ul>
+            <br/>
+            <h3 class="text-md font-bold">Advanced:</h3>
+            <ul class="list-disc">
+                <li><a class="focus:font-bold" href="?page=files">Files</a></li>
+                <li><a class="focus:font-bold" href="?page=batches">Batches</a></li>
             </ul>
         </div>
         

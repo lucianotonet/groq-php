@@ -1,18 +1,17 @@
 <?php
+namespace LucianoTonet\GroqPHP\Tests;
 
 use LucianoTonet\GroqPHP\Groq;
 use LucianoTonet\GroqPHP\GroqException;
-use PHPUnit\Framework\TestCase;
+
 
 class ReasoningTest extends TestCase
 {
-    private Groq $groq;
+    protected Groq $groq;
 
     protected function setUp(): void
     {
-        $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__, '../.env');
-        $dotenv->load();
-        $this->groq = new Groq($_ENV['GROQ_API_KEY']);
+        parent::setUp();
     }
 
     public function testBasicReasoning()

@@ -14,7 +14,7 @@ if (isset($_REQUEST['action'])) {
         break;
         
       case 'download':
-        if (!isset($_REQUEST['file_id'])) {
+        if (!isset($_REQUEST['file_id']) || !preg_match('/^[a-zA-Z0-9\-_]+$/', $_REQUEST['file_id'])) {
           die('File ID is required');
         }
 
@@ -22,8 +22,11 @@ if (isset($_REQUEST['action'])) {
         $content = $groq->files()->download($fileId);
 
         header('Content-Type: application/x-jsonlines');
-        // header('Content-Disposition: attachment; filename="file.jsonl"');
+        header('Content-Disposition: attachment; filename="download.jsonl"');
         header('Content-Length: ' . strlen($content));
+        // Prevent browser caching of sensitive data
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
 
         echo $content;
         exit;
@@ -36,20 +39,37 @@ if (isset($_REQUEST['action'])) {
 // Handle file upload
 if (isset($_FILES['jsonl_file'])) {
   try {
+    // Validate file size (e.g., 100MB limit)
+    if ($_FILES['jsonl_file']['size'] > 100 * 1024 * 1024) {
+      throw new GroqException('File size exceeds limit', 400, 'invalid_request');
+    }
+    
+    // Validate file type
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $_FILES['jsonl_file']['tmp_name']);
+    finfo_close($finfo);
+    if ($mimeType !== 'application/x-ndjson' && $mimeType !== 'text/plain') {
+      throw new GroqException('Invalid file type', 400, 'invalid_request');
+    }
+    
     $tempFile = $_FILES['jsonl_file']['tmp_name'];
     $originalName = $_FILES['jsonl_file']['name'];
-    
-    // Criar novo arquivo temporário com extensão .jsonl
+     
     $newTempFile = tempnam(sys_get_temp_dir(), 'groq_') . '.jsonl';
-    if (copy($tempFile, $newTempFile)) {
+    try {
+      if (!copy($tempFile, $newTempFile)) {
+        throw new GroqException('Failed to process upload file', 400, 'invalid_request');
+      }
+      
       // Upload file
       $file = $groq->files()->upload($newTempFile, 'batch');
       $success = "File uploaded successfully!";
-      unlink($newTempFile); // Limpar arquivo temporário
-    } else {
-      throw new GroqException('Failed to process upload file', 400, 'invalid_request');
+    } finally {
+      // Always clean up temporary file
+      if (file_exists($newTempFile)) {
+        unlink($newTempFile);
+      }
     }
-    
   } catch (GroqException $e) {
     $error = $e->getMessage();
   }

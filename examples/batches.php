@@ -8,9 +8,7 @@ if (isset($_REQUEST['action'])) {
             case 'cancel':
                 $batchId = $_REQUEST['batch_id'];
                 $result = $groq->batches()->cancel($batchId);
-                if ($result->status === 'failed') {
-                    $success = "Batch cancelled successfully.";
-                }
+                $success = "Batch cancelled successfully.";
                 break;
 
             case 'download':
@@ -22,7 +20,10 @@ if (isset($_REQUEST['action'])) {
                 $content = $groq->files()->download($fileId);
 
                 header('Content-Type: application/x-jsonlines');
-                // header('Content-Disposition: attachment; filename="batch_result.jsonl"');
+                header('Content-Disposition: attachment; filename="' . basename($fileId) . '.jsonl"');
+                header('X-Content-Type-Options: nosniff');
+                header('X-Frame-Options: DENY');
+                header('Content-Security-Policy: default-src \'none\'');
                 header('Content-Length: ' . strlen($content));
 
                 echo $content;

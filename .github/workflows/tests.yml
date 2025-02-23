@@ -1,0 +1,51 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # Rodando apenas com PHP 8.2 para economizar créditos da API,
+    # já que os testes fazem chamadas reais à API do Groq
+    strategy:
+      matrix:
+        php-version: ['8.2']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: fileinfo, json
+        coverage: xdebug
+
+    - name: Validate composer.json
+      run: composer validate --strict
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Create .env file
+      run: |
+        echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" > .env
+        echo "GROQ_API_BASE=https://api.groq.com/openai/v1" >> .env
+
+    - name: Run test suite
+      run: composer test

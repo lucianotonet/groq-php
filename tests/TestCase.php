@@ -14,9 +14,17 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        $dotenv = Dotenv::createUnsafeImmutable(__DIR__, '../.env');
-        $dotenv->load();
+        try {
+            $dotenv = Dotenv::createUnsafeImmutable(__DIR__, '../.env');
+            $dotenv->load();
+        } catch (\Exception $e) {
+            $this->markTestSkipped('Environment file not found. Copy .env.example to .env and configure it.');
+        }
 
-        $this->groq = new Groq(getenv('GROQ_API_KEY'));
+        $apiKey = getenv('GROQ_API_KEY');
+        if (!$apiKey) {
+            $this->markTestSkipped('GROQ_API_KEY not found in environment variables.');
+        }
+        $this->groq = new Groq($apiKey);
     }
 }

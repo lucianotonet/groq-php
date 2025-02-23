@@ -2,13 +2,21 @@
 
 ![Groq PHP](https://raw.githubusercontent.com/lucianotonet/groq-php/v0.0.9/art.png)
 
-[![Version](https://img.shields.io/github/v/release/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
-[![Total Downloads](https://img.shields.io/packagist/dt/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
-[![License](https://img.shields.io/packagist/l/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
+[![Version](https://img.shields.io/github/v/release/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php) [![Total Downloads](https://img.shields.io/packagist/dt/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php) [![License](https://img.shields.io/packagist/l/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
 
-**A powerful PHP library for seamless integration with the GroqCloud API. This library simplifies interactions with Groq, allowing developers to effortlessly leverage its advanced language models, audio processing and vision capabilities.**
+**High-performance PHP client for GroqCloud API**
+
+A comprehensive PHP SDK that simplifies interaction with **the world's fastest LLM inference platform**, allowing PHP developers to easily integrate high-performance models (DeepSeek r1, Llama 3.3, Mixtral, Gemma, and more) into any PHP application.
 
 Using on Laravel? Check this out: [GroqLaravel](https://github.com/lucianotonet/groq-laravel?tab=readme-ov-file#readme)
+
+## Requirements
+
+[![PHP version](https://img.shields.io/packagist/dependency-v/lucianotonet/groq-php/php)](https://packagist.org/packages/lucianotonet/groq-php)
+
+- PHP >= 8.1
+- `fileinfo` extension
+- `guzzlehttp/guzzle`
 
 ## Installation
 
@@ -18,127 +26,67 @@ composer require lucianotonet/groq-php
 
 ## Configuration
 
-**Obtain your API key from the [Groq Console](https://console.groq.com/keys) and set it as an environment variable:**
+1. **Get your API Key:**
+   - Go to [GroqCloud Console](https://console.groq.com/keys)
+   - Create a new API key
 
-```bash
-GROQ_API_KEY=your_key_here
-```
+2. **Configure your API Key:**
+   - Using environment variables:
+    ```bash
+    export GROQ_API_KEY=your_key_here
+    ```
+    - Or using a `.env` file:
+    ```bash
+    GROQ_API_KEY=your_key_here
+    GROQ_API_BASE=https://api.groq.com/openai/v1  # (Optional, if different from default)
+    ```
 
-## Usage
+## Features and Usage
 
-**Initialize the Groq client:**
+### 1. Available Models
+
+List available models.
 
 ```php
+// examples/models.php
+$models = $groq->models()->list();
+print_r($models['data']);
+```
+
+### 2. Chat (Completions)
+
+Generate interactive chat responses.
+
+```php
+<?php
+
 use LucianoTonet\GroqPHP\Groq;
 
-$groq = new Groq();
-```
+$groq = new Groq(getenv('GROQ_API_KEY'));
 
-You can also pass the API key directly to the constructor:
+try {
+    $response = $groq->chat()->completions()->create([
+        'model' => 'llama3-8b-8192', // Or another supported model
+        'messages' => [
+            ['role' => 'user', 'content' => 'Explain the importance of low latency in LLMs'],
+        ],
+    ]);
 
-```php
-$groq = new Groq('your_key_here');
-```
-
-## Configuration
-
-You can set any configuration option [accepted by GroqCloud](https://console.groq.com/docs/api-reference) via the constructor:
-
-```php
-$groq = new Groq([
-    // Authentication
-    'apiKey' => 'your_key_here',                    // Your Groq API key
-    'baseUrl' => 'https://api.groq.com/openai/v1',  // API base URL (optional)
-    
-    // Request Configuration
-    'timeout' => 30000,                             // Timeout in milliseconds (default: 30s)
-    
-    // Model Parameters
-    'model' => 'mixtral-8x7b-32768',               // ID of the model to use
-    'temperature' => 0.7,                           // Sampling temperature (0.0 to 2.0, default: 1)
-    'max_completion_tokens' => 4096,                // Maximum tokens to generate
-    'top_p' => 1,                                   // Nucleus sampling (0.0 to 1.0, default: 1)
-    'frequency_penalty' => 0,                       // -2.0 to 2.0, default: 0
-    'presence_penalty' => 0,                        // -2.0 to 2.0, default: 0
-    
-    // Response Options
-    'stream' => false,                              // Enable streaming responses (default: false)
-    'response_format' => [                          // Specify response format
-        'type' => 'json_object'                     // Enable JSON mode
-    ],
-    
-    // Tool Options
-    'tools' => [],                                  // List of tools to use
-    'tool_choice' => 'auto',                        // Tool selection (auto|none|specific)
-    'parallel_tool_calls' => true,                  // Enable parallel tool calls (default: true)
-    
-    // Additional Options
-    'seed' => null,                                 // Integer for deterministic sampling
-    'stop' => null,                                 // Up to 4 sequences to stop generation
-    'user' => null                                  // Unique identifier for end-user
-
-    // ...
-]);
-```
-
-Or using the `setOptions` method at any time:
-
-```php
-$groq = new Groq();
-
-$groq->setOptions([
-    'apiKey' => 'another_key_here',
-    'temperature' => 0.8,
-    // ... any of the options above
-]);
-```
-
-## Listing Models
-
-**Retrieve a list of available models:**
-
-```php
-$models = $groq->models()->list();
-
-foreach ($models['data'] as $model) {
-    echo 'Model ID: ' . $model['id'] . PHP_EOL;
-    echo 'Developer: ' . $model['owned_by'] . PHP_EOL;
-    echo 'Context Window: ' . $model['context_window'] . PHP_EOL;
+    echo $response['choices'][0]['message']['content'];
+} catch (\LucianoTonet\GroqPHP\GroqException $e) {
+    echo 'Error: ' . $e->getMessage();
 }
 ```
 
-## Chat Capabilities
-
-### Basic Chat
-
-**Send a chat completion request:**
+**Streaming:**
 
 ```php
+// examples/chat-streaming.php
+
 $response = $groq->chat()->completions()->create([
     'model' => 'llama3-8b-8192',
     'messages' => [
-        [
-            'role' => 'user',
-            'content' => 'Explain the importance of low latency LLMs'
-        ]
-    ],
-]);
-
-echo $response['choices'][0]['message']['content']; // "Low latency LLMs are important because ..."
-```
-
-### Streaming Chat
-
-**Stream a chat completion response:**
-
-```php
-$response = $groq->chat()->completions()->create([
-    'model' => 'mixtral-8x7b-32768',
-    'messages' => [
-        [
-            'role' => 'user',
-            'content' => $message
-        ]
+        ['role' => 'user', 'content' => 'Tell me a short story'],
     ],
     'stream' => true
 ]);
@@ -146,39 +94,213 @@ $response = $groq->chat()->completions()->create([
 foreach ($response->chunks() as $chunk) {
     if (isset($chunk['choices'][0]['delta']['content'])) {
         echo $chunk['choices'][0]['delta']['content'];
-        ob_flush();
+        ob_flush(); // Important for real streaming
         flush();
     }
 }
 ```
 
-## Reasoning Capabilities
-
-The Reasoning feature enables step-by-step analysis and structured thinking in model responses. This feature helps models break down complex problems and provide more transparent, logical responses.
-
-#### Supported Models
-
-| Model ID | Model |
-|----------|--------|
-| deepseek-r1-distill-qwen-32b | DeepSeek R1 Distill Qwen 32B |
-| deepseek-r1-distill-llama-70b | DeepSeek R1 Distil Llama 70B |
-
-#### Basic Reasoning
-
-Perform a reasoning task with step-by-step analysis:
+**JSON Mode:**
 
 ```php
-$response = $groq->reasoning()->analyze(
-    "Why does ice float in water?",
-    [
-        'model' => 'deepseek-r1-distill-llama-70b', // Recommended model for reasoning
-        'reasoning_format' => 'raw',
-        'max_completion_tokens' => 4096 // Recommended for complex reasoning
-    ]
-);
+// examples/json-mode.php
+$response = $groq->chat()->completions()->create([
+    'model' => 'mixtral-8x7b-32768',
+    'messages' => [
+        ['role' => 'system', 'content' => 'You are an API and must respond only with valid JSON.'],
+        ['role' => 'user', 'content' => 'Give me information about the current weather in London'],
+    ],
+    'response_format' => ['type' => 'json_object']
+]);
 
-echo $response['choices'][0]['message']['content'];
+$content = $response['choices'][0]['message']['content'];
+echo json_encode(json_decode($content), JSON_PRETTY_PRINT); // Display formatted JSON
 ```
+
+**Additional Parameters (Chat Completions):**
+
+- `temperature`: Controls randomness (0.0 - 2.0)
+- `max_completion_tokens`: Maximum tokens in response
+- `top_p`: Nucleus sampling
+- `frequency_penalty`: Penalty for repeated tokens (-2.0 - 2.0)
+- `presence_penalty`: Penalty for repeated topics (-2.0 - 2.0)
+- `stop`: Stop sequences
+- `seed`: For reproducibility
+
+### 3. Tool Calling
+
+Allows the model to call external functions/tools.
+
+```php
+// examples/tool-calling.php
+
+// Example function (simulated)
+function getNbaScore($teamName) {
+    // ... (simulated logic to return score) ...
+    return json_encode(['team' => $teamName, 'score' => 100]); // Example
+}
+
+$messages = [
+    ['role' => 'system', 'content' => "You must call the 'getNbaScore' function to answer questions about NBA game scores."],
+    ['role' => 'user', 'content' => 'What is the Lakers score?']
+];
+
+$tools = [
+    [
+        'type' => 'function',
+        'function' => [
+            'name' => 'getNbaScore',
+            'description' => 'Get the score for an NBA game',
+            'parameters' => [
+                'type' => 'object',
+                'properties' => [
+                    'team_name' => ['type' => 'string', 'description' => 'NBA team name'],
+                ],
+                'required' => ['team_name'],
+            ],
+        ],
+    ]
+];
+
+$response = $groq->chat()->completions()->create([
+    'model' => 'llama3-groq-70b-8192-tool-use-preview', // Model that supports tool calling
+    'messages' => $messages,
+    'tool_choice' => 'auto',
+    'tools' => $tools
+]);
+
+if (isset($response['choices'][0]['message']['tool_calls'])) {
+    // ... (process tool call, call function, and send response) ...
+    $tool_call          = $response['choices'][0]['message']['tool_calls'][0];
+    $function_args      = json_decode($tool_call['function']['arguments'], true);
+    $function_response  = getNbaScore($function_args['team_name']);
+            
+    $messages[] = [
+        'tool_call_id'  => $tool_call['id'],
+        'role'          => 'tool',
+        'name'          => 'getNbaScore',
+        'content'       => $function_response,
+    ];
+
+    // Second call to the model with tool response:
+    $response = $groq->chat()->completions()->create([
+        'model' => 'llama3-groq-70b-8192-tool-use-preview',
+        'messages' => $messages
+    ]);
+    echo $response['choices'][0]['message']['content'];
+} else {
+    // Direct response, no tool_calls
+    echo $response['choices'][0]['message']['content'];
+}
+```
+
+**Advanced Tool Calling (with multiple tools and parallel calls):**
+
+See `examples/tool-calling-advanced.php` for a more complete example, including:
+
+- Definition of multiple tools (e.g., `getCurrentDateTimeTool`, `getCurrentWeatherTool`)
+- `parallel_tool_calls`: Controls whether tool calls can be made in parallel (currently must be forced `false` in code)
+
+### 4. Audio (Transcription and Translation)
+
+```php
+// examples/audio-transcriptions.php
+use LucianoTonet\GroqPHP\Groq;
+
+$groq = new Groq(getenv('GROQ_API_KEY'));
+
+try {
+    $transcription = $groq->audio()->transcriptions()->create([
+        'file' => 'audio.mp3', /* Your audio file */
+        'model' => 'whisper-large-v3',
+        'response_format' => 'verbose_json', /* Or 'text', 'json' */
+        'language' => 'en', /* ISO 639-1 code (optional but recommended) */
+        'prompt' => 'Audio transcription...' /* (optional) */
+    ]);
+
+    echo json_encode($transcription, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+} catch (\LucianoTonet\GroqPHP\GroqException $e) {
+    echo "Error: " . $e->getMessage();
+}
+
+// examples/audio-translations.php
+// (Similar to transcription, but uses ->translations()->create() and always translates to English)
+
+// Target language for translation is always English
+$translation = $groq->audio()->translations()->create([
+    'file' => 'audio_in_spanish.mp3',
+    'model' => 'whisper-large-v3'
+]);
+```
+
+- **Response formats:** `'json'`, `'verbose_json'`, `'text'`. The `vtt` and `srt` formats are *not* supported.
+- **`language`:** ISO 639-1 code of the *source language* (optional but recommended for better accuracy). See `examples/audio-transcriptions.php` for a complete list of supported languages.
+- `temperature`: Controls variability.
+
+### 5. Vision
+
+Allows analyzing images (local upload or URL).
+
+```php
+// examples/vision-simple.php
+use LucianoTonet\GroqPHP\Groq;
+
+$groq = new Groq(getenv('GROQ_API_KEY'));
+
+try {
+    $response = $groq->vision()->analyze('image.jpg', 'Describe this image');
+echo $response['choices'][0]['message']['content'];
+} catch (\LucianoTonet\GroqPHP\GroqException $e) {
+    echo "Error: " . $e->getMessage();
+}
+
+// examples/vision-url.php
+$response = $groq->vision()->analyze('https://example.com/image.jpg', 'Describe this image');
+
+// examples/vision-multiple.php (multiple image upload)
+// ... (See example for details) ...
+```
+
+- **`analyze()`:** Takes the file path (local) or image URL, and a prompt.
+- **Size limits:** 20MB for URLs, 4MB for local files (due to base64 encoding).
+- Default model is `llama-3.2-90b-vision-preview`, but can be configured with `setDefaultModel()` or by passing the `model` parameter in `analyze()`.
+- Local image is base64 encoded within the library before sending.
+
+### 6. Reasoning
+
+Enables step-by-step reasoning tasks.
+
+```php
+// examples/reasoning.php
+use LucianoTonet\GroqPHP\Groq;
+
+$groq = new Groq(getenv('GROQ_API_KEY'));
+
+try {
+    $response = $groq->reasoning()->analyze(
+        'Explain the process of photosynthesis.',
+        [
+            'model' => 'deepseek-r1-distill-llama-70b',
+            'reasoning_format' => 'raw', // 'raw' (default), 'parsed', 'hidden'
+            'temperature' => 0.6,
+            'max_completion_tokens' => 10240
+        ]
+    );
+
+    echo $response['choices'][0]['message']['content'];
+} catch (\LucianoTonet\GroqPHP\GroqException $e) {
+    echo "Error: " . $e->getMessage();
+}
+```
+
+- **`analyze()`:** Takes the prompt (question/problem) and an options array.
+- **`reasoning_format`:**
+  - `'raw'`: Includes reasoning with `<think>` tags in content (default)
+  - `'parsed'`: Returns reasoning in a separate `reasoning` field
+  - `'hidden'`: Returns only the final answer
+- **`system_prompt`:** Additional instructions for the model (optional). Added as a `system` message *before* the user message.
+- Must use `'parsed'` or `'hidden'` format when using JSON mode
+- Optional parameters: `temperature`, `max_completion_tokens`, `top_p`, `frequency_penalty`, etc.
 
 #### Reasoning Formats
 
@@ -212,7 +334,7 @@ The reasoning feature supports three output formats:
    // Response structure:
    // {
    //     "reasoning": "Step 1: Subtract 7 from both sides...",
-   //     "answer": "x = 5"
+   //     "content": "x = 5"
    // }
    ```
 
@@ -230,538 +352,137 @@ The reasoning feature supports three output formats:
    // Response includes only: "The capital of France is Paris."
    ```
 
-#### Advanced Configuration
+### 7. Files and Batch Processing
 
-Customize the reasoning process with additional options:
-
-```php
-$response = $groq->reasoning()->analyze(
-    "Explain the process of photosynthesis",
-    [
-        'model' => 'deepseek-r1-distill-llama-70b',
-        'temperature' => 0.6,           // Controls response randomness (0.5-0.7 recommended)
-        'max_completion_tokens' => 4096, // Increased for detailed reasoning
-        'system_prompt' => "You are a biology expert. Explain concepts clearly and scientifically.",
-        'reasoning_format' => 'parsed',
-        'top_p' => 0.95,                // Controls response diversity
-        'frequency_penalty' => 0.5,      // Reduces repetition
-        'presence_penalty' => 0.5,       // Encourages topic diversity
-        'stop' => ["END"],              // Optional stop sequence
-        'seed' => 123                   // For reproducible results
-    ]
-);
-```
-
-#### Streaming Reasoning
-
-Stream the reasoning process for real-time output:
+Enables JSONL file upload for batch processing.
 
 ```php
-$response = $groq->reasoning()->analyze(
-    "Explain the theory of relativity",
-    [
-        'model' => 'deepseek-r1-distill-llama-70b',
-        'stream' => true,
-        'max_completion_tokens' => 4096
-    ]
-);
+// examples/files.php
 
-foreach ($response->chunks() as $chunk) {
-    if (isset($chunk['choices'][0]['delta']['content'])) {
-        echo $chunk['choices'][0]['delta']['content'];
-        ob_flush();
-        flush();
-    }
-}
-```
-
-#### Important Notes about Reasoning
-
-- The `model` parameter is required for all reasoning tasks
-- When using JSON mode or tool calling, `reasoning_format` must be either 'parsed' or 'hidden'
-- The reasoning feature is designed to provide transparency in the model's thought process
-- System prompts can be used to guide the model's reasoning approach
-- Set appropriate `max_completion_tokens` based on task complexity
-- Use streaming for long-running reasoning tasks
-- Consider using `seed` parameter for reproducible results
-- The `deepseek-r1-distill-llama-70b` model is recommended for complex reasoning tasks
-- Combine with JSON mode for structured outputs
-- Use error handling for robust applications:
-  ```php
-  try {
-      $response = $groq->reasoning()->analyze(
-          "Complex analysis task",
-          [
-              'model' => 'deepseek-r1-distill-llama-70b',
-              'reasoning_format' => 'parsed',
-              'max_completion_tokens' => 4096
-          ]
-      );
-  } catch (GroqException $e) {
-      // Handle API errors
-      error_log("Reasoning error: " . $e->getMessage());
-      if ($e->getFailedGeneration()) {
-          // Access partial results if available
-          $partial_result = $e->getFailedGeneration();
-      }
-  }
-  ```
-
-### Tool Calling
-
-The Groq PHP library supports function calling (tools) that allows the model to interact with custom functions during response generation. This is useful for tasks that require real-time data or access to external systems.
-
-#### Supported Models
-
-| Model ID | Tool Use Support | Parallel Tool Use Support | JSON Mode Support |
-|----------|-----------------|-------------------------|------------------|
-| qwen-2.5-32b | ✅ | ✅ | ✅ |
-| deepseek-r1-distill-qwen-32b | ✅ | ✅ | ✅ |
-| deepseek-r1-distill-llama-70b | ✅ | ✅ | ✅ |
-| llama-3.3-70b-versatile | ✅ | ✅ | ✅ |
-| llama-3.1-8b-instant | ✅ | ✅ | ✅ |
-| mixtral-8x7b-32768 | ✅ | ❌ | ✅ |
-| gemma2-9b-it | ✅ | ❌ | ✅ |
-
-#### Defining Functions
-
-First, define the functions that will be available to the model:
-
-```php
-function getCurrentWeather(array $parameters): string {
-    $location = $parameters['location'] ?? 'New York';
-    // Implement actual weather logic here like API requests, etc
-    return "30°C, sunny in $location";
+// Upload:
+try {
+    $file = $groq->files()->upload('data.jsonl', 'batch');
+    echo "File uploaded: " . $file->id;
+} catch (\LucianoTonet\GroqPHP\GroqException $e) {
+    echo "Error: " . $e->getMessage();
 }
 
-function getCurrentDateTime(array $parameters): string {
-    $timezone = $parameters['timezone'] ?? 'UTC';
-    date_default_timezone_set($timezone);
-    return date('Y-m-d H:i:s') . " ($timezone)";
-}
-```
+// Listing:
+$files = $groq->files()->list('batch');
+print_r($files);
 
-#### Describing Functions as Tools
+// Download:
+$content = $groq->files()->download($file->id);
+file_put_contents('downloaded_file.jsonl', $content);
 
-Next, describe the functions as tools for the model. The tool schema follows the OpenAI-compatible format:
+// Deletion:
+$groq->files()->delete($file->id);
 
-```php
-$tools = [
-    [
-        "type" => "function",
-        "function" => [
-            "name" => "getCurrentWeather",
-            "description" => "Get current weather forecast for a specific location.",
-            "parameters" => [
-                "type" => "object",
-                "properties" => [
-                    "location" => [
-                        "type" => "string",
-                        "description" => "City name to get weather forecast."
-                    ],
-                    "unit" => {
-                        "type" => "string",
-                        "enum": ["celsius", "fahrenheit"],
-                        "description": "Temperature unit. Defaults to celsius."
-                    }
-                ],
-                "required" => ["location"]
-            ]
-        ]
-    ]
-];
-```
-
-#### Using Tools in a Conversation
-
-Example of how to use tools in a conversation:
-
-```php
-// Initial user message
-$messages = [
-    [
-        'role' => 'system',
-        'content' => 'You are a helpful assistant that can provide weather and time information.'
-    ],
-    [
-        'role' => 'user',
-        'content' => 'What time is it in São Paulo and how is the weather there?'
-    ]
-];
-
-// First call to identify which tools to use
-$response = $groq->chat()->completions()->create([
-    'model' => 'llama-3.3-70b-versatile', // Recommended model for tool use
-    'messages' => $messages,
-    'tool_choice' => 'auto', // Let the model choose which tools to use
-    'tools' => $tools,
-    'max_completion_tokens' => 4096 // Recommended for complex tool interactions
-]);
-
-// Process tool calls
-if (isset($response['choices'][0]['message']['tool_calls'])) {
-    foreach ($response['choices'][0]['message']['tool_calls'] as $tool_call) {
-        $function_name = $tool_call['function']['name']; 
-        $function_args = json_decode($tool_call['function']['arguments'], true);
-        
-        try {
-            // 🪄 Execute the function with parameters and error handling
-            $function_response = $function_name($function_args);
-            
-            // Add function response to history
-            $messages[] = [
-                'tool_call_id' => $tool_call['id'],
-                'role' => 'tool',
-                'name' => $function_name,
-                'content' => $function_response
-            ];
-        } catch (Exception $e) {
-            // Handle tool execution errors
-            $messages[] = [
-                'tool_call_id' => $tool_call['id'],
-                'role' => 'tool',
-                'name' => $function_name,
-                'content' => json_encode([
-                    'error' => $e->getMessage(),
-                    'is_error' => true
-                ])
-            ];
-        }
-    }
-    
-    // Generate final response with tool results
-    $final_response = $groq->chat()->completions()->create([
-        'model' => 'llama-3.3-70b-versatile',
-        'messages' => $messages
+// examples/batches.php
+// Creating a batch:
+try {
+    $batch = $groq->batches()->create([
+        'input_file_id' => $file->id,  // JSONL file ID
+        'endpoint' => '/v1/chat/completions',
+        'completion_window' => '24h'
     ]);
-    
-    echo $final_response['choices'][0]['message']['content'];
+    echo "Batch created: " . $batch->id;
+} catch (\LucianoTonet\GroqPHP\GroqException $e) {
+    echo "Error: " . $e->getMessage();
 }
 ```
 
-#### Parallel Tool Calls
+**File Management:**
+- **`upload()`:** Uploads a *valid* JSONL file. Purpose must be `'batch'`
+- **File validation:**
+  - Checks file existence
+  - Checks if empty
+  - Checks maximum size (100MB)
+  - Checks MIME type (`text/plain` or `application/json`)
+  - Validates each line as valid JSON
+- **`list()`:** Lists files, optionally filtering by `purpose` with pagination options (`limit`, `after`, `order`)
+- **`download()`:** Downloads file content
+- **`delete()`:** Deletes a file
 
-Groq PHP supports parallel tool calls for better performance with supported models:
+**Batch Processing:**
+- **`batches()->create()`:** Creates batch for asynchronous processing
+  - `input_file_id`: Uploaded JSONL file ID
+  - `endpoint`: Currently only `/v1/chat/completions` supported
+  - `completion_window`: Currently only `'24h'` supported
+- `batches()->list()`, `batches()->retrieve()`, `batches()->cancel()`: Manage batches
 
-```php
-$response = $groq->chat()->completions()->create([
-    'model' => 'llama-3.3-70b-versatile',
-    'messages' => $messages,
-    'tool_choice' => 'auto',
-    'tools' => $tools,
-    'parallel_tool_calls' => true, // Enable parallel calls
-    'max_completion_tokens' => 4096
-]);
-```
+### 8. Error Handling
 
-#### Important Notes about Tool Calling
+The library throws `GroqException` for API errors. The exception contains:
 
-- Tools must be valid PHP functions accessible in the scope where they will be called
-- Tool parameters must be properly typed and documented in the schema
-- The `llama-3.3-70b-versatile` model is recommended for tool usage
-- Use `tool_choice => 'auto'` to let the model choose appropriate tools
-- Tool responses must be serializable strings
-- Implement proper error handling in tool functions with `is_error` flag
-- Consider timeouts and resource limits when implementing tools
-- Keep tool descriptions clear and concise
-- Use `parallel_tool_calls` only with supported models
-- Set appropriate `max_completion_tokens` for complex interactions
-- Validate tool inputs and outputs thoroughly
-- Consider implementing a caching mechanism for expensive tool operations
-- Use JSON mode when structured outputs are required
-
-### Tool Usage with Reasoning
-
-The Groq PHP library allows you to combine tool calling with reasoning capabilities for more complex and analytical tasks. This powerful combination enables the model to think step-by-step while having access to real-time data through tools.
-
-#### Basic Tool Usage with Reasoning
-
-Here's a basic example of combining tools with reasoning:
-
-```php
-$response = $groq->reasoning()->analyze(
-    "What's the weather like in Paris today and what activities would you recommend?",
-    [
-        'model' => 'deepseek-r1-distill-llama-70b',
-        'reasoning_format' => 'parsed',
-        'tools' => [
-            [
-                'type' => 'function',
-                'function' => [
-                    'name' => 'getCurrentWeather',
-                    'description' => 'Get current weather conditions for a location.',
-                    'parameters' => [
-                        'type' => 'object',
-                        'properties' => [
-                            'location' => [
-                                'type' => 'string',
-                                'description' => 'City name (e.g., "Paris, France")'
-                            ]
-                        ],
-                        'required' => ['location']
-                    ]
-                ]
-            ]
-        ]
-    ]
-);
-
-echo $response['choices'][0]['message']['content'];
-```
-
-#### Advanced Configuration
-
-For optimal results when combining tools with reasoning, consider this recommended configuration:
-
-```php
-$config = [
-    'model' => 'deepseek-r1-distill-llama-70b',
-    'temperature' => 0.6,           // Recommended: 0.5-0.7 for consistent responses
-    'max_completion_tokens' => 2048, // Increased for complex reasoning
-    'top_p' => 0.95,                // Controls response diversity
-    'reasoning_format' => 'parsed',  // Required: 'parsed' or 'hidden' with tool usage
-    'stream' => true,               // Recommended for interactive tasks
-    'frequency_penalty' => 0.0,     // Adjust based on response repetition needs
-    'presence_penalty' => 0.0       // Adjust based on topic diversity needs
-];
-
-// Example of a complex analysis using tools and reasoning
-$response = $groq->reasoning()->analyze(
-    "Analyze the weather patterns in Paris over the next 24 hours and suggest a detailed itinerary.",
-    array_merge($config, [
-        'tools' => [
-            [
-                'type' => 'function',
-                'function' => [
-                    'name' => 'getHourlyWeather',
-                    'description' => 'Get hourly weather forecast for a location.',
-                    'parameters' => [
-                        'type' => 'object',
-                        'properties' => [
-                            'location' => [
-                                'type' => 'string',
-                                'description' => 'City name'
-                            ],
-                            'hours' => [
-                                'type' => 'integer',
-                                'description' => 'Number of hours to forecast'
-                            ]
-                        ],
-                        'required' => ['location', 'hours']
-                    ]
-                ]
-            ]
-        ]
-    ])
-);
-```
-
-#### Best Practices for Tool Usage with Reasoning
-
-1. **Format Selection**
-   - Always use `reasoning_format => 'parsed'` when combining tools with reasoning
-   - This ensures clear separation between reasoning steps and tool outputs
-   - The `raw` format is not supported when using tools
-
-2. **Prompt Engineering**
-   - Structure prompts to explicitly guide the reasoning process
-   - Include specific instructions about when to use tools
-   - Break complex queries into logical steps
-   - Example:
-     ```php
-     $prompt = "1. Check the current weather in Paris
-                2. Analyze the temperature and conditions
-                3. Consider indoor/outdoor activities based on weather
-                4. Suggest a detailed itinerary";
-     ```
-
-3. **Error Handling**
-   - Implement comprehensive error handling for both reasoning and tool calls:
+- `getMessage()`: Descriptive error message
+- `getCode()`: HTTP status code (or 0 for invalid API key)
+- `getType()`: Error type (see `GroqException::ERROR_TYPES` for possible types)
+- `getHeaders()`: HTTP response headers
+- `getResponseBody()`: Response body (as object if JSON)
+- `getError()`: Returns array with error details (message, type, code)
+- `getFailedGeneration()`: If error type is `failed_generation`, returns the invalid JSON that caused the issue
 
 ```php
 try {
-    $response = $groq->reasoning()->analyze(
-        "Analyze weather and suggest activities",
-        [
-            'model' => 'deepseek-r1-distill-llama-70b',
-            'reasoning_format' => 'parsed',
-            'tools' => $tools,
-            'error_handling' => [
-                'tool_errors' => 'continue', // Continue reasoning even if a tool fails
-                'max_retries' => 2          // Number of tool call retries
-            ]
-        ]
-    );
-} catch (GroqException $err) {
-    echo "Error: " . $err->getMessage();
-    if ($err->getFailedGeneration()) {
-        print_r($err->getFailedGeneration());
+    // ... API call ...
+} catch (\LucianoTonet\GroqPHP\GroqException $e) {
+    echo "Groq Error: " . $e->getMessage() . "\n";
+    echo "Type: " . $e->getType() . "\n";
+    echo "Code: " . $e->getCode() . "\n";
+    if ($e->getFailedGeneration()) {
+        echo "Invalid JSON: " . $e->getFailedGeneration();
     }
 }
 ```
 
-4. **Performance Optimization**
-   - Use streaming for long-running analyses
-   - Implement caching for tool results where appropriate
-   - Consider rate limits and API quotas
-   - Monitor token usage and adjust `max_completion_tokens` accordingly
+The `GroqException` class provides static methods for creating specific exceptions like `invalidRequest()`, `authenticationError()`, etc., following a factory pattern.
 
-5. **Tool Response Processing**
-   - Validate tool responses before using them in reasoning
-   - Format tool outputs consistently
-   - Handle missing or invalid data gracefully
-   - Example:
-     ```php
-     function processToolResponse($response) {
-         if (empty($response)) {
-             return "Data unavailable";
-         }
-         return json_encode($response, JSON_PRETTY_PRINT);
-     }
-     ```
+## Examples
 
-### JSON Mode
+The `examples/` folder contains complete, working PHP scripts demonstrating each library feature. You can run them directly to see the library in action and interact with on your browser.
 
-**Request a JSON object as the response format:**
+First, you need to copy your `.env` file from the root of the project to the examples folder.
 
-```php
-use LucianoTonet\GroqPHP\GroqException;
-
-try {
-    $response = $groq->chat()->completions()->create([
-        'model' => 'mixtral-8x7b-32768',
-        'messages' => [
-            [
-                'role' => 'system',
-                'content' => "You are an API and shall respond only with valid JSON.",
-            ],
-            [
-                'role' => 'user',
-                'content' => 'Explain the importance of low latency LLMs',
-            ],
-        ],
-        'response_format' => ['type' => 'json_object']
-    ]);
-
-    $jsonResponse = json_decode($response['choices'][0]['message']['content'], true);
-
-    // Accessing the JSON response
-    print_r($jsonResponse); 
-
-} catch (GroqException $err) {
-    echo $err->getCode() . "<br>"; 
-    echo $err->getMessage() . "<br>";    
-    echo $err->getType() . "<br>";           
-
-    if($err->getFailedGeneration()) {
-        print_r($err->getFailedGeneration());
-    }
-}
+```bash
+cp .env examples/.env
 ```
 
-### Audio Transcription
+Then, in the examples folder, you need to install the dependencies with:
 
-**Transcribe audio content:**
-
-```php
-$transcription = $groq->audio()->transcriptions()->create([
-    'file' => '/path/to/audio/file.mp3',
-    'model' => 'whisper-large-v3',
-    'response_format' => 'json',
-    'language' => 'en',
-    'prompt' => 'Optional transcription prompt'
-]);
-
-echo json_encode($transcription, JSON_PRETTY_PRINT);
+```bash
+cd examples
+composer install
 ```
 
-### Audio Translation
+Now, you can start the server with:
 
-**Translate audio content:**
-
-```php
-$translation = $groq->audio()->translations()->create([
-    'file' => '/path/to/audio/file.mp3',
-    'model' => 'whisper-large-v3',
-    'response_format' => 'json',
-    'prompt' => 'Optional translation prompt'
-]);
-
-echo json_encode($translation, JSON_PRETTY_PRINT);
+```bash
+php -S 127.0.0.1:8000
 ```
 
-### Vision Capabilities
+Finally, you can access the examples in your browser at `http://127.0.0.1:8000`.
 
-**Analyze an image with a prompt:**
+## Tests
 
-```php
-$analysis = $groq->vision()->analyze('/path/to/your/image.jpg', 'Describe this image');
+The `tests/` folder contains unit tests. Run them with `composer test`. Tests require the `GROQ_API_KEY` environment variable to be set.
 
-echo $analysis['choices'][0]['message']['content'];
-```
+## Contributing
 
-## Error Handling
+Contributions are welcome! If you find a bug, have a suggestion, or want to add functionality, please open an issue or submit a pull request.
 
-**Handle potential errors gracefully:**
+## Changelog
 
-```php
-use LucianoTonet\GroqPHP\GroqException;
+See [CHANGELOG.md](CHANGELOG.md) for the full changelog.
 
-try {
-    $response = $groq->chat()->completions()->create([
-        'model' => 'mixtral-8x7b-32768',
-        'messages' => [
-            [
-                'role' => 'user',
-                'content' => 'Hello, world!'
-            ]
-        ]
-    ]);
-} catch (GroqException $err) {
-    echo "<strong>Error code:</strong> " . $err->getCode() . "<br>"; // e.g., 400
-    echo "<strong>Message:</strong> " . $err->getMessage() . "<br>";    // Detailed error description
-    echo "<strong>Type:</strong> " . $err->getType() . "<br>";           // e.g., invalid_request_error
-    echo "<strong>Headers:</strong><br>"; 
-    print_r($err->getHeaders()); // ['server' => 'nginx', ...]
-}
-```
+## About Semantic Versioning
 
-## Timeouts
+This package follows [SemVer](https://semver.org/spec/v2.0.0.html) conventions. However, breaking changes may be released in minor versions in the following cases:
 
-### Global Timeout Configuration
+1. Changes that only affect static types and not runtime behavior.
+2. Modifications to internal library components that are technically public but not intended for external use. *(Please open a GitHub issue if you depend on these internals)*.
+3. Changes that should not affect most users in practical scenarios.
 
-**Set a global timeout for all requests (in milliseconds):**
+## License
 
-```php
-$groq = new Groq([
-    'timeout' => 20 * 1000, // 20 seconds
-]);
-```
-
-### Per-Request Timeout
-
-**Specify a timeout for a specific request (in milliseconds):**
-
-```php
-$groq->chat()->completions()->create([
-    'model' => 'mixtral-8x7b-32768',
-    'messages' => [
-        [
-            'role' => 'user',
-            'content' => 'Hello, world!'
-        ]
-    ],
-], ['timeout' => 5 * 1000]); // 5 seconds
-```
-
-## Semantic Versioning
-
-This package follows [SemVer](https://semver.org/spec/v2.0.0.html) conventions. However, backward-incompatible changes might be released under minor versions in the following cases:
-
-1. Changes that only affect static types and do not impact runtime behavior.
-2. Modifications to internal library components that are technically public but not intended for external use. _(Please submit a GitHub issue if you rely on such internals)_.
-3. Changes that are not expected to affect most users in practical scenarios.
-
-## Requirements
-
-[![PHP version](https://img.shields.io/packagist/dependency-v/lucianotonet/groq-php/php)](https://packagist.org/packages/lucianotonet/groq-php)
+[MIT](LICENSE)

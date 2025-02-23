@@ -1,7 +1,7 @@
 {
     "name": "lucianotonet/groq-php",
     "description": "A powerful PHP library for seamless integration with the GroqCloud API",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "type": "package",
     "require": {
         "php": "^8.1.0",

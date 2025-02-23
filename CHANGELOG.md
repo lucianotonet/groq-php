@@ -4,8 +4,32 @@
  *🚧 Next Relesase*
 
 
+## v0.1.2
+* [23/02/2025](https://github.com/lucianotonet/groq-php/commits/aab120f4f35add03e822d842a7d9c8059791006b) chore: Bump version to v0.1.2
+* [23/02/2025](https://github.com/lucianotonet/groq-php/commits/4b29c9c4446c13ff082678ea24415644c171800b) Merge pull request #11 from lucianotonet/feat/files-and-batches
+* [23/02/2025](https://github.com/lucianotonet/groq-php/commits/3b3cf6492c09aacb03f906665309b8ab2570e943) Apply suggestions from code review
+* [23/02/2025](https://github.com/lucianotonet/groq-php/commits/44d0211f257b990cad15e19d9c6fff20608519e6) Apply suggestions from code review
+* [23/02/2025](https://github.com/lucianotonet/groq-php/commits/7fafc8187286c7f8c23ae81a1aea5ca1aba6e363) Add comprehensive test suite for Groq PHP library
+* [23/02/2025](https://github.com/lucianotonet/groq-php/commits/3244576e28f1811bca6ca2fb046fa5f95936fe01) Adds reasoning format options to example
+* [23/02/2025](https://github.com/lucianotonet/groq-php/commits/21166c741ffe8d649f64048bbfe3d56e08b155df) Adds file and batch processing capabilities
+
+## v0.1.1
+* [20/02/2025](https://github.com/lucianotonet/groq-php/commits/048cb936e0eeabc6c350dac03fb02e9a96ff291a) chore: Bump version to v0.1.1
+* [20/02/2025](https://github.com/lucianotonet/groq-php/commits/fa075afb5fdab7b57f81170f6dfb25b7247453cf) Improves API key retrieval
+
+## v0.1.0
+* [18/02/2025](https://github.com/lucianotonet/groq-php/commits/380e3722ba741dbef5647aaac718dac7c399327b) chore: bump version to 0.1.0
+* [18/02/2025](https://github.com/lucianotonet/groq-php/commits/1ac4a35f87ce2882f7ab4daa18172634c81a13f4) Merge pull request #10 from lucianotonet/develop
+* [18/02/2025](https://github.com/lucianotonet/groq-php/commits/fcebfec4f6034f12db02abd32debdaca3c52972b) Update temperature input range in reasoning example
+* [18/02/2025](https://github.com/lucianotonet/groq-php/commits/f733627e6f32279ceecf3b72ad243ea0e4d99d0c) Update README with comprehensive configuration options and new reasoning/tool calling documentation
+* [18/02/2025](https://github.com/lucianotonet/groq-php/commits/93e46d82c8883ef508899ab264d99dc978b818f3) Renames max_tokens to max_completion_tokens
+* [18/02/2025](https://github.com/lucianotonet/groq-php/commits/bb700c1acb87d560ea71ea0316c006ca57b44e93) Adds reasoning feature
+* [18/02/2025](https://github.com/lucianotonet/groq-php/commits/c999f8f734f3db5b680cf225abd970bdc6228207) Merge pull request #9 from lguichard/main
+* [18/02/2025](https://github.com/lucianotonet/groq-php/commits/e944b6551c245bbb18ad7883fee228c68649ba34) Fixes
+* [14/02/2025](https://github.com/lucianotonet/groq-php/commits/f2330a23c6ce5cc01530c6fb3e4950ab061698f3) Fix - Update completions parameters
+
 ## v0.0.10
-* [29/10/2024](https://github.com/lucianotonet/groq-php/commits/fb6fcf34cbe9bc8c46b27f7093f65d2b3296e790) Update version to 0.0.10 in composer.json, add API key options in README.
+* [29/10/2024](https://github.com/lucianotonet/groq-php/commits/c36c5a471d4caf0cec642887371203c6339d9738) Update version to 0.0.10 in composer.json, add API key options in README.
 * [29/10/2024](https://github.com/lucianotonet/groq-php/commits/87fae1976b1827ebafcc69986cd729b9ce63cee1) Merge pull request #8 from lucianotonet/develop
 * [29/10/2024](https://github.com/lucianotonet/groq-php/commits/db48f4475badca9e51aef9f9dacf5892913188ae) Merge branch 'hotfix/test-vision-with-url' into main
 * [29/10/2024](https://github.com/lucianotonet/groq-php/commits/5f04b293dea29381b90b099a488b1b50ed50b36e) Merge branch 'hotfix/test-vision-with-url' into develop

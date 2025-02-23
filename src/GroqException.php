@@ -74,6 +74,14 @@ class GroqException extends \Exception
         return $this->type;
     }
 
+    /**
+     * Alias for getType() for backward compatibility
+     */
+    public function getErrorType(): string
+    {
+        return $this->getType();
+    }
+
     public function getHeaders(): array
     {
         return $this->headers;

@@ -1,5 +1,7 @@
 <?php
 
+namespace LucianoTonet\GroqPHP\Tests;
+
 use LucianoTonet\GroqPHP\Groq;
 use LucianoTonet\GroqPHP\GroqException;
 use PHPUnit\Framework\TestCase;
@@ -90,7 +92,7 @@ class GroqTest extends TestCase
         // Test setting new options
         $newOptions = [
             'apiKey' => 'new_test_key',
-            'baseUrl' => 'https://test-api.groq.com/v1',
+            'baseUrl' => 'https://test-api.groq.com',
             'timeout' => 30000,
             'maxRetries' => 3,
             'headers' => ['X-Custom-Header' => 'test'],

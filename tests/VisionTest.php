@@ -1,55 +1,98 @@
 <?php
+namespace LucianoTonet\GroqPHP\Tests;
 
-use LucianoTonet\GroqPHP\Groq;
+
 use LucianoTonet\GroqPHP\GroqException;
-use PHPUnit\Framework\TestCase;
 
 class VisionTest extends TestCase
 {
-    private Groq $groq;
+    private string $testImagePath;
+    private string $testImageUrl;
 
     protected function setUp(): void
     {
-        $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__, '../.env');
-        $dotenv->load();
-        $this->groq = new Groq($_ENV['GROQ_API_KEY']);
+        parent::setUp();
+        
+        $this->testImagePath = __DIR__ . '/fixtures/australian_shepherd_puppies.png';
+        $this->testImageUrl = "https://raw.githubusercontent.com/groq/groq-api-cookbook/d4f9b68e85989e107e2c50caae9d4ad86a46f375/tutorials/multimodal-image-processing/images/australian_shepherd_puppies.png";
     }
 
     public function testVisionAnalysisWithLocalImage()
     {
-        $imagePath = __DIR__ . '/images/australian_shepherd_puppies.png';
         $prompt = "What do you see in this image?";
 
         try {
-            $response = $this->groq->vision()->analyze($imagePath, $prompt);
+            $response = $this->groq->vision()->analyze($this->testImagePath, $prompt);
+            
+            $this->assertArrayHasKey('choices', $response);
+            $this->assertNotEmpty($response['choices']);
+            $this->assertArrayHasKey('message', $response['choices'][0]);
+            $this->assertArrayHasKey('content', $response['choices'][0]['message']);
+            
+            // Verifica se a resposta contém texto significativo
+            $this->assertNotEmpty($response['choices'][0]['message']['content']);
+            
         } catch (GroqException $e) {
-            $this->fail("Error analyzing local image: " . $e->getMessage() . " - Code: " . $e->getCode() . " - File: " . $e->getFile());
-        } catch (ArgumentCountError $e) {
-            $this->fail("Argument count error: " . $e->getMessage());
+            $this->fail("Error analyzing local image: " . $e->getMessage());
         }
-
-        $this->assertArrayHasKey('choices', $response);
-        $this->assertNotEmpty($response['choices']);
-        $this->assertArrayHasKey('message', $response['choices'][0]);
-        $this->assertArrayHasKey('content', $response['choices'][0]['message']);
     }
 
     public function testVisionAnalysisWithUrlImage()
     {
-        $imageUrl = "https://raw.githubusercontent.com/groq/groq-api-cookbook/d4f9b68e85989e107e2c50caae9d4ad86a46f375/tutorials/multimodal-image-processing/images/australian_shepherd_puppies.png";
         $prompt = "What do you see in this image?";
 
         try {
-            $response = $this->groq->vision()->analyze($imageUrl, $prompt);
+            $response = $this->groq->vision()->analyze($this->testImageUrl, $prompt);
+            
+            $this->assertArrayHasKey('choices', $response);
+            $this->assertNotEmpty($response['choices']);
+            $this->assertArrayHasKey('message', $response['choices'][0]);
+            $this->assertArrayHasKey('content', $response['choices'][0]['message']);
+            
+            // Verifica se a resposta contém texto significativo
+            $this->assertNotEmpty($response['choices'][0]['message']['content']);
+            
         } catch (GroqException $e) {
-            $this->fail("Error analyzing URL image: " . $e->getMessage() . " - Code: " . $e->getCode() . " - File: " . $e->getFile());
-        } catch (ArgumentCountError $e) {
-            $this->fail("Argument count error: " . $e->getMessage());
+            $this->fail("Error analyzing URL image: " . $e->getMessage());
         }
+    }
 
-        $this->assertArrayHasKey('choices', $response);
-        $this->assertNotEmpty($response['choices']);
-        $this->assertArrayHasKey('message', $response['choices'][0]);
-        $this->assertArrayHasKey('content', $response['choices'][0]['message']);
+    public function testVisionAnalysisWithInvalidImage()
+    {
+        $prompt = "What do you see in this image?";
+        $invalidPath = __DIR__ . '/../../fixtures/nonexistent.png';
+
+        $this->expectException(GroqException::class);
+        $this->expectExceptionMessage('Image file not found');
+        $this->groq->vision()->analyze($invalidPath, $prompt);
+    }
+
+    public function testVisionAnalysisWithInvalidUrl()
+    {
+        $prompt = "What do you see in this image?";
+        $invalidUrl = "https://invalid-url.com/image.png";
+
+        $this->expectException(GroqException::class);
+        $this->expectExceptionMessage('invalid image data');
+        $this->groq->vision()->analyze($invalidUrl, $prompt);
+    }
+
+    public function testVisionAnalysisWithCustomOptions()
+    {
+        $prompt = "What do you see in this image?";
+        $options = [
+            'max_completion_tokens' => 100,
+            'temperature' => 0.5
+        ];
+
+        try {
+            $response = $this->groq->vision()->analyze($this->testImagePath, $prompt, $options);
+            
+            $this->assertArrayHasKey('choices', $response);
+            $this->assertNotEmpty($response['choices']);
+            
+        } catch (GroqException $e) {
+            $this->fail("Error analyzing with custom options: " . $e->getMessage());
+        }
     }
 }

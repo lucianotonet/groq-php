@@ -12,3 +12,5 @@ playground/*
 /examples/.env
 /examples/vendor/
 CHANGELOG_GEN.sh
+.cursorrules
+.cursor*

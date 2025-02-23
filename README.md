@@ -6,7 +6,7 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
 [![License](https://img.shields.io/packagist/l/lucianotonet/groq-php)](https://packagist.org/packages/lucianotonet/groq-php)
 
-**A powerful PHP library for seamless integration with the Groq API. This library simplifies interactions with Groq, allowing developers to effortlessly leverage its advanced language models, audio processing and vision capabilities.**
+**A powerful PHP library for seamless integration with the GroqCloud API. This library simplifies interactions with Groq, allowing developers to effortlessly leverage its advanced language models, audio processing and vision capabilities.**
 
 Using on Laravel? Check this out: [GroqLaravel](https://github.com/lucianotonet/groq-laravel?tab=readme-ov-file#readme)
 

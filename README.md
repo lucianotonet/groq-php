@@ -10,13 +10,14 @@ A comprehensive PHP SDK that simplifies interaction with **the world's fastest L
 
 Using on Laravel? Check this out: [GroqLaravel](https://github.com/lucianotonet/groq-laravel?tab=readme-ov-file#readme)
 
-## Requirements
+## Features
 
-[![PHP version](https://img.shields.io/packagist/dependency-v/lucianotonet/groq-php/php)](https://packagist.org/packages/lucianotonet/groq-php)
-
-- PHP >= 8.1
-- `fileinfo` extension
-- `guzzlehttp/guzzle`
+- [x] [Chat Completions](#2-chat-completions)
+- [x] [Tool Calling](#3-tool-calling)
+- [x] [Audio Transcription and Translation](#4-audio-transcription-and-translation)
+- [x] [Vision](#5-vision)
+- [x] [Reasoning](#6-reasoning)
+- [x] [Files and Batch Processing](#7-files-and-batch-processing)
 
 ## Installation
 
@@ -32,23 +33,25 @@ composer require lucianotonet/groq-php
 
 2. **Configure your API Key:**
    - Using environment variables:
+
     ```bash
     export GROQ_API_KEY=your_key_here
     ```
+
     - Or using a `.env` file:
+
     ```bash
     GROQ_API_KEY=your_key_here
     GROQ_API_BASE=https://api.groq.com/openai/v1  # (Optional, if different from default)
     ```
 
-## Features and Usage
+## Usage
 
-### 1. Available Models
+### 1. Listing Models
 
 List available models.
 
 ```php
-// examples/models.php
 $models = $groq->models()->list();
 print_r($models['data']);
 ```
@@ -81,8 +84,6 @@ try {
 **Streaming:**
 
 ```php
-// examples/chat-streaming.php
-
 $response = $groq->chat()->completions()->create([
     'model' => 'llama3-8b-8192',
     'messages' => [
@@ -103,7 +104,6 @@ foreach ($response->chunks() as $chunk) {
 **JSON Mode:**
 
 ```php
-// examples/json-mode.php
 $response = $groq->chat()->completions()->create([
     'model' => 'mixtral-8x7b-32768',
     'messages' => [
@@ -132,7 +132,6 @@ echo json_encode(json_decode($content), JSON_PRETTY_PRINT); // Display formatted
 Allows the model to call external functions/tools.
 
 ```php
-// examples/tool-calling.php
 
 // Example function (simulated)
 function getNbaScore($teamName) {
@@ -204,7 +203,6 @@ See `examples/tool-calling-advanced.php` for a more complete example, including:
 ### 4. Audio (Transcription and Translation)
 
 ```php
-// examples/audio-transcriptions.php
 use LucianoTonet\GroqPHP\Groq;
 
 $groq = new Groq(getenv('GROQ_API_KEY'));
@@ -223,7 +221,6 @@ try {
     echo "Error: " . $e->getMessage();
 }
 
-// examples/audio-translations.php
 // (Similar to transcription, but uses ->translations()->create() and always translates to English)
 
 // Target language for translation is always English
@@ -242,7 +239,6 @@ $translation = $groq->audio()->translations()->create([
 Allows analyzing images (local upload or URL).
 
 ```php
-// examples/vision-simple.php
 use LucianoTonet\GroqPHP\Groq;
 
 $groq = new Groq(getenv('GROQ_API_KEY'));
@@ -254,10 +250,8 @@ echo $response['choices'][0]['message']['content'];
     echo "Error: " . $e->getMessage();
 }
 
-// examples/vision-url.php
 $response = $groq->vision()->analyze('https://example.com/image.jpg', 'Describe this image');
 
-// examples/vision-multiple.php (multiple image upload)
 // ... (See example for details) ...
 ```
 
@@ -271,7 +265,6 @@ $response = $groq->vision()->analyze('https://example.com/image.jpg', 'Describe 
 Enables step-by-step reasoning tasks.
 
 ```php
-// examples/reasoning.php
 use LucianoTonet\GroqPHP\Groq;
 
 $groq = new Groq(getenv('GROQ_API_KEY'));
@@ -309,6 +302,7 @@ The reasoning feature supports three output formats:
 1. **Raw Format (Default)**
    - Includes reasoning steps within `<think>` tags in the content
    - Best for debugging and understanding the model's thought process
+
    ```php
    $response = $groq->reasoning()->analyze(
        "Explain quantum entanglement.",
@@ -323,6 +317,7 @@ The reasoning feature supports three output formats:
 2. **Parsed Format**
    - Separates reasoning into a dedicated field
    - Ideal for applications that need to process reasoning steps separately
+
    ```php
    $response = $groq->reasoning()->analyze(
        "Solve this math problem: 3x + 7 = 22",
@@ -341,6 +336,7 @@ The reasoning feature supports three output formats:
 3. **Hidden Format**
    - Returns only the final answer without showing reasoning steps
    - Best for production applications where only the result matters
+
    ```php
    $response = $groq->reasoning()->analyze(
        "What is the capital of France?",
@@ -357,8 +353,6 @@ The reasoning feature supports three output formats:
 Enables JSONL file upload for batch processing.
 
 ```php
-// examples/files.php
-
 // Upload:
 try {
     $file = $groq->files()->upload('data.jsonl', 'batch');
@@ -378,7 +372,6 @@ file_put_contents('downloaded_file.jsonl', $content);
 // Deletion:
 $groq->files()->delete($file->id);
 
-// examples/batches.php
 // Creating a batch:
 try {
     $batch = $groq->batches()->create([
@@ -393,6 +386,7 @@ try {
 ```
 
 **File Management:**
+
 - **`upload()`:** Uploads a *valid* JSONL file. Purpose must be `'batch'`
 - **File validation:**
   - Checks file existence
@@ -405,6 +399,7 @@ try {
 - **`delete()`:** Deletes a file
 
 **Batch Processing:**
+
 - **`batches()->create()`:** Creates batch for asynchronous processing
   - `input_file_id`: Uploaded JSONL file ID
   - `endpoint`: Currently only `/v1/chat/completions` supported
@@ -468,6 +463,14 @@ Finally, you can access the examples in your browser at `http://127.0.0.1:8000`.
 The `tests/` folder contains unit tests. Run them with `composer test`. Tests require the `GROQ_API_KEY` environment variable to be set.
 
 > **Note:** Tests make real API calls to Groq and consume API credits. For this reason, our CI pipeline runs tests only on PHP 8.2. If you need to test with different PHP versions, please do so locally and be mindful of API usage.
+
+## Requirements
+
+[![PHP version](https://img.shields.io/packagist/dependency-v/lucianotonet/groq-php/php)](https://packagist.org/packages/lucianotonet/groq-php)
+
+- PHP >= 8.1
+- `fileinfo` extension
+- `guzzlehttp/guzzle`
 
 ## Contributing
 

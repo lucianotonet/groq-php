@@ -72,8 +72,10 @@ class VisionTest extends TestCase
         $prompt = "What do you see in this image?";
         $invalidUrl = "https://invalid-url.com/image.png";
 
+        // Expect only the exception type, not the specific message
+        // since error messages from external APIs can change
         $this->expectException(GroqException::class);
-        $this->expectExceptionMessage('invalid image data');
+        
         $this->groq->vision()->analyze($invalidUrl, $prompt);
     }
 

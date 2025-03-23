@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $response = $groq->chat()->completions()->create([
             'model' => 'llama3-groq-70b-8192-tool-use-preview',
-            // 'model' => 'mixtral-8x7b-32768', // mixtral-8x7b-32768, gemma-7b-it
+            // 'model' => 'llama3-70b-8192',
             'messages' => $messages,
             "tool_choice" => "auto",
             "tools" => $tools
@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $response = $groq->chat()->completions()->create([
                 'model' => 'llama3-groq-70b-8192-tool-use-preview',
-                // 'model' => 'mixtral-8x7b-32768',
+                // 'model' => 'llama3-70b-8192',
                 'messages' => $messages
             ]);
         } catch (\LucianoTonet\GroqPHP\GroqException $err) {

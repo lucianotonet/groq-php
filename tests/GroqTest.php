@@ -22,11 +22,11 @@ class GroqTest extends TestCase
         $groq = new Groq('invalid_api_key');
 
         $this->expectException(GroqException::class);
-        $this->expectExceptionCode(0); // O código de erro será 0 para chaves de API inválidas
-        $this->expectExceptionMessage('Invalid API Key'); // A mensagem de erro será 'Invalid API Key'
+        $this->expectExceptionCode(0); // Error code will be 0 for invalid API keys
+        $this->expectExceptionMessage('Invalid API Key'); // Error message will be 'Invalid API Key'
 
         $groq->chat()->completions()->create([
-            'model' => 'mixtral-8x7b-32768',
+            'model' => 'llama3-70b-8192',
             'messages' => [
                 ['role' => 'user', 'content' => 'Hello, world!'],
             ],
@@ -39,13 +39,13 @@ class GroqTest extends TestCase
 
         $this->assertIsArray($models);
         $this->assertNotEmpty($models);
-        $this->assertArrayHasKey('data', $models); // Verifica se a chave 'data' está presente
+        $this->assertArrayHasKey('data', $models); // Verify that the 'data' key is present
     }
 
     public function testChatCompletionWithValidApiKey()
     {
         $response = $this->groq->chat()->completions()->create([
-            'model' => 'mixtral-8x7b-32768',
+            'model' => 'llama3-70b-8192',
             'messages' => [
                 ['role' => 'user', 'content' => 'Hello, world!'],
             ],
@@ -125,9 +125,9 @@ class GroqTest extends TestCase
 
     public function testSetOptionsPartial()
     {
-        // Setup
-        $initialApiKey = $_ENV['GROQ_API_KEY'];
-        $groq = new Groq($initialApiKey, ['timeout' => 10000]);
+        // Setup - usar uma chave fixa para teste em vez da variável de ambiente
+        $mockApiKey = 'test-api-key-' . uniqid();
+        $groq = new Groq($mockApiKey, ['timeout' => 10000]);
         
         // Test setting only some options
         $newOptions = [
@@ -150,6 +150,6 @@ class GroqTest extends TestCase
         $this->assertEquals(true, $actualOptions['debug']);
         
         // Verify API key remained unchanged
-        $this->assertEquals($initialApiKey, $groq->apiKey());
+        $this->assertEquals($mockApiKey, $groq->apiKey());
     }
 }

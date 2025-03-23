@@ -105,7 +105,7 @@ foreach ($response->chunks() as $chunk) {
 
 ```php
 $response = $groq->chat()->completions()->create([
-    'model' => 'mixtral-8x7b-32768',
+    'model' => 'llama3-70b-8192',
     'messages' => [
         ['role' => 'system', 'content' => 'You are an API and must respond only with valid JSON.'],
         ['role' => 'user', 'content' => 'Give me information about the current weather in London'],

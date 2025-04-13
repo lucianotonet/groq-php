@@ -14,7 +14,8 @@ Using on Laravel? Check this out: [GroqLaravel](https://github.com/lucianotonet/
 
 - [x] [Chat Completions](#2-chat-completions)
 - [x] [Tool Calling](#3-tool-calling)
-- [x] [Audio Transcription and Translation](#4-audio-transcription-and-translation)
+- [x] [Audio Transcription and Translation](#4-audio-transcription-translation-and-text-to-speech)
+- [x] [Text-to-Speech](#4-audio-transcription-translation-and-text-to-speech)
 - [x] [Vision](#5-vision)
 - [x] [Reasoning](#6-reasoning)
 - [x] [Files and Batch Processing](#7-files-and-batch-processing)
@@ -200,7 +201,9 @@ See `examples/tool-calling-advanced.php` for a more complete example, including:
 - Definition of multiple tools (e.g., `getCurrentDateTimeTool`, `getCurrentWeatherTool`)
 - `parallel_tool_calls`: Controls whether tool calls can be made in parallel (currently must be forced `false` in code)
 
-### 4. Audio (Transcription and Translation)
+### 4. Audio (Transcription, Translation and Text-to-Speech)
+
+#### Transcription and Translation
 
 ```php
 use LucianoTonet\GroqPHP\Groq;
@@ -233,6 +236,55 @@ $translation = $groq->audio()->translations()->create([
 - **Response formats:** `'json'`, `'verbose_json'`, `'text'`. The `vtt` and `srt` formats are *not* supported.
 - **`language`:** ISO 639-1 code of the *source language* (optional but recommended for better accuracy). See `examples/audio-transcriptions.php` for a complete list of supported languages.
 - `temperature`: Controls variability.
+
+#### Text-to-Speech (TTS)
+
+Convert text to speech using GroqCloud's Text-to-Speech API.
+
+```php
+use LucianoTonet\GroqPHP\Groq;
+
+$groq = new Groq(getenv('GROQ_API_KEY'));
+
+try {
+    // Method 1: Save to file
+    $result = $groq->audio()->speech()
+        ->model('playai-tts')  // 'playai-tts' for English, 'playai-tts-arabic' for Arabic
+        ->input('Hello, this text will be converted to speech')
+        ->voice('Bryan-PlayAI')  // Voice identifier
+        ->responseFormat('wav')  // Output format
+        ->save('output.wav');
+    
+    if ($result) {
+        echo "Audio file saved successfully!";
+    }
+    
+    // Method 2: Get as stream
+    $audioStream = $groq->audio()->speech()
+        ->model('playai-tts')
+        ->input('This is another example text')
+        ->voice('Bryan-PlayAI')
+        ->create();
+    
+    // Use the stream (e.g., send to browser)
+    header('Content-Type: audio/wav');
+    header('Content-Disposition: inline; filename="speech.wav"');
+    echo $audioStream;
+    
+} catch (\LucianoTonet\GroqPHP\GroqException $e) {
+    echo "Error: " . $e->getMessage();
+}
+```
+
+- **Models:** `'playai-tts'` (English), `'playai-tts-arabic'` (Arabic)
+- **Parameters:**
+  - `model()`: The TTS model to use
+  - `input()`: Text to convert to speech
+  - `voice()`: Voice identifier (e.g., "Bryan-PlayAI")
+  - `responseFormat()`: Output format (default: "wav")
+- **Methods:**
+  - `create()`: Returns audio content as stream
+  - `save($filePath)`: Saves audio to a file and returns success boolean
 
 ### 5. Vision
 

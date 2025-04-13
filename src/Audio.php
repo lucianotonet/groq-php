@@ -41,4 +41,14 @@ class Audio
     {
         return new Translations($this->groq);
     }
+
+    /**
+     * Returns a Speech object to work with text-to-speech.
+     *
+     * @return Speech An instance of the Speech class.
+     */
+    public function speech(): Speech
+    {
+        return new Speech($this->groq);
+    }
 }

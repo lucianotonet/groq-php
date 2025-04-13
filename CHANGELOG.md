@@ -4,8 +4,16 @@
  *🚧 Next Relesase*
 
 
+## v1.0.0
+* [23/03/2025](https://github.com/lucianotonet/groq-php/commits/77391f0c32a9a7602906a2dc1dc31d1313afc858) test: Add EnvironmentVariablesTest for GROQ_API_KEY and GROQ_API_BASE
+* [23/03/2025](https://github.com/lucianotonet/groq-php/commits/2ac16eb1b048f11f97642dbea4b0cc900b51715f) fix: prevent TypeError from unset GROQ_API_BASE environment variable
+* [23/03/2025](https://github.com/lucianotonet/groq-php/commits/b1d9dd28ff29d5a3feaf6ca6e4238ceac578271d) refactor: Update depracated models on examples and tests to use Llama 3
+* [27/02/2025](https://github.com/lucianotonet/groq-php/commits/7335963893c722150a80b25f0a9de5dfffd586a2) docs: Update README
+* [23/02/2025](https://github.com/lucianotonet/groq-php/commits/a4b1cdaa984feb9f2c985541f46a51dd06a3af6e) fix: Fix general warning - 'The version field is present, it is recommended to leave it out if the package is published on Packagist.'
+* [23/02/2025](https://github.com/lucianotonet/groq-php/commits/26d11f41ae7084d9df155d80c9ab752afa2e9369) Add GitHub Actions workflow for running tests
+
 ## v0.1.2
-* [23/02/2025](https://github.com/lucianotonet/groq-php/commits/aab120f4f35add03e822d842a7d9c8059791006b) chore: Bump version to v0.1.2
+* [23/02/2025](https://github.com/lucianotonet/groq-php/commits/511bbb0b763085cec0c5b129e9a512cd642f449d) chore: Bump version to v0.1.2
 * [23/02/2025](https://github.com/lucianotonet/groq-php/commits/4b29c9c4446c13ff082678ea24415644c171800b) Merge pull request #11 from lucianotonet/feat/files-and-batches
 * [23/02/2025](https://github.com/lucianotonet/groq-php/commits/3b3cf6492c09aacb03f906665309b8ab2570e943) Apply suggestions from code review
 * [23/02/2025](https://github.com/lucianotonet/groq-php/commits/44d0211f257b990cad15e19d9c6fff20608519e6) Apply suggestions from code review

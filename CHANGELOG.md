@@ -2,7 +2,7 @@
 
 
  *🚧 Next Relesase*
-
+* [12/04/2025](https://github.com/lucianotonet/groq-php/commits/7db314bf40ffea0fe60e71eff11e159a9e59274a) feat: Implement Text-to-Speech (TTS) functionality
 
 ## v1.0.0
 * [23/03/2025](https://github.com/lucianotonet/groq-php/commits/77391f0c32a9a7602906a2dc1dc31d1313afc858) test: Add EnvironmentVariablesTest for GROQ_API_KEY and GROQ_API_BASE

@@ -75,29 +75,26 @@ class ChatTest extends TestCase
   public function testJsonModeCompletion()
   {
     $response = $this->groq->chat()->completions()->create([
-      'model' => 'llama3-70b-8192',
+      'model' => 'llama-3.1-8b-instant',
       'messages' => [
-        [
-          'role' => 'system',
-          'content' => 'You are an API and shall respond only with valid JSON.',
-        ],
-        [
-          'role' => 'user',
-          'content' => 'Give me information about the current weather in London'
-        ]
+        ['role' => 'system', 'content' => 'You are a JSON API. You must respond with valid JSON only.'],
+        ['role' => 'user', 'content' => 'Return a simple JSON with: name="John", age=30']
       ],
       'response_format' => ['type' => 'json_object']
     ]);
 
+    $this->assertArrayHasKey('choices', $response);
+    $this->assertArrayHasKey('message', $response['choices'][0]);
+    $this->assertArrayHasKey('content', $response['choices'][0]['message']);
+    
+    // Verificar se o conteúdo é um JSON válido
     $content = $response['choices'][0]['message']['content'];
-    
-    // Verifica se é um JSON válido
-    $this->assertJson($content);
-    
-    // Decodifica e verifica a estrutura
-    $data = json_decode($content, true);
-    $this->assertIsArray($data);
-    $this->assertNotEmpty($data);
+    $json = json_decode($content, true);
+    $this->assertNotNull($json);
+    $this->assertArrayHasKey('name', $json);
+    $this->assertArrayHasKey('age', $json);
+    $this->assertEquals('John', $json['name']);
+    $this->assertEquals(30, $json['age']);
   }
 
   /**

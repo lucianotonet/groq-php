@@ -5,7 +5,7 @@ namespace LucianoTonet\GroqPHP;
 class Vision
 {
     private Groq $groq;
-    private string $defaultModel = 'llama-3.2-90b-vision-preview';
+    private string $defaultModel = 'meta-llama/llama-4-scout-17b-16e-instruct';
 
     public function __construct(Groq $groq)
     {

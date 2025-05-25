@@ -62,8 +62,7 @@ if (!in_array('text/html', $accept)) {
             <br/>
             <h3 class="text-md font-bold">Advanced:</h3>
             <ul class="list-disc">
-                <li><a class="focus:font-bold" href="?page=files">Files</a></li>
-                <li><a class="focus:font-bold" href="?page=batches">Batches</a></li>
+                <li><a class="focus:font-bold" href="?page=files">JSONL File Processing</a></li>
             </ul>
         </div>
         

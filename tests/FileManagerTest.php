@@ -8,22 +8,58 @@ use LucianoTonet\GroqPHP\GroqException;
 class FileManagerTest extends TestCase
 {
     private string $testJsonlPath;
+    private string $testInvalidJsonlPath;
 
     protected function setUp(): void
     {
         parent::setUp();
         
-        // Criar arquivo JSONL temporário para testes
+        // Criar arquivo JSONL válido para testes
         $this->testJsonlPath = sys_get_temp_dir() . '/test.jsonl';
-        file_put_contents($this->testJsonlPath, json_encode([
-            'messages' => [
-                ['role' => 'user', 'content' => 'Hello, world!']
-            ]
-        ]) . "\n" . json_encode([
-            'messages' => [
-                ['role' => 'user', 'content' => 'How are you?']
-            ]
-        ]) . "\n");
+        $jsonlContent = 
+            json_encode([
+                'custom_id' => 'request-1',
+                'method' => 'POST',
+                'url' => '/v1/chat/completions',
+                'body' => [
+                    'model' => 'llama-3.1-8b-instant',
+                    'messages' => [
+                        ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+                        ['role' => 'user', 'content' => 'What is 2+2?']
+                    ]
+                ]
+            ]) . "\n" .
+            json_encode([
+                'custom_id' => 'request-2',
+                'method' => 'POST',
+                'url' => '/v1/chat/completions',
+                'body' => [
+                    'model' => 'llama-3.1-8b-instant',
+                    'messages' => [
+                        ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+                        ['role' => 'user', 'content' => 'What is 3+3?']
+                    ]
+                ]
+            ]) . "\n";
+
+        // Criar arquivo com MIME type correto
+        file_put_contents($this->testJsonlPath, $jsonlContent);
+        // Forçar MIME type para application/x-jsonlines
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if (finfo_file($finfo, $this->testJsonlPath) !== 'application/x-jsonlines') {
+            // Se o sistema não reconhecer o MIME type, criar um novo arquivo com o conteúdo
+            unlink($this->testJsonlPath);
+            $tmpFile = tmpfile();
+            fwrite($tmpFile, $jsonlContent);
+            $metaData = stream_get_meta_data($tmpFile);
+            rename($metaData['uri'], $this->testJsonlPath);
+            fclose($tmpFile);
+        }
+        finfo_close($finfo);
+
+        // Criar arquivo JSONL inválido para testes
+        $this->testInvalidJsonlPath = sys_get_temp_dir() . '/invalid.jsonl';
+        file_put_contents($this->testInvalidJsonlPath, "Invalid JSON Line\n");
     }
 
     protected function tearDown(): void
@@ -31,7 +67,9 @@ class FileManagerTest extends TestCase
         if (file_exists($this->testJsonlPath)) {
             unlink($this->testJsonlPath);
         }
-        
+        if (file_exists($this->testInvalidJsonlPath)) {
+            unlink($this->testInvalidJsonlPath);
+        }
         parent::tearDown();
     }
 
@@ -58,6 +96,35 @@ class FileManagerTest extends TestCase
     public function testInvalidFileUpload()
     {
         $this->expectException(GroqException::class);
+        $this->expectExceptionMessage('File not found');
         $this->groq->files()->upload('/path/to/nonexistent.jsonl', 'batch');
+    }
+
+    public function testInvalidJsonlFormat()
+    {
+        $this->expectException(GroqException::class);
+        $this->expectExceptionMessage('Invalid JSON on line 1');
+        $this->groq->files()->upload($this->testInvalidJsonlPath, 'batch');
+    }
+
+    public function testEmptyFile()
+    {
+        $emptyFile = sys_get_temp_dir() . '/empty.jsonl';
+        file_put_contents($emptyFile, '');
+
+        try {
+            $this->expectException(GroqException::class);
+            $this->expectExceptionMessage('File is empty');
+            $this->groq->files()->upload($emptyFile, 'batch');
+        } finally {
+            unlink($emptyFile);
+        }
+    }
+
+    public function testInvalidPurpose()
+    {
+        $this->expectException(GroqException::class);
+        $this->expectExceptionMessage('Invalid purpose. Only "batch" is supported');
+        $this->groq->files()->upload($this->testJsonlPath, 'jsonl');
     }
 } 

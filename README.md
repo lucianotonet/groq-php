@@ -288,7 +288,7 @@ try {
 
 ### 5. Vision
 
-Allows analyzing images (local upload or URL).
+Analyze images using Groq's vision models.
 
 ```php
 use LucianoTonet\GroqPHP\Groq;
@@ -296,21 +296,29 @@ use LucianoTonet\GroqPHP\Groq;
 $groq = new Groq(getenv('GROQ_API_KEY'));
 
 try {
-    $response = $groq->vision()->analyze('image.jpg', 'Describe this image');
-echo $response['choices'][0]['message']['content'];
+    // Analyze a local image
+    $response = $groq->vision()->analyze('path/to/image.jpg', 'What do you see in this image?');
+    
+    // Analyze an image from URL
+    $response = $groq->vision()->analyze('https://example.com/image.jpg', 'Describe this image');
+    
+    // Custom options
+    $response = $groq->vision()->analyze('path/to/image.jpg', 'What colors do you see?', [
+        'temperature' => 0.7,
+        'max_tokens' => 100
+    ]);
 } catch (\LucianoTonet\GroqPHP\GroqException $e) {
-    echo "Error: " . $e->getMessage();
+    echo 'Error: ' . $e->getMessage();
 }
-
-$response = $groq->vision()->analyze('https://example.com/image.jpg', 'Describe this image');
-
-// ... (See example for details) ...
 ```
 
-- **`analyze()`:** Takes the file path (local) or image URL, and a prompt.
-- **Size limits:** 20MB for URLs, 4MB for local files (due to base64 encoding).
-- Default model is `llama-3.2-90b-vision-preview`, but can be configured with `setDefaultModel()` or by passing the `model` parameter in `analyze()`.
-- Local image is base64 encoded within the library before sending.
+**Vision Model:**
+The vision functionality uses the `meta-llama/llama-4-scout-17b-16e-instruct` model by default, which supports:
+- Local image analysis (up to 4MB)
+- URL image analysis (up to 20MB)
+- Multi-turn conversations
+- Tool use
+- JSON mode
 
 ### 6. Reasoning
 
@@ -402,61 +410,55 @@ The reasoning feature supports three output formats:
 
 ### 7. Files and Batch Processing
 
-Enables JSONL file upload for batch processing.
+Process large volumes of data asynchronously using JSONL files.
 
 ```php
-// Upload:
+use LucianoTonet\GroqPHP\Groq;
+
+$groq = new Groq(getenv('GROQ_API_KEY'));
+
 try {
-    $file = $groq->files()->upload('data.jsonl', 'batch');
-    echo "File uploaded: " . $file->id;
+    // Upload a JSONL file for batch processing
+    $file = $groq->files()->upload('path/to/requests.jsonl', 'batch');
+    
+    // List uploaded files
+    $files = $groq->files()->list('batch', ['limit' => 10]);
+    
+    // Download file content
+    $content = $groq->files()->download($file->id);
+    
+    // Delete file when done
+    $groq->files()->delete($file->id);
 } catch (\LucianoTonet\GroqPHP\GroqException $e) {
-    echo "Error: " . $e->getMessage();
-}
-
-// Listing:
-$files = $groq->files()->list('batch');
-print_r($files);
-
-// Download:
-$content = $groq->files()->download($file->id);
-file_put_contents('downloaded_file.jsonl', $content);
-
-// Deletion:
-$groq->files()->delete($file->id);
-
-// Creating a batch:
-try {
-    $batch = $groq->batches()->create([
-        'input_file_id' => $file->id,  // JSONL file ID
-        'endpoint' => '/v1/chat/completions',
-        'completion_window' => '24h'
-    ]);
-    echo "Batch created: " . $batch->id;
-} catch (\LucianoTonet\GroqPHP\GroqException $e) {
-    echo "Error: " . $e->getMessage();
+    echo 'Error: ' . $e->getMessage();
 }
 ```
 
-**File Management:**
+**JSONL File Format:**
+Each line in the JSONL file should be a valid JSON object containing:
+- custom_id: A unique identifier for the request
+- method: The HTTP method (e.g., 'POST')
+- url: The API endpoint (e.g., '/v1/chat/completions')
+- body: The request body parameters
 
-- **`upload()`:** Uploads a *valid* JSONL file. Purpose must be `'batch'`
-- **File validation:**
-  - Checks file existence
-  - Checks if empty
-  - Checks maximum size (100MB)
-  - Checks MIME type (`text/plain` or `application/json`)
-  - Validates each line as valid JSON
-- **`list()`:** Lists files, optionally filtering by `purpose` with pagination options (`limit`, `after`, `order`)
-- **`download()`:** Downloads file content
-- **`delete()`:** Deletes a file
+Example JSONL file:
+```jsonl
+{"custom_id":"request-1","method":"POST","url":"/v1/chat/completions","body":{"model":"llama-3.1-8b-instant","messages":[{"role":"user","content":"What is 2+2?"}]}}
+{"custom_id":"request-2","method":"POST","url":"/v1/chat/completions","body":{"model":"llama-3.1-8b-instant","messages":[{"role":"user","content":"What is 3+3?"}]}}
+```
 
-**Batch Processing:**
+**Supported MIME Types:**
+- text/plain
+- application/json
+- application/x-jsonlines
+- application/jsonl
+- application/x-ndjson
 
-- **`batches()->create()`:** Creates batch for asynchronous processing
-  - `input_file_id`: Uploaded JSONL file ID
-  - `endpoint`: Currently only `/v1/chat/completions` supported
-  - `completion_window`: Currently only `'24h'` supported
-- `batches()->list()`, `batches()->retrieve()`, `batches()->cancel()`: Manage batches
+**File Requirements:**
+- Maximum file size: 100MB
+- File must contain valid JSON lines
+- Each line must follow the format above
+- Files must have 'batch' purpose
 
 ### 8. Error Handling
 

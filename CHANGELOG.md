@@ -1,8 +1,23 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
 
- *🚧 Next Relesase*
-* [12/04/2025](https://github.com/lucianotonet/groq-php/commits/7db314bf40ffea0fe60e71eff11e159a9e59274a) feat: Implement Text-to-Speech (TTS) functionality
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Changed
+- Updated Files API validation to properly handle 'batch' purpose
+- Added support for additional MIME types: application/x-jsonlines, application/jsonl, application/x-ndjson
+- Updated JSONL file format documentation and examples
+- Updated tests to use new JSONL format and purpose
+- Improved file validation order in FileManager.php
+
+### Added
+- New example file: examples/batch-processing.php
+- Additional test cases for JSONL file validation
+- Improved error messages for file validation
 
 ## v1.0.0
 * [23/03/2025](https://github.com/lucianotonet/groq-php/commits/77391f0c32a9a7602906a2dc1dc31d1313afc858) test: Add EnvironmentVariablesTest for GROQ_API_KEY and GROQ_API_BASE

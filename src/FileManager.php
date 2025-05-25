@@ -10,7 +10,10 @@ class FileManager
 {
     private array $allowedMimeTypes = [
         'text/plain',
-        'application/json'
+        'application/json',
+        'application/x-jsonlines',
+        'application/jsonl',
+        'application/x-ndjson'
     ];
 
     private Groq $groq;
@@ -34,8 +37,63 @@ class FileManager
             );
         }
 
-        $this->validateFile($filePath);
+        if (!file_exists($filePath)) {
+            throw new GroqException(
+                'File not found',
+                400,
+                'invalid_request'
+            );
+        }
 
+        // Verificar se o arquivo está vazio
+        if (filesize($filePath) === 0) {
+            throw new GroqException(
+                'File is empty',
+                400,
+                'invalid_request'
+            );
+        }
+
+        // Verificar tamanho máximo
+        if (filesize($filePath) > 100 * 1024 * 1024) {
+            throw new GroqException(
+                'File size exceeds maximum limit of 100MB',
+                400,
+                'invalid_request'
+            );
+        }
+
+        // Verificar extensão do arquivo
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        if ($extension === 'jsonl') {
+            // Se a extensão for .jsonl, aceitar o arquivo
+            $this->validateJsonlContent($filePath);
+            return $this->uploadFile($filePath, $purpose);
+        }
+
+        // Verificar tipo MIME
+        $fileInfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $fileInfo->file($filePath);
+
+        if (!in_array($mimeType, $this->allowedMimeTypes)) {
+            // Se o MIME type não for reconhecido, tentar validar o conteúdo JSONL
+            if ($this->isValidJsonlContent($filePath)) {
+                return $this->uploadFile($filePath, $purpose);
+            }
+            throw new GroqException(
+                'Invalid file type. Only text/plain, application/json, application/x-jsonlines, application/jsonl, and application/x-ndjson are supported',
+                400,
+                'invalid_request'
+            );
+        }
+
+        // Validar conteúdo JSONL
+        $this->validateJsonlContent($filePath);
+        return $this->uploadFile($filePath, $purpose);
+    }
+
+    private function uploadFile(string $filePath, string $purpose): File
+    {
         try {
             $response = $this->groq->makeRequest(new Request(
                 'POST',
@@ -154,19 +212,36 @@ class FileManager
             );
         }
 
+        // Verificar extensão do arquivo
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        if ($extension === 'jsonl') {
+            // Se a extensão for .jsonl, aceitar o arquivo
+            $this->validateJsonlContent($filePath);
+            return;
+        }
+
         // Verificar tipo MIME
         $fileInfo = new \finfo(FILEINFO_MIME_TYPE);
         $mimeType = $fileInfo->file($filePath);
 
         if (!in_array($mimeType, $this->allowedMimeTypes)) {
+            // Se o MIME type não for reconhecido, tentar validar o conteúdo JSONL
+            if ($this->isValidJsonlContent($filePath)) {
+                return;
+            }
             throw new GroqException(
-                'Invalid file type. Only text/plain and application/json are supported',
+                'Invalid file type. Only text/plain, application/json, application/x-jsonlines, application/jsonl, and application/x-ndjson are supported',
                 400,
                 'invalid_request'
             );
         }
 
-        // Validar se é um JSONL válido
+        // Validar conteúdo JSONL
+        $this->validateJsonlContent($filePath);
+    }
+
+    private function validateJsonlContent(string $filePath): void
+    {
         $handle = fopen($filePath, 'r');
         if ($handle === false) {
             throw new GroqException(
@@ -200,10 +275,20 @@ class FileManager
 
         if ($lineCount === 0) {
             throw new GroqException(
-                'File is empty',
+                'File contains no valid JSON lines',
                 400,
                 'invalid_request'
             );
+        }
+    }
+
+    private function isValidJsonlContent(string $filePath): bool
+    {
+        try {
+            $this->validateJsonlContent($filePath);
+            return true;
+        } catch (GroqException $e) {
+            return false;
         }
     }
 

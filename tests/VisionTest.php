@@ -8,52 +8,49 @@ class VisionTest extends TestCase
 {
     private string $testImagePath;
     private string $testImageUrl;
+    private string $defaultModel = 'mixtral-8x7b-vision';
 
     protected function setUp(): void
     {
         parent::setUp();
         
-        $this->testImagePath = __DIR__ . '/fixtures/australian_shepherd_puppies.png';
-        $this->testImageUrl = "https://raw.githubusercontent.com/groq/groq-api-cookbook/d4f9b68e85989e107e2c50caae9d4ad86a46f375/tutorials/multimodal-image-processing/images/australian_shepherd_puppies.png";
+        // Create a test image
+        $this->testImagePath = sys_get_temp_dir() . '/test_image.jpg';
+        $image = imagecreatetruecolor(100, 100);
+        imagefill($image, 0, 0, imagecolorallocate($image, 255, 255, 255));
+        imagejpeg($image, $this->testImagePath);
+        imagedestroy($image);
+
+        // Initialize Vision client with default model
+        $this->groq->vision()->setDefaultModel($this->defaultModel);
     }
 
     public function testVisionAnalysisWithLocalImage()
     {
-        $prompt = "What do you see in this image?";
-
         try {
-            $response = $this->groq->vision()->analyze($this->testImagePath, $prompt);
+            $response = $this->groq->vision()->analyze($this->testImagePath, 'Describe this image');
             
             $this->assertArrayHasKey('choices', $response);
-            $this->assertNotEmpty($response['choices']);
             $this->assertArrayHasKey('message', $response['choices'][0]);
             $this->assertArrayHasKey('content', $response['choices'][0]['message']);
-            
-            // Verifica se a resposta contém texto significativo
             $this->assertNotEmpty($response['choices'][0]['message']['content']);
-            
         } catch (GroqException $e) {
-            $this->fail("Error analyzing local image: " . $e->getMessage());
+            $this->fail('Error analyzing local image: ' . $e->getMessage());
         }
     }
 
     public function testVisionAnalysisWithUrlImage()
     {
-        $prompt = "What do you see in this image?";
-
         try {
-            $response = $this->groq->vision()->analyze($this->testImageUrl, $prompt);
+            $imageUrl = 'https://raw.githubusercontent.com/lucianotonet/groq-php/main/art.png';
+            $response = $this->groq->vision()->analyze($imageUrl, 'Describe this image');
             
             $this->assertArrayHasKey('choices', $response);
-            $this->assertNotEmpty($response['choices']);
             $this->assertArrayHasKey('message', $response['choices'][0]);
             $this->assertArrayHasKey('content', $response['choices'][0]['message']);
-            
-            // Verifica se a resposta contém texto significativo
             $this->assertNotEmpty($response['choices'][0]['message']['content']);
-            
         } catch (GroqException $e) {
-            $this->fail("Error analyzing URL image: " . $e->getMessage());
+            $this->fail('Error analyzing URL image: ' . $e->getMessage());
         }
     }
 
@@ -81,20 +78,19 @@ class VisionTest extends TestCase
 
     public function testVisionAnalysisWithCustomOptions()
     {
-        $prompt = "What do you see in this image?";
-        $options = [
-            'max_completion_tokens' => 100,
-            'temperature' => 0.5
-        ];
-
         try {
-            $response = $this->groq->vision()->analyze($this->testImagePath, $prompt, $options);
+            $response = $this->groq->vision()
+                ->analyze($this->testImagePath, 'What colors do you see in this image?', [
+                    'temperature' => 0.7,
+                    'max_tokens' => 100
+                ]);
             
             $this->assertArrayHasKey('choices', $response);
-            $this->assertNotEmpty($response['choices']);
-            
+            $this->assertArrayHasKey('message', $response['choices'][0]);
+            $this->assertArrayHasKey('content', $response['choices'][0]['message']);
+            $this->assertNotEmpty($response['choices'][0]['message']['content']);
         } catch (GroqException $e) {
-            $this->fail("Error analyzing with custom options: " . $e->getMessage());
+            $this->fail('Error analyzing with custom options: ' . $e->getMessage());
         }
     }
 }

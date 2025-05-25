@@ -21,7 +21,7 @@ class BatchManager
     ];
 
     private array $validCompletionWindows = [
-        '24h'
+        '24h', '48h', '72h', '96h', '120h', '144h', '168h', '7d'
     ];
 
     private array $defaultConfig = [
@@ -90,7 +90,7 @@ class BatchManager
     }
 
     /**
-     * Lists existing batches
+     * Lists existing batches with optional filtering and pagination
      *
      * @param array $params Pagination and sorting parameters
      * @throws GroqException
@@ -100,7 +100,10 @@ class BatchManager
         $query = array_filter([
             'limit' => $params['limit'] ?? 20,
             'after' => $params['after'] ?? null,
-            'order' => $params['order'] ?? 'desc'
+            'order' => $params['order'] ?? 'desc',
+            'status' => $params['status'] ?? null,
+            'created_after' => $params['created_after'] ?? null,
+            'created_before' => $params['created_before'] ?? null
         ]);
 
         try {
@@ -167,10 +170,70 @@ class BatchManager
 
         if (!in_array($params['completion_window'], $this->validCompletionWindows)) {
             throw new GroqException(
-                'Invalid completion_window. Only 24h is supported',
+                'Invalid completion_window. Supported values are: ' . implode(', ', $this->validCompletionWindows),
                 400,
                 'invalid_request'
             );
+        }
+
+        if (isset($params['config'])) {
+            $this->validateConfig($params['config'], $params['endpoint']);
+        }
+    }
+
+    /**
+     * Validates batch configuration parameters
+     *
+     * @param array $config Configuration to validate
+     * @param string $endpoint Target endpoint
+     * @throws GroqException
+     */
+    private function validateConfig(array $config, string $endpoint): void
+    {
+        $defaultConfig = $this->defaultConfig[$endpoint];
+        $allowedParams = array_keys($defaultConfig);
+
+        foreach ($config as $param => $value) {
+            if (!in_array($param, $allowedParams)) {
+                throw new GroqException(
+                    "Invalid configuration parameter: {$param}",
+                    400,
+                    'invalid_request'
+                );
+            }
+
+            // Validate parameter values
+            switch ($param) {
+                case 'temperature':
+                case 'top_p':
+                    if (!is_numeric($value) || $value < 0 || $value > 1) {
+                        throw new GroqException(
+                            "{$param} must be a number between 0 and 1",
+                            400,
+                            'invalid_request'
+                        );
+                    }
+                    break;
+                case 'max_tokens':
+                    if (!is_int($value) || $value < 1) {
+                        throw new GroqException(
+                            "max_tokens must be a positive integer",
+                            400,
+                            'invalid_request'
+                        );
+                    }
+                    break;
+                case 'frequency_penalty':
+                case 'presence_penalty':
+                    if (!is_numeric($value) || $value < -2 || $value > 2) {
+                        throw new GroqException(
+                            "{$param} must be a number between -2 and 2",
+                            400,
+                            'invalid_request'
+                        );
+                    }
+                    break;
+            }
         }
     }
 
@@ -185,6 +248,16 @@ class BatchManager
         if (!is_null($metadata) && !is_array($metadata)) {
             throw new GroqException(
                 'Metadata must be an object or null',
+                400,
+                'invalid_request'
+            );
+        }
+
+        // Validate metadata size
+        $jsonSize = strlen(json_encode($metadata));
+        if ($jsonSize > 8192) { // 8KB limit
+            throw new GroqException(
+                'Metadata size exceeds maximum limit of 8KB',
                 400,
                 'invalid_request'
             );
@@ -209,6 +282,14 @@ class BatchManager
                 'Batch processing is not available in your current Groq plan. Please upgrade your plan to use this feature.',
                 403,
                 'permissions_error'
+            );
+        }
+
+        if ($response->getStatusCode() === 429) {
+            throw new GroqException(
+                'Rate limit exceeded. Please try again later.',
+                429,
+                'rate_limit_error'
             );
         }
         

@@ -410,55 +410,99 @@ The reasoning feature supports three output formats:
 
 ### 7. Files and Batch Processing
 
-Process large volumes of data asynchronously using JSONL files.
+Process large volumes of data asynchronously using Groq's Files and Batch Processing API.
+
+#### File Management
 
 ```php
 use LucianoTonet\GroqPHP\Groq;
 
 $groq = new Groq(getenv('GROQ_API_KEY'));
+$fileManager = $groq->files();
 
-try {
-    // Upload a JSONL file for batch processing
-    $file = $groq->files()->upload('path/to/requests.jsonl', 'batch');
-    
-    // List uploaded files
-    $files = $groq->files()->list('batch', ['limit' => 10]);
-    
-    // Download file content
-    $content = $groq->files()->download($file->id);
-    
-    // Delete file when done
-    $groq->files()->delete($file->id);
-} catch (\LucianoTonet\GroqPHP\GroqException $e) {
-    echo 'Error: ' . $e->getMessage();
-}
+// Upload a file
+$file = $fileManager->upload('path/to/your/file.jsonl', 'batch');
+
+// List files
+$files = $fileManager->list('batch', [
+    'limit' => 10,
+    'order' => 'desc'
+]);
+
+// Retrieve file info
+$file = $fileManager->retrieve('file_id');
+
+// Download file content
+$content = $fileManager->download('file_id');
+
+// Delete file
+$fileManager->delete('file_id');
 ```
 
-**JSONL File Format:**
-Each line in the JSONL file should be a valid JSON object containing:
-- custom_id: A unique identifier for the request
-- method: The HTTP method (e.g., 'POST')
-- url: The API endpoint (e.g., '/v1/chat/completions')
-- body: The request body parameters
+#### Batch Processing
 
-Example JSONL file:
-```jsonl
-{"custom_id":"request-1","method":"POST","url":"/v1/chat/completions","body":{"model":"llama-3.1-8b-instant","messages":[{"role":"user","content":"What is 2+2?"}]}}
-{"custom_id":"request-2","method":"POST","url":"/v1/chat/completions","body":{"model":"llama-3.1-8b-instant","messages":[{"role":"user","content":"What is 3+3?"}]}}
+```php
+$batchManager = $groq->batches();
+
+// Create a batch
+$batch = $batchManager->create([
+    'input_file_id' => 'file_id',
+    'endpoint' => '/v1/chat/completions',
+    'completion_window' => '24h',
+    'metadata' => [
+        'description' => 'Processing customer queries'
+    ]
+]);
+
+// List batches
+$batches = $batchManager->list([
+    'limit' => 10,
+    'order' => 'desc',
+    'status' => 'completed'
+]);
+
+// Get batch status
+$batch = $batchManager->retrieve('batch_id');
+$summary = $batch->getSummary();
+
+// Cancel batch
+$batch = $batchManager->cancel('batch_id');
 ```
-
-**Supported MIME Types:**
-- text/plain
-- application/json
-- application/x-jsonlines
-- application/jsonl
-- application/x-ndjson
 
 **File Requirements:**
-- Maximum file size: 100MB
-- File must contain valid JSON lines
-- Each line must follow the format above
-- Files must have 'batch' purpose
+- Format: JSONL (JSON Lines)
+- Size: Up to 100MB
+- Content: Each line must be a valid JSON object with required fields:
+  - `model`: The model to use
+  - `messages`: Array of chat messages
+
+**Example JSONL file:**
+```jsonl
+{"model": "llama3-8b-8192", "messages": [{"role": "user", "content": "Explain quantum computing"}]}
+{"model": "llama3-8b-8192", "messages": [{"role": "user", "content": "What is machine learning?"}]}
+```
+
+**Supported Features:**
+- File upload and validation
+- Batch creation and management
+- Progress tracking
+- Error handling
+- Metadata support
+- Caching for downloaded files
+
+**Completion Windows:**
+- Available options: 24h, 48h, 72h, 96h, 120h, 144h, 168h, 7d
+- Default: 24h
+
+**Batch Statuses:**
+- validating
+- in_progress
+- completed
+- failed
+- expired
+- cancelled
+- cancelling
+- finalizing
 
 ### 8. Error Handling
 

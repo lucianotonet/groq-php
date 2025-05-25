@@ -18,27 +18,15 @@ class FileManagerTest extends TestCase
         $this->testJsonlPath = sys_get_temp_dir() . '/test.jsonl';
         $jsonlContent = 
             json_encode([
-                'custom_id' => 'request-1',
-                'method' => 'POST',
-                'url' => '/v1/chat/completions',
-                'body' => [
-                    'model' => 'llama-3.1-8b-instant',
-                    'messages' => [
-                        ['role' => 'system', 'content' => 'You are a helpful assistant.'],
-                        ['role' => 'user', 'content' => 'What is 2+2?']
-                    ]
+                'model' => 'llama3-8b-8192',
+                'messages' => [
+                    ['role' => 'user', 'content' => 'What is quantum computing?']
                 ]
             ]) . "\n" .
             json_encode([
-                'custom_id' => 'request-2',
-                'method' => 'POST',
-                'url' => '/v1/chat/completions',
-                'body' => [
-                    'model' => 'llama-3.1-8b-instant',
-                    'messages' => [
-                        ['role' => 'system', 'content' => 'You are a helpful assistant.'],
-                        ['role' => 'user', 'content' => 'What is 3+3?']
-                    ]
+                'model' => 'llama3-8b-8192',
+                'messages' => [
+                    ['role' => 'user', 'content' => 'Explain machine learning.']
                 ]
             ]) . "\n";
 

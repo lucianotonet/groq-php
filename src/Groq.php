@@ -198,6 +198,16 @@ class Groq
     }
 
     /**
+     * Creates a new Speech instance.
+     *
+     * @return Speech A new instance of the Speech class
+     */
+    public function speech(): Speech
+    {
+        return new Speech($this);
+    }
+
+    /**
      * Creates a new Files instance.
      *
      * @return FileManager A new instance of the FileManager class

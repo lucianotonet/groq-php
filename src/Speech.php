@@ -16,10 +16,10 @@ use Psr\Http\Message\ResponseInterface;
 class Speech
 {
     private Groq $groq;
-    private string $model = 'playai-tts';
-    private string $input = '';
-    private string $voice = '';
-    private string $responseFormat = 'wav';
+    private string $model;
+    private string $input;
+    private string $voice;
+    private string $responseFormat;
 
     /**
      * Speech constructor.
@@ -28,6 +28,10 @@ class Speech
     public function __construct(Groq $groq)
     {
         $this->groq = $groq;
+        $this->model = 'playai-tts';
+        $this->input = '';
+        $this->voice = '';
+        $this->responseFormat = 'wav';
     }
 
     /**
@@ -87,11 +91,11 @@ class Speech
     public function create()
     {
         if (empty($this->input)) {
-            throw new GroqException('Input text is required');
+            throw new GroqException('Input text is required', 400, 'validation_error', [], null, null);
         }
 
         if (empty($this->voice)) {
-            throw new GroqException('Voice is required');
+            throw new GroqException('Voice is required', 400, 'validation_error', [], null, null);
         }
 
         $payload = [
@@ -101,20 +105,19 @@ class Speech
             'response_format' => $this->responseFormat
         ];
 
-        $client = new Client([
-            'base_uri' => $this->groq->baseUrl(),
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->groq->apiKey(),
-                'Content-Type' => 'application/json'
-            ]
-        ]);
-
         try {
+            $client = new Client([
+                'base_uri' => $this->groq->baseUrl(),
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->groq->apiKey(),
+                    'Content-Type' => 'application/json'
+                ]
+            ]);
+
             $response = $client->post('audio/speech', [
                 'json' => $payload
             ]);
             
-            // The response is binary audio data, so we return it directly
             return $response->getBody();
         } catch (RequestException $e) {
             $responseBody = $e->getResponse() ? ($e->getResponse()->getBody() ? (string) $e->getResponse()->getBody() : 'Response body is empty') : 'No response body available';

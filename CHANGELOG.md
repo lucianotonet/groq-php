@@ -13,11 +13,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated JSONL file format documentation and examples
 - Updated tests to use new JSONL format and purpose
 - Improved file validation order in FileManager.php
+- Fixed JSONL file validation in FileManager to properly check content format
+- Enhanced error messages for file type validation
+- Improved test coverage for file upload functionality
 
 ### Added
 - New example file: examples/batch-processing.php
 - Additional test cases for JSONL file validation
 - Improved error messages for file validation
+- Test results: 39 tests, 218 assertions (all passing)
+- Added more comprehensive validation for JSONL file contents
+
+### Fixed
+- Issue with file type validation in FileManager::validateFile method
+- Improved MIME type detection for JSONL files
+- Fixed test case for file upload to use correct JSONL format
+- Corrected JSONL test file structure to match API requirements
 
 ## v1.0.0
 * [23/03/2025](https://github.com/lucianotonet/groq-php/commits/77391f0c32a9a7602906a2dc1dc31d1313afc858) test: Add EnvironmentVariablesTest for GROQ_API_KEY and GROQ_API_BASE

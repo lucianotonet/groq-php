@@ -473,17 +473,21 @@ $batch = $batchManager->cancel('batch_id');
 - Format: JSONL (JSON Lines)
 - Size: Up to 100MB
 - Content: Each line must be a valid JSON object with required fields:
-  - `model`: The model to use
-  - `messages`: Array of chat messages
+    - `custom_id`: Your unique identifier for tracking the batch request
+    - `method`: The HTTP method (currently POST only)
+    - `url`: The API endpoint to call (one of: /v1/chat/completions, /v1/audio/transcriptions, or /v1/audio/translations)
+    - `body`: The parameters of your request matching to [any synchronous API format](#2-chat-completions) like `messages` for chat, `url` for audio, etc.
 
 **Example JSONL file:**
 ```jsonl
-{"model": "llama3-8b-8192", "messages": [{"role": "user", "content": "Explain quantum computing"}]}
-{"model": "llama3-8b-8192", "messages": [{"role": "user", "content": "What is machine learning?"}]}
+{"custom_id": "chat-request-1", "method": "POST", "url": "/v1/chat/completions", "body": {"model": "llama-3.1-8b-instant", "messages": [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "What is quantum computing?"}]}}
+{"custom_id": "audio-request-1", "method": "POST", "url": "/v1/audio/transcriptions", "body": {"model": "whisper-large-v3", "language": "en", "url": "https://github.com/voxserv/audio_quality_testing_samples/raw/refs/heads/master/testaudio/8000/test01_20s.wav", "response_format": "verbose_json", "timestamp_granularities": ["segment"]}}
+{"custom_id": "chat-request-2", "method": "POST", "url": "/v1/chat/completions", "body": {"model": "llama-3.3-70b-versatile", "messages": [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "Explain machine learning in simple terms."}]}}
+{"custom_id":"audio-request-2","method":"POST","url":"/v1/audio/translations","body":{"model":"whisper-large-v3","language":"en","url":"https://console.groq.com/audio/batch/sample-zh.wav","response_format":"verbose_json","timestamp_granularities":["segment"]}}
 ```
 
 **Supported Features:**
-- File upload and validation
+- File management with upload, file type and content validations
 - Batch creation and management
 - Progress tracking
 - Error handling

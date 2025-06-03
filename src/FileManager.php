@@ -13,14 +13,18 @@ class FileManager
         'application/json',
         'application/x-jsonlines',
         'application/jsonl',
-        'application/x-ndjson'
+        'application/x-ndjson',
+        'application/x-ndjason',
     ];
 
     private array $allowedExtensions = [
-        'jsonl',
-        'json',
-        'txt',
-        'ndjson'
+        'jsonl'
+    ];
+
+    private array $supportedEndpoints = [
+        '/v1/chat/completions',
+        '/v1/audio/transcriptions',
+        '/v1/audio/translations'
     ];
 
     private Groq $groq;
@@ -82,7 +86,9 @@ class FileManager
             );
         }
 
-        $this->validateFile($filePath);
+        $this->validateFileType($filePath);
+
+        $this->validateFileContent($filePath);
 
         try {
             $response = $this->groq->makeRequest(new Request(
@@ -212,7 +218,7 @@ class FileManager
      * @param string $filePath Path to the file
      * @throws GroqException
      */
-    private function validateFile(string $filePath): void
+    private function validateFileType(string $filePath): void
     {
         if (!file_exists($filePath)) {
             throw new GroqException(
@@ -251,16 +257,12 @@ class FileManager
         $mimeType = $fileInfo->file($filePath);
 
         if (!in_array($mimeType, $this->allowedMimeTypes)) {
-            if (!$this->isValidJsonlContent($filePath)) {
-                throw new GroqException(
-                    'Invalid file type. File must be a valid JSONL file.',
-                    400,
-                    'invalid_request'
-                );
-            }
+            throw new GroqException(
+                'Invalid file type. File must be a valid JSONL file. You provided: ' . $mimeType,
+                400,
+                'invalid_request'
+            );
         }
-
-        $this->validateJsonlContent($filePath);
     }
 
     /**
@@ -269,9 +271,10 @@ class FileManager
      * @param string $filePath Path to the file
      * @throws GroqException
      */
-    private function validateJsonlContent(string $filePath): void
+    private function validateFileContent(string $filePath): void
     {
         $handle = fopen($filePath, 'r');
+
         if ($handle === false) {
             throw new GroqException(
                 'Unable to read file',
@@ -299,39 +302,104 @@ class FileManager
             }
 
             // Validate required fields for batch requests
-            if (!isset($decoded['model'])) {
+            if (!isset($decoded['custom_id']) || !is_string($decoded['custom_id'])) {
                 throw new GroqException(
-                    "Missing required field 'model' on line {$lineNumber}",
+                    "Missing or invalid 'custom_id' field on line {$lineNumber}",
                     400,
                     'invalid_request'
                 );
             }
 
-            if (!isset($decoded['messages']) || !is_array($decoded['messages'])) {
+            if (!isset($decoded['method']) || $decoded['method'] !== 'POST') {
                 throw new GroqException(
-                    "Missing or invalid 'messages' field on line {$lineNumber}",
+                    "Missing or invalid 'method' field on line {$lineNumber}. Only POST method is supported.",
                     400,
                     'invalid_request'
                 );
+            }
+
+            if (!isset($decoded['url']) || !str_starts_with($decoded['url'], '/v1/')) {
+                throw new GroqException(
+                    "Missing or invalid 'url' field on line {$lineNumber}. URL must start with '/v1/'",
+                    400,
+                    'invalid_request'
+                );
+            }
+
+            // Validate endpoint
+            if (!in_array($decoded['url'], $this->supportedEndpoints)) {
+                throw new GroqException(
+                    "Invalid endpoint '{$decoded['url']}' on line {$lineNumber}. Supported endpoints are: " . implode(', ', $this->supportedEndpoints),
+                    400,
+                    'invalid_request'
+                );
+            }
+
+            if (!isset($decoded['body']) || !is_array($decoded['body'])) {
+                throw new GroqException(
+                    "Missing or invalid 'body' field on line {$lineNumber}",
+                    400,
+                    'invalid_request'
+                );
+            }
+
+            if (!isset($decoded['body']['model']) || !is_string($decoded['body']['model'])) {
+                throw new GroqException(
+                    "Missing or invalid 'model' field in body on line {$lineNumber}",
+                    400,
+                    'invalid_request'
+                );
+            }
+
+            // Validate specific endpoints
+            if ($decoded['url'] === '/v1/chat/completions') {
+                if (!isset($decoded['body']['messages']) || !is_array($decoded['body']['messages'])) {
+                    throw new GroqException(
+                        "Missing or invalid 'messages' field for chat completion on line {$lineNumber}",
+                        400,
+                        'invalid_request'
+                    );
+                }
+                
+                // Validate messages array is not empty and has required fields
+                if (empty($decoded['body']['messages'])) {
+                    throw new GroqException(
+                        "The 'messages' array cannot be empty on line {$lineNumber}",
+                        400,
+                        'invalid_request'
+                    );
+                }
+                
+                foreach ($decoded['body']['messages'] as $index => $message) {
+                    if (!isset($message['role']) || !isset($message['content'])) {
+                        throw new GroqException(
+                            "Message at index {$index} is missing required fields 'role' or 'content' on line {$lineNumber}",
+                            400,
+                            'invalid_request'
+                        );
+                    }
+                }
+            } elseif (str_contains($decoded['url'], '/v1/audio/')) {
+                if (!isset($decoded['body']['url']) || !filter_var($decoded['body']['url'], FILTER_VALIDATE_URL)) {
+                    throw new GroqException(
+                        "Missing or invalid audio 'url' field on line {$lineNumber}",
+                        400,
+                        'invalid_request'
+                    );
+                }
+                
+                // Validate audio-specific fields
+                if (!isset($decoded['body']['language'])) {
+                    throw new GroqException(
+                        "Missing required field 'language' for audio request on line {$lineNumber}",
+                        400,
+                        'invalid_request'
+                    );
+                }
             }
         }
 
         fclose($handle);
-    }
-
-    /**
-     * Checks if file content is valid JSONL
-     *
-     * @param string $filePath Path to the file
-     */
-    private function isValidJsonlContent(string $filePath): bool
-    {
-        try {
-            $this->validateJsonlContent($filePath);
-            return true;
-        } catch (GroqException $e) {
-            return false;
-        }
     }
 
     /**

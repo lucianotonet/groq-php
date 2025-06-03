@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.3.0] - 2025-03-23
+
+### Breaking Changes in Files/Batches Module
+- Changed JSONL file format requirements for batch processing
+- Restricted file extensions to `.jsonl` only (removed support for `.json`, `.txt`, `.ndjson`)
+- Added stricter validation for file contents and structure
+
 ### Changed
 - Updated Files API validation to properly handle 'batch' purpose
-- Added support for additional MIME types: application/x-jsonlines, application/jsonl, application/x-ndjson
+- Added support for additional MIME types: application/x-jsonlines, application/jsonl, application/x-ndjson, application/x-ndjason
 - Updated JSONL file format documentation and examples
 - Updated tests to use new JSONL format and purpose
 - Improved file validation order in FileManager.php
@@ -23,12 +30,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error messages for file validation
 - Test results: 39 tests, 218 assertions (all passing)
 - Added more comprehensive validation for JSONL file contents
+- Support for audio transcription and translation in batch processing
+- Support for chat completions in batch processing
 
 ### Fixed
 - Issue with file type validation in FileManager::validateFile method
 - Improved MIME type detection for JSONL files
 - Fixed test case for file upload to use correct JSONL format
 - Corrected JSONL test file structure to match API requirements
+
+### Migration Guide for Files/Batches Module
+If you are using the Files/Batches module, you will need to:
+1. Update your JSONL files to include required fields:
+   - `custom_id`: Your unique identifier for tracking
+   - `method`: Must be "POST"
+   - `url`: One of: /v1/chat/completions, /v1/audio/transcriptions, or /v1/audio/translations
+   - `body`: Request parameters matching the endpoint format
+2. Ensure all files use `.jsonl` extension
+3. Update file content to match new validation requirements
+4. Review the updated documentation for complete format specifications
 
 ## v1.0.0
 * [23/03/2025](https://github.com/lucianotonet/groq-php/commits/77391f0c32a9a7602906a2dc1dc31d1313afc858) test: Add EnvironmentVariablesTest for GROQ_API_KEY and GROQ_API_BASE

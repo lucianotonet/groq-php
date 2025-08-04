@@ -46,12 +46,12 @@ class Groq
         $this->options = $options; // Set the options
         
         // Get base URL and ensure it ends with a forward slash
-        // The ?: operator ensures safe behavior when getenv('GROQ_API_BASE') returns:
-        // - false (when the variable is not defined)
-        // - empty string ("")
-        // - string literals like "null" or "false" (all treated as falsy)
-        // This prevents invalid URLs like "null/" or "false/"
-        $baseUrl = $options['baseUrl'] ?? $_ENV['GROQ_API_BASE'] ?? (getenv('GROQ_API_BASE') ?: 'https://api.groq.com/openai/v1');
+        $baseUrl = $options['baseUrl'] ?? $_ENV['GROQ_API_BASE'] ?? getenv('GROQ_API_BASE');
+
+        if (empty($baseUrl) || !is_string($baseUrl) || in_array($baseUrl, ['null', 'false'], true)) {
+            $baseUrl = 'https://api.groq.com/openai/v1';
+        }
+
         $this->baseUrl = rtrim($baseUrl, '/') . '/'; // Ensure trailing slash
     }
 

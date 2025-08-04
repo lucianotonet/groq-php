@@ -17,7 +17,9 @@ class BatchManager
     ];
 
     private array $validEndpoints = [
-        '/v1/chat/completions'
+        '/v1/chat/completions',
+        '/v1/audio/transcriptions',
+        '/v1/audio/translations'
     ];
 
     private array $validCompletionWindows = [
@@ -31,6 +33,17 @@ class BatchManager
             'top_p' => 1.0,
             'frequency_penalty' => 0,
             'presence_penalty' => 0
+        ],
+        '/v1/audio/transcriptions' => [
+            'language' => 'en',
+            'prompt' => '',
+            'response_format' => 'json',
+            'temperature' => 0.7
+        ],
+        '/v1/audio/translations' => [
+            'prompt' => '',
+            'response_format' => 'json',
+            'temperature' => 0.7
         ]
     ];
 
@@ -190,13 +203,13 @@ class BatchManager
      */
     private function validateConfig(array $config, string $endpoint): void
     {
-        $defaultConfig = $this->defaultConfig[$endpoint];
+        $defaultConfig = $this->defaultConfig[$endpoint] ?? [];
         $allowedParams = array_keys($defaultConfig);
 
         foreach ($config as $param => $value) {
             if (!in_array($param, $allowedParams)) {
                 throw new GroqException(
-                    "Invalid configuration parameter: {$param}",
+                    "Invalid configuration parameter: {$param} for endpoint {$endpoint}",
                     400,
                     'invalid_request'
                 );

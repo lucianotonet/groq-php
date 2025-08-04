@@ -1,0 +1,1 @@
+{"custom_id":"audio-request-1","method":"POST","url":"/v1/audio/transcriptions","body":{"model":"whisper-large-v3","language":"en","url":"https://github.com/lucianotonet/groq-php/raw/main/tests/fixtures/audio.wav","response_format":"verbose_json"}}

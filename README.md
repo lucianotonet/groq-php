@@ -305,7 +305,7 @@ try {
     // Custom options
     $response = $groq->vision()->analyze('path/to/image.jpg', 'What colors do you see?', [
         'temperature' => 0.7,
-        'max_tokens' => 100
+        'max_completion_tokens' => 100
     ]);
 } catch (\LucianoTonet\GroqPHP\GroqException $e) {
     echo 'Error: ' . $e->getMessage();

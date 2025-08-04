@@ -26,7 +26,9 @@ class Batch
     ];
     
     private array $validEndpoints = [
-        '/v1/chat/completions'
+        '/v1/chat/completions',
+        '/v1/audio/transcriptions',
+        '/v1/audio/translations'
     ];
 
     private array $validCompletionWindows = [

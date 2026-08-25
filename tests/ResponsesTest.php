@@ -16,7 +16,16 @@ class ResponsesTest extends TestCase
 
         $this->assertSame('response', $response['object']);
         $this->assertSame('completed', $response['status']);
-        $this->assertSame('Hello from the Responses API.', Responses::outputText($response));
+
+        $text = Responses::outputText($response);
+
+        if ($this->live) {
+            $this->assertNotEmpty($text);
+
+            return;
+        }
+
+        $this->assertSame('Hello from the Responses API.', $text);
     }
 
     public function test_structured_output(): void
@@ -37,6 +46,14 @@ class ResponsesTest extends TestCase
         ]);
 
         $data = json_decode(Responses::outputText($response), true);
+
+        if ($this->live) {
+            $this->assertIsArray($data);
+            $this->assertArrayHasKey('product_name', $data);
+
+            return;
+        }
+
         $this->assertSame('UltraSound Headphones', $data['product_name']);
     }
 
@@ -53,6 +70,12 @@ class ResponsesTest extends TestCase
             if (($event['type'] ?? null) === 'response.output_text.delta') {
                 $text .= $event['delta'];
             }
+        }
+
+        if ($this->live) {
+            $this->assertNotEmpty($text);
+
+            return;
         }
 
         $this->assertStringContainsString('Responses API', $text);

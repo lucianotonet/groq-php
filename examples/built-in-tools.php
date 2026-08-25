@@ -7,9 +7,11 @@ use LucianoTonet\GroqPHP\Groq;
 
 $groq = new Groq(getenv('GROQ_API_KEY'));
 
-// 1) Built-in tools via a Groq Compound system (web search + code execution).
+// Built-in tools via a Groq Compound system (web search + code execution).
+// The Compound systems are exposed on the `compound-beta` / `compound-beta-mini`
+// models.
 $response = $groq->chat()->completions()->create([
-    'model' => 'groq/compound',
+    'model' => 'compound-beta',
     'messages' => [
         ['role' => 'user', 'content' => 'What happened in AI last week? Provide the highlights.'],
     ],
@@ -18,23 +20,7 @@ $response = $groq->chat()->completions()->create([
         BuiltInTools::CODE_INTERPRETER,
     ]),
     'search_settings' => ['exclude_domains' => ['wikipedia.org']],
-    'citation_options' => 'enabled',
 ]);
 
 echo "=== Compound (built-in tools) ===\n";
-echo $response['choices'][0]['message']['content']."\n";
-
-// 2) RAG with documents + citations.
-$response = $groq->chat()->completions()->create([
-    'model' => 'groq/compound',
-    'messages' => [
-        ['role' => 'user', 'content' => 'Summarize the provided document in one sentence.'],
-    ],
-    'documents' => [
-        BuiltInTools::document('Groq is a fast AI inference platform focused on low-latency LLM serving.', 'doc-1'),
-    ],
-    'citation_options' => 'enabled',
-]);
-
-echo "\n=== Documents (RAG) ===\n";
 echo $response['choices'][0]['message']['content']."\n";

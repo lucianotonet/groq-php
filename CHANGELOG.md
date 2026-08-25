@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.4.1] - 2026-08-25
+
+### Fixed
+- **Built-in Tools / Compound:** use the current Compound system models (`compound-beta` / `compound-beta-mini`) instead of the deprecated `groq/compound` alias.
+- Removed the `documents` (RAG) and `citation_options` Chat Completions parameters: the live Groq API rejects them on all current models, so they were non-functional. `compound_custom` and `search_settings` remain supported.
+- New tests (`BuiltInToolsTest`, `ResponsesTest`) are now mode-aware so they pass both against the offline mock (default) and the real API (`GROQ_LIVE_TESTS=1`).
+
 ## [v1.4.0] - 2026-08-25
 
 ### Added

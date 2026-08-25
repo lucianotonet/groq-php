@@ -19,9 +19,8 @@ Using on Laravel? Check this out: [GroqLaravel](https://github.com/lucianotonet/
 - [x] [Vision](#5-vision)
 - [x] [Reasoning](#6-reasoning)
 - [x] [Files and Batch Processing](#7-files-and-batch-processing)
-- [x] [Built-in Tools & Compound (web search, code execution, citations)](#9-built-in-tools--compound)
-- [x] [Documents (RAG) & Citations](#10-documents-rag--citations)
-- [x] [Responses API](#11-responses-api)
+- [x] [Built-in Tools & Compound (web search, code execution)](#9-built-in-tools--compound)
+- [x] [Responses API](#10-responses-api)
 - [x] [Prompt Caching & Content Moderation](#prompt-caching--content-moderation)
 
 ## Installation
@@ -683,7 +682,7 @@ The `GroqException` class provides static methods for creating specific exceptio
 
 ### 9. Built-in Tools & Compound
 
-Groq's Compound systems (`groq/compound`, `groq/compound-mini`) ship server-side tools
+Groq's Compound systems (`compound-beta`, `compound-beta-mini`) ship server-side tools
 (web search, visit website, code execution, Wolfram Alpha) that run without any local
 function-calling setup. Use `LucianoTonet\GroqPHP\BuiltInTools` to build the
 `compound_custom` payload:
@@ -695,7 +694,7 @@ use LucianoTonet\GroqPHP\BuiltInTools;
 $groq = new Groq(getenv('GROQ_API_KEY'));
 
 $response = $groq->chat()->completions()->create([
-    'model' => 'groq/compound',
+    'model' => 'compound-beta',
     'messages' => [
         ['role' => 'user', 'content' => 'What happened in AI last week?'],
     ],
@@ -704,7 +703,6 @@ $response = $groq->chat()->completions()->create([
         BuiltInTools::CODE_INTERPRETER,
     ]),
     'search_settings' => ['exclude_domains' => ['wikipedia.org']],
-    'citation_options' => 'enabled',
 ]);
 
 echo $response['choices'][0]['message']['content'];
@@ -712,46 +710,13 @@ echo $response['choices'][0]['message']['content'];
 // {
 //   "choices": [
 //     { "message": { "role": "assistant", "content": "Last week's AI highlights included new open-weight releases and faster inference benchmarks." }, "finish_reason": "stop" }
-//   ],
-//   "citations": [ { "url": "https://example.com/article", "title": "..." } ]  // present when citation_options=enabled
+//   ]
 // }
 ```
 
 See `examples/built-in-tools.php` for a runnable script.
 
-### 10. Documents (RAG) & Citations
-
-Provide context documents directly in the request via the `documents` parameter. When
-`citation_options` is `enabled`, the model includes citations referencing those documents:
-
-```php
-use LucianoTonet\GroqPHP\BuiltInTools;
-
-$response = $groq->chat()->completions()->create([
-    'model' => 'groq/compound',
-    'messages' => [
-        ['role' => 'user', 'content' => 'Summarize the provided document'],
-    ],
-    'documents' => [
-        BuiltInTools::document('Groq is a fast inference platform...', 'doc-1'),
-    ],
-    'citation_options' => 'enabled',
-]);
-
-echo $response['choices'][0]['message']['content'];
-// Expected response structure (formatted):
-// {
-//   "choices": [
-//     { "message": { "role": "assistant", "content": "Groq is a fast AI inference platform focused on low-latency LLM serving." }, "finish_reason": "stop" }
-//   ],
-//   "citations": [ { "document": "doc-1", "url": "...", "title": "..." } ]  // present when citation_options=enabled
-// }
-```
-
-`BuiltInTools::document()` builds a text document; `BuiltInTools::documentFromFile()`
-builds one backed by a file previously uploaded via the Files API.
-
-### 11. Responses API
+### 10. Responses API
 
 Groq's Responses API (beta) is compatible with OpenAI's Responses API: it uses a single `input` field (a string or an array of input items), returns an `output` array of generated items, and supports structured outputs, reasoning controls and tool calling.
 

@@ -19,6 +19,8 @@ Using on Laravel? Check this out: [GroqLaravel](https://github.com/lucianotonet/
 - [x] [Vision](#5-vision)
 - [x] [Reasoning](#6-reasoning)
 - [x] [Files and Batch Processing](#7-files-and-batch-processing)
+- [x] [Built-in Tools & Compound (web search, code execution, citations)](#8-built-in-tools--compound)
+- [x] [Documents (RAG) & Citations](#9-documents-rag--citations)
 
 ## Installation
 
@@ -577,6 +579,75 @@ try {
 ```
 
 The `GroqException` class provides static methods for creating specific exceptions like `invalidRequest()`, `authenticationError()`, etc., following a factory pattern.
+
+## 8. Built-in Tools & Compound
+
+Groq's Compound systems (`groq/compound`, `groq/compound-mini`) ship server-side tools
+(web search, visit website, code execution, Wolfram Alpha) that run without any local
+function-calling setup. Use `LucianoTonet\GroqPHP\BuiltInTools` to build the
+`compound_custom` payload:
+
+```php
+use LucianoTonet\GroqPHP\Groq;
+use LucianoTonet\GroqPHP\BuiltInTools;
+
+$groq = new Groq(getenv('GROQ_API_KEY'));
+
+$response = $groq->chat()->completions()->create([
+    'model' => 'groq/compound',
+    'messages' => [
+        ['role' => 'user', 'content' => 'What happened in AI last week?'],
+    ],
+    'compound_custom' => BuiltInTools::compound([
+        BuiltInTools::WEB_SEARCH,
+        BuiltInTools::CODE_INTERPRETER,
+    ]),
+    'search_settings' => ['exclude_domains' => ['wikipedia.org']],
+    'citation_options' => 'enabled',
+]);
+
+echo $response['choices'][0]['message']['content'];
+```
+
+See `examples/built-in-tools.php` for a runnable script.
+
+**Output (exemplo):**
+```
+Last week's AI highlights included new open-weight releases and faster
+inference benchmarks.
+```
+> When `citation_options` is `enabled`, the model appends citations
+> referencing the web sources it used.
+
+## 9. Documents (RAG) & Citations
+
+Provide context documents directly in the request via the `documents` parameter. When
+`citation_options` is `enabled`, the model includes citations referencing those documents:
+
+```php
+use LucianoTonet\GroqPHP\BuiltInTools;
+
+$response = $groq->chat()->completions()->create([
+    'model' => 'groq/compound',
+    'messages' => [
+        ['role' => 'user', 'content' => 'Summarize the provided document'],
+    ],
+    'documents' => [
+        BuiltInTools::document('Groq is a fast inference platform...', 'doc-1'),
+    ],
+    'citation_options' => 'enabled',
+]);
+```
+
+`BuiltInTools::document()` builds a text document; `BuiltInTools::documentFromFile()`
+builds one backed by a file previously uploaded via the Files API.
+
+**Output (exemplo):**
+```
+Groq is a fast AI inference platform focused on low-latency LLM serving.
+```
+> With `citation_options=enabled`, the response includes citations that
+> reference `doc-1`.
 
 ## Examples
 

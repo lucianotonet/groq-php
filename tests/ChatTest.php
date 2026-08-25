@@ -171,6 +171,24 @@ class ChatTest extends TestCase
     }
 
     /**
+     * Ensures disable_tool_validation is forwarded to the API request.
+     */
+    public function test_disable_tool_validation_is_forwarded(): void
+    {
+        $this->groq->chat()->completions()->create([
+            'model' => 'openai/gpt-oss-20b',
+            'messages' => [
+                ['role' => 'user', 'content' => 'Hi'],
+            ],
+            'disable_tool_validation' => true,
+        ]);
+
+        $request = MockRouter::lastChatRequest();
+        $this->assertArrayHasKey('disable_tool_validation', $request);
+        $this->assertTrue($request['disable_tool_validation']);
+    }
+
+    /**
      * Testa o controle de buffer no streaming
      */
     public function test_streaming_buffer_control()

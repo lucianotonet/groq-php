@@ -77,6 +77,37 @@ class AudioTest extends TestCase
     }
 
     /**
+     * Ensures the `url` parameter (alternative to `file`) is forwarded.
+     */
+    public function test_transcription_forwards_url(): void
+    {
+        $this->groq->audio()->transcriptions()->create([
+            'url' => 'https://example.com/audio.mp3',
+            'model' => 'whisper-large-v3',
+        ]);
+
+        $body = MockRouter::lastAudioRequest();
+        $this->assertStringContainsString('name="url"', $body);
+        $this->assertStringContainsString('https://example.com/audio.mp3', $body);
+    }
+
+    /**
+     * Ensures timestamp_granularities[] is expanded into repeated multipart fields.
+     */
+    public function test_transcription_forwards_timestamp_granularities(): void
+    {
+        $this->groq->audio()->transcriptions()->create([
+            'file' => $this->testAudioPath,
+            'model' => 'whisper-large-v3',
+            'response_format' => 'verbose_json',
+            'timestamp_granularities' => ['word', 'segment'],
+        ]);
+
+        $body = MockRouter::lastAudioRequest();
+        $this->assertSame(2, substr_count($body, 'name="timestamp_granularities[]"'));
+    }
+
+    /**
      * Valida a geração de áudio (TTS) Orpheus contra a API real.
      * Faz uma chamada real à API, então requer GROQ_API_KEY.
      */

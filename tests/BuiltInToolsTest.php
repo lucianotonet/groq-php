@@ -92,4 +92,53 @@ class BuiltInToolsTest extends TestCase
         $this->assertArrayHasKey('search_settings', $request);
         $this->assertSame(['wikipedia.org'], $request['search_settings']['exclude_domains']);
     }
+
+    /**
+     * Ensures document() and documentFromFile() build the expected payloads.
+     */
+    public function test_document_builders(): void
+    {
+        $textDoc = BuiltInTools::document('Groq is a fast inference platform.', 'doc-1');
+        $this->assertSame(
+            ['source' => ['type' => 'text', 'text' => 'Groq is a fast inference platform.'], 'id' => 'doc-1'],
+            $textDoc
+        );
+
+        $fileDoc = BuiltInTools::documentFromFile('file-abc', 'doc-2');
+        $this->assertSame(
+            ['source' => ['type' => 'resource', 'file_id' => 'file-abc'], 'id' => 'doc-2'],
+            $fileDoc
+        );
+    }
+
+    /**
+     * Ensures documents and citation_options are forwarded to the request body.
+     *
+     * RAG via `documents` is only supported on models that enable it; on this
+     * account (free/developer tier) no model supports it, so this assertion runs
+     * in mock mode only.
+     */
+    public function test_documents_is_sent(): void
+    {
+        if ($this->live) {
+            $this->markTestSkipped('No model on this account supports documents (Rag).');
+        }
+
+        $params = [
+            'model' => 'llama-3.3-70b-versatile',
+            'messages' => [
+                ['role' => 'user', 'content' => 'Summarize the provided document'],
+            ],
+            'documents' => [
+                BuiltInTools::document('Groq is a fast inference platform.', 'doc-1'),
+            ],
+            'citation_options' => 'enabled',
+        ];
+
+        $this->groq->chat()->completions()->create($params);
+        $request = MockRouter::lastChatRequest();
+        $this->assertArrayHasKey('documents', $request);
+        $this->assertSame('doc-1', $request['documents'][0]['id']);
+        $this->assertSame('enabled', $request['citation_options']);
+    }
 }

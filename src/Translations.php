@@ -35,6 +35,7 @@ class Translations
      *   Use "text" to return a text response.
      *   vtt and srt formats are not supported.
      * - temperature: Specifies a value between 0 and 1 to control the variability of the translation output.
+     * - url: Audio URL to translate (alternative to the `file` parameter).
      *
      * @throws \InvalidArgumentException
      */
@@ -70,10 +71,10 @@ class Translations
      */
     private function validateParams(array $params): void
     {
-        if (empty($params['file'])) {
-            throw new \InvalidArgumentException('The "file" parameter is required.');
+        if (empty($params['file']) && empty($params['url'])) {
+            throw new \InvalidArgumentException('Either the "file" or the "url" parameter is required.');
         }
-        if (! file_exists($params['file'])) {
+        if (! empty($params['file']) && ! file_exists($params['file'])) {
             throw new \InvalidArgumentException('The specified file does not exist.');
         }
     }
@@ -83,19 +84,30 @@ class Translations
      */
     private function buildMultipart(array $params): array
     {
-        $multipart = [
-            [
+        $multipart = [];
+
+        if (! empty($params['file'])) {
+            $multipart[] = [
                 'name' => 'file',
                 'contents' => fopen($params['file'], 'r'),
-            ],
-            [
-                'name' => 'model',
-                'contents' => $params['model'] ?? 'whisper-large-v3',
-            ],
-            [
-                'name' => 'temperature',
-                'contents' => $params['temperature'] ?? 0.0,
-            ],
+            ];
+        }
+
+        $multipart[] = [
+            'name' => 'model',
+            'contents' => $params['model'] ?? 'whisper-large-v3',
+        ];
+
+        if (isset($params['url'])) {
+            $multipart[] = [
+                'name' => 'url',
+                'contents' => $params['url'],
+            ];
+        }
+
+        $multipart[] = [
+            'name' => 'temperature',
+            'contents' => $params['temperature'] ?? 0.0,
         ];
 
         if (! empty($params['prompt'])) {

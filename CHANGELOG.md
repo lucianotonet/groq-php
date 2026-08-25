@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.4.2] - 2026-08-25
+
+### Added
+- **Documents (RAG) & Citations restored:** re-added the `documents` and `citation_options` Chat Completions parameters as pass-through forwarding, plus `BuiltInTools::document()` and `BuiltInTools::documentFromFile()` helpers. These are valid API parameters; support is model-specific (the legacy RAG models `llama-3.3-70b-versatile` / `llama-3.1-8b-instant` were retired on 2026-08-16 for free/developer tiers, so current models reject `documents` with `not supported with this model`). The library forwards them as-is and lets the API enforce model support.
+- **Chat Completions parity:** added the `disable_tool_validation` parameter pass-through.
+- **Audio transcription/translation parity:** added the `url` parameter (alternative to `file`) and fixed `timestamp_granularities[]` so each granularity is sent as a repeated multipart field (previously sent as a single array, which the API rejected). Both endpoints now accept either `file` or `url`.
+
 ## [v1.4.1] - 2026-08-25
 
 ### Fixed

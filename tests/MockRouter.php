@@ -40,11 +40,15 @@ class MockRouter
         }
 
         if (str_ends_with($path, '/audio/transcriptions')) {
+            self::$lastAudioBody = (string) $request->getBody();
+
             return new Response(200, ['Content-Type' => 'application/json'],
                 (string) json_encode(['text' => 'Hello, how can I help you today']));
         }
 
         if (str_ends_with($path, '/audio/translations')) {
+            self::$lastAudioBody = (string) $request->getBody();
+
             return new Response(200, ['Content-Type' => 'application/json'],
                 (string) json_encode(['text' => 'I can help you with that']));
         }
@@ -338,6 +342,9 @@ class MockRouter
     /** @var array|null Body of the most recent chat/completions request. */
     private static ?array $lastChatBody = null;
 
+    /** @var string|null Raw body of the most recent audio request (transcription/translation). */
+    private static ?string $lastAudioBody = null;
+
     private static function batchCreate(RequestInterface $request): Response
     {
         $body = json_decode((string) $request->getBody(), true) ?: [];
@@ -395,11 +402,21 @@ class MockRouter
     }
 
     /**
+     * Returns the raw body of the most recent audio request, so tests can
+     * assert which multipart fields were actually sent.
+     */
+    public static function lastAudioRequest(): ?string
+    {
+        return self::$lastAudioBody;
+    }
+
+    /**
      * Resets in-memory state between tests.
      */
     public static function reset(): void
     {
         self::$lastChatBody = null;
+        self::$lastAudioBody = null;
         self::$batches = [];
     }
 }

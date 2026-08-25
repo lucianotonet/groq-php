@@ -40,6 +40,7 @@ class Transcriptions
      *   Specifying a language can improve the accuracy and speed of the transcription.
      * - timestamp_granularities[]: Array of granularities to populate. Requires response_format "verbose_json".
      *   Accepts "word", "segment", or both (e.g., ["word", "segment"]). Defaults to ["segment"].
+     * - url: Audio URL to transcribe (alternative to the `file` parameter).
      */
     public function create(array $params): array|string|Stream
     {
@@ -70,11 +71,11 @@ class Transcriptions
      */
     private function validateParams(array $params): void
     {
-        if (empty($params['file'])) {
-            throw new \InvalidArgumentException('The "file" parameter is required.');
+        if (empty($params['file']) && empty($params['url'])) {
+            throw new \InvalidArgumentException('Either the "file" or the "url" parameter is required.');
         }
 
-        if (! file_exists($params['file'])) {
+        if (! empty($params['file']) && ! file_exists($params['file'])) {
             throw new \InvalidArgumentException('The specified file does not exist.');
         }
 
@@ -88,16 +89,26 @@ class Transcriptions
      */
     private function buildMultipart(array $params): array
     {
-        $multipart = [
-            [
+        $multipart = [];
+
+        if (! empty($params['file'])) {
+            $multipart[] = [
                 'name' => 'file',
                 'contents' => fopen($params['file'], 'r'),
-            ],
-            [
-                'name' => 'model',
-                'contents' => $params['model'] ?? 'whisper-large-v3',
-            ],
+            ];
+        }
+
+        $multipart[] = [
+            'name' => 'model',
+            'contents' => $params['model'] ?? 'whisper-large-v3',
         ];
+
+        if (isset($params['url'])) {
+            $multipart[] = [
+                'name' => 'url',
+                'contents' => $params['url'],
+            ];
+        }
 
         if (isset($params['temperature'])) {
             $multipart[] = [
@@ -128,10 +139,12 @@ class Transcriptions
         }
 
         if (isset($params['timestamp_granularities'])) {
-            $multipart[] = [
-                'name' => 'timestamp_granularities[]',
-                'contents' => $params['timestamp_granularities'],
-            ];
+            foreach ((array) $params['timestamp_granularities'] as $granularity) {
+                $multipart[] = [
+                    'name' => 'timestamp_granularities[]',
+                    'contents' => $granularity,
+                ];
+            }
         }
 
         return $multipart;

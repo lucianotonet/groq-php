@@ -22,6 +22,7 @@ Using on Laravel? Check this out: [GroqLaravel](https://github.com/lucianotonet/
 - [x] [Built-in Tools & Compound (web search, code execution, citations)](#9-built-in-tools--compound)
 - [x] [Documents (RAG) & Citations](#10-documents-rag--citations)
 - [x] [Responses API](#11-responses-api)
+- [x] [Prompt Caching & Content Moderation](#prompt-caching--content-moderation)
 
 ## Installation
 
@@ -810,6 +811,61 @@ echo $data['product_name'];
 ```
 
 See `examples/responses.php` for a runnable script.
+
+## Prompt Caching & Content Moderation
+
+### Prompt Caching
+
+Groq enables **automatic prompt caching** on supported models (e.g. `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `kimi-k2`). There is no code change and no extra cost: when a request shares a common prefix with a recent one, Groq reuses the cached computation, cutting latency and giving a **50% discount on cached input tokens**.
+
+- Caching is prefix-based and exact-match: identical content must appear at the **start** of the prompt.
+- Place static content (system instructions, tool definitions, few-shot examples, schemas, large context) first, and dynamic content (user queries, timestamps, IDs) last, to maximize cache hits.
+- Monitor hits via the `usage` field: cached tokens are reported under `usage.prompt_tokens_details.cached_tokens` (Chat Completions and Responses API).
+- Cached data lives in volatile memory and expires automatically after a short period (a few hours); there is no manual cache management.
+
+```php
+$response = $groq->chat()->completions()->create([
+    'model' => 'openai/gpt-oss-120b',
+    'messages' => [
+        ['role' => 'system', 'content' => $longStaticSystemPrompt], // cached prefix
+        ['role' => 'user', 'content' => $userQuestion],             // dynamic, at the end
+    ],
+]);
+
+// Inspect cached tokens (populated when a cache hit occurs):
+$cached = $response['usage']['prompt_tokens_details']['cached_tokens'] ?? 0;
+echo "Cached input tokens: " . $cached;
+```
+
+### Content Moderation
+
+Groq does not expose a separate moderation endpoint; instead it provides **safeguard models** that you call through the standard Chat Completions API:
+
+- `openai/gpt-oss-safeguard-20b` — **recommended.** A policy-following reasoning model for custom Trust & Safety workflows (bring-your-own-policy). It returns a structured JSON decision.
+- `meta-llama/Llama-Guard-4-12B` — a multimodal safeguard model that classifies content against the MLCommons 14-category taxonomy and returns `safe` or `unsafe\nSX`. *Scheduled for deprecation on 2026-10-02; prefer `openai/gpt-oss-safeguard-20b` for new integrations.*
+
+A common pattern is to pre-screen user input (and optionally the model output) with a safeguard model before responding.
+
+```php
+use LucianoTonet\GroqPHP\Groq;
+
+$groq = new Groq(getenv('GROQ_API_KEY'));
+
+$screen = $groq->chat()->completions()->create([
+    'model' => 'openai/gpt-oss-safeguard-20b',
+    'messages' => [
+        ['role' => 'user', 'content' => $userMessage],
+    ],
+]);
+
+if (str_starts_with($screen['choices'][0]['message']['content'], 'unsafe')) {
+    echo "Request blocked by content moderation.";
+} else {
+    // proceed with the real model
+}
+```
+
+See `examples/content-moderation.php` for a runnable script.
 
 ## Examples
 

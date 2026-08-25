@@ -28,7 +28,7 @@ class Speech
     public function __construct(Groq $groq)
     {
         $this->groq = $groq;
-        $this->model = 'playai-tts';
+        $this->model = 'canopylabs/orpheus-v1-english';
         $this->input = '';
         $this->voice = '';
         $this->responseFormat = 'wav';
@@ -37,7 +37,7 @@ class Speech
     /**
      * Set the TTS model to use.
      * 
-     * @param string $model The model to use (play-tts or play-tts-arabic)
+     * @param string $model The model to use (e.g., 'canopylabs/orpheus-v1-english' or 'canopylabs/orpheus-arabic-saudi')
      * @return $this
      */
     public function model(string $model): self
@@ -61,7 +61,7 @@ class Speech
     /**
      * Set the voice to use for speech generation.
      * 
-     * @param string $voice The voice identifier (e.g., "Bryan-PlayAI")
+     * @param string $voice The voice identifier (e.g., "troy", "hannah", "autumn", "austin", "fahad", "noura")
      * @return $this
      */
     public function voice(string $voice): self
@@ -96,6 +96,28 @@ class Speech
 
         if (empty($this->voice)) {
             throw new GroqException('Voice is required', 400, 'validation_error', [], null, null);
+        }
+
+        if ($this->responseFormat !== 'wav') {
+            throw new GroqException(
+                "Orpheus TTS only supports the 'wav' response format",
+                400,
+                'validation_error',
+                [],
+                null,
+                null
+            );
+        }
+
+        if (mb_strlen($this->input) > 200) {
+            throw new GroqException(
+                'Input text exceeds the 200 character limit for Orpheus TTS',
+                400,
+                'validation_error',
+                [],
+                null,
+                null
+            );
         }
 
         $payload = [

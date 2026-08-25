@@ -34,9 +34,9 @@ try {
     
     // Cria o áudio e salva no arquivo
     $result = $groq->audio()->speech()
-        ->model('playai-tts')
+        ->model('canopylabs/orpheus-v1-english')
         ->input($text)
-        ->voice('Bryan-PlayAI') // Escolhe a voz
+        ->voice('troy') // Escolhe a voz
         ->responseFormat('wav')  // Formato de saída
         ->save($outputFile);
     
@@ -50,9 +50,9 @@ try {
     // Exemplo 2: Obter o conteúdo do áudio como stream
     echo "Exemplo 2: Obtendo o conteúdo do áudio como stream...\n";
     $audioStream = $groq->audio()->speech()
-        ->model('playai-tts')
+        ->model('canopylabs/orpheus-v1-english')
         ->input('This is another example text that will be converted to speech.')
-        ->voice('Bryan-PlayAI')
+        ->voice('troy')
         ->create();
     
     // Você pode processar o stream conforme necessário
@@ -71,9 +71,9 @@ try {
     $outputFileArabic = __DIR__ . '/output/speech_arabic.wav';
     
     $result = $groq->audio()->speech()
-        ->model('playai-tts-arabic')
+        ->model('canopylabs/orpheus-arabic-saudi')
         ->input($arabicText)
-        ->voice('Arwa-PlayAI') // Voz em árabe
+        ->voice('fahad') // Voz em árabe
         ->save($outputFileArabic);
     
     if ($result) {

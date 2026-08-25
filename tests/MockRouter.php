@@ -101,6 +101,10 @@ class MockRouter
             return self::batchRetrieve($matches[1]);
         }
 
+        if (str_ends_with($path, '/responses')) {
+            return self::responses($request);
+        }
+
         return new Response(404, ['Content-Type' => 'application/json'],
             (string) json_encode([
                 'error' => ['message' => 'Mock: route not found: ' . $path, 'type' => 'invalid_request_error', 'code' => 404],
@@ -179,6 +183,85 @@ class MockRouter
         ];
 
         return 'data: ' . (string) json_encode($chunk) . "\n";
+    }
+
+    private static function responses(RequestInterface $request): Response
+    {
+        $body = json_decode((string) $request->getBody(), true) ?: [];
+        $model = (string) ($body['model'] ?? '');
+
+        if ($model === 'invalid-model') {
+            return new Response(400, ['Content-Type' => 'application/json'],
+                (string) json_encode([
+                    'error' => ['message' => 'Invalid API Key', 'type' => 'invalid_request_error', 'code' => 400],
+                ]));
+        }
+
+        $stream = ($body['stream'] ?? false) === true;
+        $formatType = $body['text']['format']['type'] ?? null;
+        $schemaName = $body['text']['format']['name'] ?? null;
+
+        if ($schemaName === 'product_review') {
+            $content = '{"product_name":"UltraSound Headphones","rating":4.5,"sentiment":"positive","key_features":["noise cancellation","long battery life"]}';
+        } elseif ($formatType === 'json_schema') {
+            $content = '{"result":"ok"}';
+        } elseif ($formatType === 'json_object') {
+            $content = '{"name":"John","age":30}';
+        } else {
+            $content = 'Hello from the Responses API.';
+        }
+
+        if ($stream) {
+            $sse = self::responseSseDelta('Hel')
+                . self::responseSseDelta('lo from')
+                . self::responseSseDelta(' the Responses API.')
+                . "event: response.completed\ndata: {\"type\":\"response.completed\"}\n\n";
+
+            return new Response(200, ['Content-Type' => 'text/event-stream'], $sse);
+        }
+
+        $payload = [
+            'id' => 'resp-mock',
+            'object' => 'response',
+            'status' => 'completed',
+            'created_at' => time(),
+            'model' => $model,
+            'output' => [
+                [
+                    'type' => 'message',
+                    'id' => 'msg-mock',
+                    'status' => 'completed',
+                    'role' => 'assistant',
+                    'content' => [
+                        ['type' => 'output_text', 'text' => $content, 'annotations' => [], 'logprobs' => null],
+                    ],
+                ],
+            ],
+            'usage' => ['input_tokens' => 10, 'output_tokens' => 5, 'total_tokens' => 15],
+            'text' => ['format' => ['type' => $formatType ?? 'text']],
+            'tools' => [],
+            'tool_choice' => 'auto',
+            'truncation' => 'disabled',
+            'metadata' => [],
+            'temperature' => 1,
+            'top_p' => 1,
+            'service_tier' => 'default',
+            'error' => null,
+            'incomplete_details' => null,
+        ];
+
+        return new Response(200, ['Content-Type' => 'application/json'], (string) json_encode($payload));
+    }
+
+    private static function responseSseDelta(string $delta): string
+    {
+        $event = [
+            'type' => 'response.output_text.delta',
+            'item_id' => 'msg-mock',
+            'delta' => $delta,
+        ];
+
+        return "event: response.output_text.delta\ndata: " . (string) json_encode($event) . "\n\n";
     }
 
     private static function messagesHaveImage(array $messages): bool

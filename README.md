@@ -21,6 +21,7 @@ Using on Laravel? Check this out: [GroqLaravel](https://github.com/lucianotonet/
 - [x] [Files and Batch Processing](#7-files-and-batch-processing)
 - [x] [Built-in Tools & Compound (web search, code execution, citations)](#9-built-in-tools--compound)
 - [x] [Documents (RAG) & Citations](#10-documents-rag--citations)
+- [x] [Responses API](#11-responses-api)
 
 ## Installation
 
@@ -748,6 +749,67 @@ echo $response['choices'][0]['message']['content'];
 
 `BuiltInTools::document()` builds a text document; `BuiltInTools::documentFromFile()`
 builds one backed by a file previously uploaded via the Files API.
+
+### 11. Responses API
+
+Groq's Responses API (beta) is compatible with OpenAI's Responses API: it uses a single `input` field (a string or an array of input items), returns an `output` array of generated items, and supports structured outputs, reasoning controls and tool calling.
+
+```php
+use LucianoTonet\GroqPHP\Groq;
+use LucianoTonet\GroqPHP\Responses;
+
+$groq = new Groq(getenv('GROQ_API_KEY'));
+
+$response = $groq->responses()->create([
+    'model' => 'openai/gpt-oss-120b',
+    'input' => 'Tell me a fun fact about the moon in one sentence.',
+]);
+
+echo Responses::outputText($response);
+// Hello from the Responses API.
+```
+
+**Streaming:**
+
+```php
+$stream = $groq->responses()->create([
+    'model' => 'openai/gpt-oss-120b',
+    'input' => 'Tell me a short story.',
+    'stream' => true,
+]);
+
+foreach ($stream->chunks() as $event) {
+    if (($event['type'] ?? null) === 'response.output_text.delta') {
+        echo $event['delta'];
+    }
+}
+```
+
+**Structured outputs** follow the Responses API shape (`text.format` with `type: json_schema`):
+
+```php
+$response = $groq->responses()->create([
+    'model' => 'openai/gpt-oss-120b',
+    'input' => 'Extract product review information from the text.',
+    'text' => [
+        'format' => [
+            'type' => 'json_schema',
+            'name' => 'product_review',
+            'schema' => [
+                'type' => 'object',
+                'properties' => ['product_name' => ['type' => 'string'], 'rating' => ['type' => 'number']],
+                'required' => ['product_name', 'rating'],
+                'additionalProperties' => false,
+            ],
+        ],
+    ],
+]);
+
+$data = json_decode(Responses::outputText($response), true);
+echo $data['product_name'];
+```
+
+See `examples/responses.php` for a runnable script.
 
 ## Examples
 

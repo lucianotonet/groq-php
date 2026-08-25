@@ -92,8 +92,17 @@ class Reasoning
 
         $requestOptions = array_merge([
             'messages' => $messages,
-            'reasoning_format' => 'raw' // Default value
         ], $options);
+
+        // openai/gpt-oss models do not accept the reasoning_format parameter
+        $isGptOss = isset($requestOptions['model'])
+            && str_starts_with($requestOptions['model'], 'openai/gpt-oss');
+
+        if ($isGptOss) {
+            unset($requestOptions['reasoning_format']);
+        } else {
+            $requestOptions['reasoning_format'] = $options['reasoning_format'] ?? 'raw';
+        }
 
         return $this->groq->chat()->completions()->create($requestOptions);
     }

@@ -51,6 +51,7 @@ abstract class TestCase extends BaseTestCase
 
     private function setUpMock(): void
     {
+        MockRouter::reset();
         $this->groq = new Groq('mock-api-key');
         $this->groq->setHttpClient(MockRouter::client());
     }

@@ -110,6 +110,7 @@ class MockRouter
     private static function chat(RequestInterface $request): Response
     {
         $body = json_decode((string) $request->getBody(), true) ?: [];
+        self::$lastChatBody = $body;
         $model = (string) ($body['model'] ?? '');
 
         if ($model === 'invalid-model') {
@@ -251,6 +252,9 @@ class MockRouter
     /** @var array<string,array> In-memory store of created batches. */
     private static array $batches = [];
 
+    /** @var array|null Body of the most recent chat/completions request. */
+    private static ?array $lastChatBody = null;
+
     private static function batchCreate(RequestInterface $request): Response
     {
         $body = json_decode((string) $request->getBody(), true) ?: [];
@@ -296,5 +300,23 @@ class MockRouter
         self::$batches[$id]['status'] = 'cancelling';
 
         return new Response(200, ['Content-Type' => 'application/json'], (string) json_encode(self::$batches[$id]));
+    }
+
+    /**
+     * Returns the decoded body of the most recent chat/completions request,
+     * so tests can assert which parameters were actually sent.
+     */
+    public static function lastChatRequest(): ?array
+    {
+        return self::$lastChatBody;
+    }
+
+    /**
+     * Resets in-memory state between tests.
+     */
+    public static function reset(): void
+    {
+        self::$lastChatBody = null;
+        self::$batches = [];
     }
 }

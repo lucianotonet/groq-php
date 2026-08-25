@@ -2,7 +2,6 @@
 
 namespace LucianoTonet\GroqPHP;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
@@ -211,8 +210,7 @@ class Completions
     private function streamResponse(Request $request): Stream
     {
         try {
-            $client = new Client();
-            $response = $client->send($request, ['stream' => true]);
+            $response = $this->groq->httpClient()->send($request, ['stream' => true]);
             return new Stream($response);
         } catch (RequestException $e) {
             $responseBody = $e->getResponse() ? (string) $e->getResponse()->getBody() : 'Response body not available';

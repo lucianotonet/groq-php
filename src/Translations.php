@@ -2,7 +2,6 @@
 
 namespace LucianoTonet\GroqPHP;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
@@ -48,14 +47,10 @@ class Translations
     public function create(array $params): array|string|Stream
     {
         $this->validateParams($params);
-        $client = new Client();
         $multipart = $this->buildMultipart($params);
 
         try {
-            $response = $client->request('POST', $this->groq->baseUrl() . '/audio/translations', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->groq->apiKey()
-                ],
+            $response = $this->groq->httpClient()->request('POST', 'audio/translations', [
                 'multipart' => $multipart
             ]);
 
@@ -164,8 +159,7 @@ class Translations
     private function streamResponse(Request $request, array $options): Stream
     {
         try {
-            $client = new Client();
-            $response = $client->send($request, array_merge($options, ['stream' => true]));
+            $response = $this->groq->httpClient()->send($request, array_merge($options, ['stream' => true]));
             return new Stream($response);
         } catch (RequestException $e) {
             $responseBody = $e->getResponse() ? $e->getResponse()->getBody() : null;

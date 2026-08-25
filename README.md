@@ -57,6 +57,13 @@ $models = $groq->models()->list();
 print_r($models['data']);
 ```
 
+Retrieve a single model by its ID:
+
+```php
+$model = $groq->models()->retrieve('openai/gpt-oss-20b');
+echo $model['id'];
+```
+
 ### 2. Chat (Completions)
 
 Generate interactive chat responses.
@@ -116,6 +123,40 @@ $response = $groq->chat()->completions()->create([
 
 $content = $response['choices'][0]['message']['content'];
 echo json_encode(json_decode($content), JSON_PRETTY_PRINT); // Display formatted JSON
+```
+
+**Structured Outputs (`json_schema`):**
+
+Guarantee the response conforms to a JSON schema. In `strict` mode the model uses
+constrained decoding, so the output always matches the schema exactly.
+
+```php
+$response = $groq->chat()->completions()->create([
+    'model' => 'openai/gpt-oss-20b',
+    'messages' => [
+        ['role' => 'system', 'content' => 'Extract product review information from the text.'],
+        ['role' => 'user', 'content' => 'I bought the UltraSound Headphones and I am really impressed!'],
+    ],
+    'response_format' => [
+        'type' => 'json_schema',
+        'json_schema' => [
+            'name' => 'product_review',
+            'strict' => true,
+            'schema' => [
+                'type' => 'object',
+                'properties' => [
+                    'product_name' => ['type' => 'string'],
+                    'rating' => ['type' => 'number'],
+                ],
+                'required' => ['product_name', 'rating'],
+                'additionalProperties' => false,
+            ],
+        ],
+    ],
+]);
+
+$result = json_decode($response['choices'][0]['message']['content'], true);
+echo $result['product_name'];
 ```
 
 **Additional Parameters (Chat Completions):**
@@ -347,13 +388,15 @@ try {
 ```
 
 - **`analyze()`:** Takes the prompt (question/problem) and an options array.
-- **`reasoning_format`:**
+- **`reasoning_format`:** (not supported by `openai/gpt-oss` models)
   - `'raw'`: Includes reasoning with `<think>` tags in content (default)
   - `'parsed'`: Returns reasoning in a separate `reasoning` field
   - `'hidden'`: Returns only the final answer
+- **`include_reasoning`:** (bool) Whether to include reasoning in `message.reasoning`. Mutually exclusive with `reasoning_format`. For `openai/gpt-oss` models use this instead (e.g., `'hidden'` → `include_reasoning => false`).
+- **`reasoning_effort`:** (string) Reasoning effort for supported models — `none`/`default` for `qwen/qwen3.6-27b`; `low`/`medium`/`high` for `openai/gpt-oss-*`.
 - **`system_prompt`:** Additional instructions for the model (optional). Added as a `system` message *before* the user message.
 - Must use `'parsed'` or `'hidden'` format when using JSON mode
-- Optional parameters: `temperature`, `max_completion_tokens`, `top_p`, `frequency_penalty`, etc.
+- Optional parameters: `temperature`, `max_completion_tokens`, `top_p`, `frequency_penalty`, `service_tier` (`auto`|`on_demand`|`flex`|`performance`|`null`), etc.
 
 #### Reasoning Formats
 

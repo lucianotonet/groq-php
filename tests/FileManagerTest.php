@@ -9,6 +9,9 @@ class FileManagerTest extends TestCase
     private string $testJsonlPath;
     private string $testInvalidJsonlPath;
 
+    /**
+     * Sets up fixture paths for file manager tests.
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -18,6 +21,9 @@ class FileManagerTest extends TestCase
         $this->testInvalidJsonlPath = __DIR__ . '/fixtures/batch_file_invalid.jsonl';
     }
 
+    /**
+     * Tests uploading a valid batch JSONL file and cleaning it up afterwards.
+     */
     public function testUploadFile()
     {
         $file = $this->groq->files()->upload($this->testJsonlPath, 'batch');
@@ -30,6 +36,9 @@ class FileManagerTest extends TestCase
         $this->groq->files()->delete($file->id);
     }
 
+    /**
+     * Tests listing uploaded files filtered by the batch purpose.
+     */
     public function testListFiles()
     {
         $files = $this->groq->files()->list('batch', ['limit' => 10]);
@@ -38,6 +47,9 @@ class FileManagerTest extends TestCase
         $this->assertIsArray($files['data']);
     }
 
+    /**
+     * Ensures uploading a nonexistent file throws a "File not found" error.
+     */
     public function testInvalidFileUpload()
     {
         $this->expectException(GroqException::class);
@@ -45,6 +57,9 @@ class FileManagerTest extends TestCase
         $this->groq->files()->upload('/path/to/nonexistent.jsonl', 'batch');
     }
 
+    /**
+     * Ensures a JSONL missing the required body field is rejected.
+     */
     public function testInvalidJsonlFormat()
     {
         $this->expectException(GroqException::class);
@@ -52,6 +67,9 @@ class FileManagerTest extends TestCase
         $this->groq->files()->upload($this->testInvalidJsonlPath, 'batch');
     }
 
+    /**
+     * Ensures an empty file is rejected with a "File is empty" error.
+     */
     public function testEmptyFile()
     {
         $emptyFile = sys_get_temp_dir() . '/empty.jsonl';
@@ -66,6 +84,9 @@ class FileManagerTest extends TestCase
         }
     }
 
+    /**
+     * Ensures an unsupported file purpose is rejected.
+     */
     public function testInvalidPurpose()
     {
         $this->expectException(GroqException::class);
@@ -73,6 +94,9 @@ class FileManagerTest extends TestCase
         $this->groq->files()->upload($this->testJsonlPath, 'jsonl');
     }
 
+    /**
+     * Ensures a batch request with an invalid endpoint is rejected.
+     */
     public function testInvalidEndpoint()
     {
         $invalidEndpointFile = sys_get_temp_dir() . '/invalid_endpoint.jsonl';
@@ -97,6 +121,9 @@ class FileManagerTest extends TestCase
         }
     }
 
+    /**
+     * Ensures an audio transcription batch request with an invalid URL is rejected.
+     */
     public function testInvalidAudioRequest()
     {
         $invalidAudioFile = sys_get_temp_dir() . '/invalid_audio.jsonl';
@@ -121,6 +148,9 @@ class FileManagerTest extends TestCase
         }
     }
 
+    /**
+     * Ensures an audio transcription request missing the language field is rejected.
+     */
     public function testMissingLanguageInAudioRequest()
     {
         $invalidAudioFile = sys_get_temp_dir() . '/missing_language.jsonl';
@@ -145,6 +175,9 @@ class FileManagerTest extends TestCase
         }
     }
 
+    /**
+     * Ensures a chat batch request with malformed messages is rejected.
+     */
     public function testInvalidMessagesFormat()
     {
         $invalidMessagesFile = sys_get_temp_dir() . '/invalid_messages.jsonl';

@@ -11,6 +11,9 @@ class AudioTest extends TestCase
     private string $expectedTranscription = "Hello, how can I help you today";
     private string $testOutputPath;
 
+    /**
+     * Sets up the test environment with fixture paths.
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -18,6 +21,9 @@ class AudioTest extends TestCase
         $this->testOutputPath = __DIR__ . '/fixtures/output.wav';
     }
 
+    /**
+     * Removes the generated speech output file after each test.
+     */
     protected function tearDown(): void
     {
         parent::tearDown();
@@ -26,6 +32,9 @@ class AudioTest extends TestCase
         }
     }
 
+    /**
+     * Tests audio transcription using whisper-large-v3 against the API.
+     */
     public function testAudioTranscription()
     {
         $response = $this->groq->audio()->transcriptions()->create([
@@ -44,6 +53,9 @@ class AudioTest extends TestCase
         );
     }
 
+    /**
+     * Tests audio translation using whisper-large-v3 against the API.
+     */
     public function testAudioTranslation()
     {
         $response = $this->groq->audio()->translations()->create([
@@ -92,6 +104,9 @@ class AudioTest extends TestCase
         $this->assertGreaterThan(0, filesize($this->testOutputPath));
     }
 
+    /**
+     * Tests the fluent Speech builder methods and instance type.
+     */
     public function testSpeechImplementation()
     {
         $speech = $this->groq->audio()->speech();
@@ -110,6 +125,9 @@ class AudioTest extends TestCase
         $this->assertTrue(method_exists($speech, 'save'), 'O método save() não existe na classe Speech');
     }
 
+    /**
+     * Ensures Speech rejects non-wav response formats for Orpheus.
+     */
     public function testSpeechRejectsUnsupportedResponseFormat()
     {
         $speech = $this->groq->audio()->speech()
@@ -122,6 +140,9 @@ class AudioTest extends TestCase
         $speech->create();
     }
 
+    /**
+     * Ensures Speech rejects input longer than 200 characters.
+     */
     public function testSpeechRejectsLongInput()
     {
         $speech = $this->groq->audio()->speech()

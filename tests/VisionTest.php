@@ -10,6 +10,9 @@ class VisionTest extends TestCase
     private string $testImageUrl;
     private string $defaultModel = 'qwen/qwen3.6-27b';
 
+    /**
+     * Creates a test image and initializes the Vision client with the default model.
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -25,6 +28,9 @@ class VisionTest extends TestCase
         $this->groq->vision()->setDefaultModel($this->defaultModel);
     }
 
+    /**
+     * Tests vision analysis using a local image file.
+     */
     public function testVisionAnalysisWithLocalImage()
     {
         try {
@@ -39,6 +45,9 @@ class VisionTest extends TestCase
         }
     }
 
+    /**
+     * Tests vision analysis using an image from a URL.
+     */
     public function testVisionAnalysisWithUrlImage()
     {
         try {
@@ -54,6 +63,9 @@ class VisionTest extends TestCase
         }
     }
 
+    /**
+     * Ensures analyzing a nonexistent image throws a "Image file not found" error.
+     */
     public function testVisionAnalysisWithInvalidImage()
     {
         $prompt = "What do you see in this image?";
@@ -64,6 +76,9 @@ class VisionTest extends TestCase
         $this->groq->vision()->analyze($invalidPath, $prompt);
     }
 
+    /**
+     * Ensures analyzing an invalid image URL throws a GroqException.
+     */
     public function testVisionAnalysisWithInvalidUrl()
     {
         $prompt = "What do you see in this image?";
@@ -76,6 +91,9 @@ class VisionTest extends TestCase
         $this->groq->vision()->analyze($invalidUrl, $prompt);
     }
 
+    /**
+     * Tests vision analysis with custom options (temperature, max tokens).
+     */
     public function testVisionAnalysisWithCustomOptions()
     {
         try {

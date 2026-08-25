@@ -9,11 +9,17 @@ class ReasoningTest extends TestCase
 {
     protected Groq $groq;
 
+    /**
+     * Initializes the test environment.
+     */
     protected function setUp(): void
     {
         parent::setUp();
     }
 
+    /**
+     * Tests basic reasoning with reasoning_format set to raw.
+     */
     public function testBasicReasoning()
     {
         $prompt = "Why does ice float in water?";
@@ -34,6 +40,9 @@ class ReasoningTest extends TestCase
         $this->assertArrayHasKey('content', $response['choices'][0]['message']);
     }
 
+    /**
+     * Tests reasoning with custom options (temperature, max tokens).
+     */
     public function testReasoningWithCustomOptions()
     {
         $prompt = "Explain the process of photosynthesis.";
@@ -54,6 +63,9 @@ class ReasoningTest extends TestCase
         $this->assertNotEmpty($response['choices']);
     }
 
+    /**
+     * Tests reasoning with streaming responses.
+     */
     public function testReasoningWithStreaming()
     {
         $prompt = "Explain quantum entanglement.";
@@ -79,6 +91,9 @@ class ReasoningTest extends TestCase
         }
     }
 
+    /**
+     * Ensures gpt-oss models reject the raw reasoning_format with an error.
+     */
     public function testGptOssRejectsRawReasoningFormat()
     {
         $this->expectException(GroqException::class);
@@ -89,6 +104,9 @@ class ReasoningTest extends TestCase
         ]);
     }
 
+    /**
+     * Ensures gpt-oss with hidden reasoning does not return message.reasoning.
+     */
     public function testGptOssHiddenReasoningExcludesReasoning()
     {
         $prompt = "Why does ice float in water?";

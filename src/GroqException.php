@@ -47,18 +47,22 @@ class GroqException extends \Exception
     ];
 
     protected string $type; // Type of the error
+
     protected array $headers; // Response headers
+
     protected ?stdClass $responseBody; // Response body
+
     protected ?string $failedGeneration; // Field for failed_generation
 
     /**
      * Constructor for GroqException.
-     * @param string $message Error message
-     * @param int $code Error code
-     * @param string $type Type of the error
-     * @param string[] $headers Response headers
-     * @param string|null $failedGeneration Field for failed_generation
-     * @param stdClass|null $responseBody Response body
+     *
+     * @param  string  $message  Error message
+     * @param  int  $code  Error code
+     * @param  string  $type  Type of the error
+     * @param  string[]  $headers  Response headers
+     * @param  string|null  $failedGeneration  Field for failed_generation
+     * @param  stdClass|null  $responseBody  Response body
      */
     public function __construct(string $message, int $code, string $type, array $headers = [], ?stdClass $responseBody = null, ?string $failedGeneration = null)
     {
@@ -99,7 +103,6 @@ class GroqException extends \Exception
 
     /**
      * Converts the exception details to JSON format.
-     * @return string
      */
     public function toJson(): string
     {
@@ -142,8 +145,7 @@ class GroqException extends \Exception
 
     /**
      * Creates a GroqException from a response.
-     * @param ResponseInterface $response
-     * @return self
+     *
      * @throws self
      */
     public static function createFromResponse(ResponseInterface $response): self

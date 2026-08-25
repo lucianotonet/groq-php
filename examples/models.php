@@ -6,12 +6,12 @@
     ?>
 
     <ul class="gap-4">
-        <?php foreach ($models['data'] as $model): ?>
+        <?php foreach ($models['data'] as $model) { ?>
             <li class="flex flex-col leading-tight mb-2">
                 <strong><?php echo $model['id'] ?></strong>
                 <small>by <?php echo $model['owned_by'] ?></small>
                 <small>context window: <?php echo $model['context_window'] ?></small>
             </li>
-        <?php endforeach; ?>
+        <?php } ?>
     </ul>
 </div>

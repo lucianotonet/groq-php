@@ -52,7 +52,7 @@ class MockRouter
         if (str_ends_with($path, '/audio/speech')) {
             // Minimal non-empty binary-ish payload; Speech::save only checks size > 0.
             return new Response(200, ['Content-Type' => 'audio/wav'],
-                'RIFF' . str_repeat("\0", 36) . 'WAVE' . str_repeat("\0", 16));
+                'RIFF'.str_repeat("\0", 36).'WAVE'.str_repeat("\0", 16));
         }
 
         if (str_ends_with($path, '/models')) {
@@ -107,7 +107,7 @@ class MockRouter
 
         return new Response(404, ['Content-Type' => 'application/json'],
             (string) json_encode([
-                'error' => ['message' => 'Mock: route not found: ' . $path, 'type' => 'invalid_request_error', 'code' => 404],
+                'error' => ['message' => 'Mock: route not found: '.$path, 'type' => 'invalid_request_error', 'code' => 404],
             ]));
     }
 
@@ -147,8 +147,8 @@ class MockRouter
 
         if ($stream) {
             $sse = self::sseChunk(['role' => 'assistant', 'content' => '1 2 3 4 5'], null)
-                . self::sseChunk([], 'stop')
-                . "data: [DONE]\n";
+                .self::sseChunk([], 'stop')
+                ."data: [DONE]\n";
 
             return new Response(200, ['Content-Type' => 'text/event-stream'], $sse);
         }
@@ -182,7 +182,7 @@ class MockRouter
             ],
         ];
 
-        return 'data: ' . (string) json_encode($chunk) . "\n";
+        return 'data: '.(string) json_encode($chunk)."\n";
     }
 
     private static function responses(RequestInterface $request): Response
@@ -213,9 +213,9 @@ class MockRouter
 
         if ($stream) {
             $sse = self::responseSseDelta('Hel')
-                . self::responseSseDelta('lo from')
-                . self::responseSseDelta(' the Responses API.')
-                . "event: response.completed\ndata: {\"type\":\"response.completed\"}\n\n";
+                .self::responseSseDelta('lo from')
+                .self::responseSseDelta(' the Responses API.')
+                ."event: response.completed\ndata: {\"type\":\"response.completed\"}\n\n";
 
             return new Response(200, ['Content-Type' => 'text/event-stream'], $sse);
         }
@@ -261,14 +261,14 @@ class MockRouter
             'delta' => $delta,
         ];
 
-        return "event: response.output_text.delta\ndata: " . (string) json_encode($event) . "\n\n";
+        return "event: response.output_text.delta\ndata: ".(string) json_encode($event)."\n\n";
     }
 
     private static function messagesHaveImage(array $messages): bool
     {
         foreach ($messages as $message) {
             $content = $message['content'] ?? null;
-            if (!is_array($content)) {
+            if (! is_array($content)) {
                 continue;
             }
 
@@ -305,7 +305,7 @@ class MockRouter
     private static function fileUpload(): Response
     {
         $data = [
-            'id' => 'file-' . uniqid(),
+            'id' => 'file-'.uniqid(),
             'object' => 'file',
             'bytes' => 100,
             'created_at' => time(),
@@ -341,7 +341,7 @@ class MockRouter
     private static function batchCreate(RequestInterface $request): Response
     {
         $body = json_decode((string) $request->getBody(), true) ?: [];
-        $id = 'batch-' . uniqid();
+        $id = 'batch-'.uniqid();
         $data = [
             'id' => $id,
             'object' => 'batch',
@@ -365,7 +365,7 @@ class MockRouter
 
     private static function batchRetrieve(string $id): Response
     {
-        if (!isset(self::$batches[$id])) {
+        if (! isset(self::$batches[$id])) {
             return new Response(404, ['Content-Type' => 'application/json'],
                 (string) json_encode(['error' => ['message' => 'Batch not found', 'type' => 'not_found', 'code' => 404]]));
         }
@@ -375,7 +375,7 @@ class MockRouter
 
     private static function batchCancel(string $id): Response
     {
-        if (!isset(self::$batches[$id])) {
+        if (! isset(self::$batches[$id])) {
             return new Response(404, ['Content-Type' => 'application/json'],
                 (string) json_encode(['error' => ['message' => 'Batch not found', 'type' => 'not_found', 'code' => 404]]));
         }

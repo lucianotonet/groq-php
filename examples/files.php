@@ -3,99 +3,99 @@ use LucianoTonet\GroqPHP\GroqException;
 
 // Handle file actions (delete, download)
 if (isset($_REQUEST['action'])) {
-  try {
-    switch ($_REQUEST['action']) {
-      case 'delete':
-        $fileId = $_REQUEST['file_id'];
-        $result = $groq->files()->delete($fileId);
-        if ($result['deleted']) {
-          $success = "File deleted successfully.";
+    try {
+        switch ($_REQUEST['action']) {
+            case 'delete':
+                $fileId = $_REQUEST['file_id'];
+                $result = $groq->files()->delete($fileId);
+                if ($result['deleted']) {
+                    $success = 'File deleted successfully.';
+                }
+                break;
+
+            case 'download':
+                if (! isset($_REQUEST['file_id']) || ! preg_match('/^[a-zA-Z0-9\-_]+$/', $_REQUEST['file_id'])) {
+                    exit('File ID is required');
+                }
+
+                $fileId = $_REQUEST['file_id'];
+                $content = $groq->files()->download($fileId);
+
+                header('Content-Type: application/x-jsonlines');
+                header('Content-Disposition: attachment; filename="download.jsonl"');
+                header('Content-Length: '.strlen($content));
+                // Prevent browser caching of sensitive data
+                header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+                header('Pragma: no-cache');
+
+                echo $content;
+                exit;
         }
-        break;
-        
-      case 'download':
-        if (!isset($_REQUEST['file_id']) || !preg_match('/^[a-zA-Z0-9\-_]+$/', $_REQUEST['file_id'])) {
-          die('File ID is required');
-        }
-
-        $fileId = $_REQUEST['file_id'];
-        $content = $groq->files()->download($fileId);
-
-        header('Content-Type: application/x-jsonlines');
-        header('Content-Disposition: attachment; filename="download.jsonl"');
-        header('Content-Length: ' . strlen($content));
-        // Prevent browser caching of sensitive data
-        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-        header('Pragma: no-cache');
-
-        echo $content;
-        exit;
+    } catch (GroqException $e) {
+        $error = $e->getMessage();
     }
-  } catch (GroqException $e) {
-    $error = $e->getMessage();
-  }
 }
 
 // Handle file upload
 if (isset($_FILES['jsonl_file'])) {
-  try {
-    // Validate file size (e.g., 100MB limit)
-    if ($_FILES['jsonl_file']['size'] > 100 * 1024 * 1024) {
-      throw new GroqException('File size exceeds limit', 400, 'invalid_request');
-    }
-    
-    // Validate file type
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $_FILES['jsonl_file']['tmp_name']);
-    finfo_close($finfo);
-    if ($mimeType !== 'application/x-ndjson' && $mimeType !== 'text/plain') {
-      throw new GroqException('Invalid file type', 400, 'invalid_request');
-    }
-    
-    $tempFile = $_FILES['jsonl_file']['tmp_name'];
-    $originalName = $_FILES['jsonl_file']['name'];
-     
-    $newTempFile = tempnam(sys_get_temp_dir(), 'groq_') . '.jsonl';
     try {
-      if (!copy($tempFile, $newTempFile)) {
-        throw new GroqException('Failed to process upload file', 400, 'invalid_request');
-      }
-      
-      // Upload file
-      $file = $groq->files()->upload($newTempFile, 'batch');
-      $success = "File uploaded successfully!";
-    } finally {
-      // Always clean up temporary file
-      if (file_exists($newTempFile)) {
-        unlink($newTempFile);
-      }
+        // Validate file size (e.g., 100MB limit)
+        if ($_FILES['jsonl_file']['size'] > 100 * 1024 * 1024) {
+            throw new GroqException('File size exceeds limit', 400, 'invalid_request');
+        }
+
+        // Validate file type
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $_FILES['jsonl_file']['tmp_name']);
+        finfo_close($finfo);
+        if ($mimeType !== 'application/x-ndjson' && $mimeType !== 'text/plain') {
+            throw new GroqException('Invalid file type', 400, 'invalid_request');
+        }
+
+        $tempFile = $_FILES['jsonl_file']['tmp_name'];
+        $originalName = $_FILES['jsonl_file']['name'];
+
+        $newTempFile = tempnam(sys_get_temp_dir(), 'groq_').'.jsonl';
+        try {
+            if (! copy($tempFile, $newTempFile)) {
+                throw new GroqException('Failed to process upload file', 400, 'invalid_request');
+            }
+
+            // Upload file
+            $file = $groq->files()->upload($newTempFile, 'batch');
+            $success = 'File uploaded successfully!';
+        } finally {
+            // Always clean up temporary file
+            if (file_exists($newTempFile)) {
+                unlink($newTempFile);
+            }
+        }
+    } catch (GroqException $e) {
+        $error = $e->getMessage();
     }
-  } catch (GroqException $e) {
-    $error = $e->getMessage();
-  }
 }
 
 // Get list of files
 try {
-  $filesList = $groq->files()->list('batch', ['limit' => 10]);
-  $files = $filesList['data'];
+    $filesList = $groq->files()->list('batch', ['limit' => 10]);
+    $files = $filesList['data'];
 } catch (GroqException $e) {
-  $error = $e->getMessage();
+    $error = $e->getMessage();
 }
 ?>
 
 <div class="max-w-4xl mx-auto w-full p-6">
-  <?php if (isset($error)): ?>
+  <?php if (isset($error)) { ?>
     <div class="p-4 mb-6 bg-red-50 text-red-600 rounded-lg">
       <p class="font-semibold">Error: <?= htmlspecialchars($error) ?></p>
     </div>
-  <?php endif; ?>
+  <?php } ?>
 
-  <?php if (isset($success)): ?>
+  <?php if (isset($success)) { ?>
     <div class="p-4 mb-6 bg-green-50 text-green-600 rounded-lg">
       <p class="font-semibold"><?= htmlspecialchars($success) ?></p>
     </div>
-  <?php endif; ?>
+  <?php } ?>
 
   <!-- File Upload Section -->
   <div class="mb-8">
@@ -128,11 +128,11 @@ try {
   <!-- Files List Section -->
   <div>
     <h2 class="text-lg font-semibold mb-4">Available Files</h2>
-    <?php if (empty($files)): ?>
+    <?php if (empty($files)) { ?>
       <p class="text-gray-500 italic">No files available.</p>
-    <?php else: ?>
+    <?php } else { ?>
       <div class="space-y-4">
-        <?php foreach ($files as $file): ?>
+        <?php foreach ($files as $file) { ?>
           <div class="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
             <div class="flex justify-between items-start">
               <div>
@@ -142,8 +142,8 @@ try {
                   <p>Size: <?= number_format($file->bytes / 1024, 2) ?> KB</p>
                   <p>Created: <?= date('Y-m-d H:i', strtotime($file->created_at)) ?></p>
                   <p>Status: <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full 
-                    <?= $file->status === 'processed' ? 'bg-green-100 text-green-800' : 
-                        ($file->status === 'failed' ? 'bg-red-100 text-red-800' : 
+                    <?= $file->status === 'processed' ? 'bg-green-100 text-green-800' :
+                        ($file->status === 'failed' ? 'bg-red-100 text-red-800' :
                          'bg-blue-100 text-blue-800') ?>">
                     <?= htmlspecialchars($file->status) ?>
                   </span></p>
@@ -168,8 +168,8 @@ try {
               </div>
             </div>
           </div>
-        <?php endforeach; ?>
+        <?php } ?>
       </div>
-    <?php endif; ?>
+    <?php } ?>
   </div>
 </div> 

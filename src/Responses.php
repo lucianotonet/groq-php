@@ -27,8 +27,9 @@ class Responses
     /**
      * Creates a model response for the given input.
      *
-     * @param array $params Parameters (model, input, instructions, tools, text, ...).
+     * @param  array  $params  Parameters (model, input, instructions, tools, text, ...).
      * @return array|Stream The response array, or a Stream when `stream` is true.
+     *
      * @throws GroqException If a required parameter is missing or the request fails.
      */
     public function create(array $params = []): array|Stream
@@ -37,7 +38,7 @@ class Responses
             throw new GroqException('Missing required parameter: model', 400, 'invalid_request');
         }
 
-        if (!isset($params['input'])) {
+        if (! isset($params['input'])) {
             throw new GroqException('Missing required parameter: input', 400, 'invalid_request');
         }
 
@@ -50,16 +51,16 @@ class Responses
         } catch (RequestException $e) {
             throw $this->createGroqExceptionFromRequestException($e);
         } catch (GuzzleException $e) {
-            throw new GroqException('Unexpected error while creating the response: ' . $e->getMessage(), $e->getCode(), 'api_error');
+            throw new GroqException('Unexpected error while creating the response: '.$e->getMessage(), $e->getCode(), 'api_error');
         } catch (\Exception $e) {
-            throw new GroqException('Unexpected error: ' . $e->getMessage(), $e->getCode(), 'unknown_error');
+            throw new GroqException('Unexpected error: '.$e->getMessage(), $e->getCode(), 'unknown_error');
         }
     }
 
     /**
      * Extracts the concatenated text from a Responses API result.
      *
-     * @param array $response The response returned by create().
+     * @param  array  $response  The response returned by create().
      * @return string The full text from all `output_text` content items.
      */
     public static function outputText(array $response): string
@@ -105,10 +106,10 @@ class Responses
 
         return new Request(
             'POST',
-            $this->groq->baseUrl() . '/responses',
+            $this->groq->baseUrl().'/responses',
             [
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $this->groq->apiKey(),
+                'Authorization' => 'Bearer '.$this->groq->apiKey(),
             ],
             $body
         );
@@ -123,14 +124,15 @@ class Responses
     {
         try {
             $response = $this->groq->httpClient()->send($request, ['stream' => true]);
+
             return new Stream($response);
         } catch (RequestException $e) {
             $body = $e->getResponse() ? (string) $e->getResponse()->getBody() : 'Response body not available';
-            throw new GroqException('Failed to stream the response: ' . $body, $e->getCode(), 'stream_error');
+            throw new GroqException('Failed to stream the response: '.$body, $e->getCode(), 'stream_error');
         } catch (GuzzleException $e) {
-            throw new GroqException('Unexpected error while streaming the response: ' . $e->getMessage(), $e->getCode(), 'api_error');
+            throw new GroqException('Unexpected error while streaming the response: '.$e->getMessage(), $e->getCode(), 'api_error');
         } catch (\Exception $e) {
-            throw new GroqException('An unexpected error occurred: ' . $e->getMessage(), $e->getCode(), 'generic_error');
+            throw new GroqException('An unexpected error occurred: '.$e->getMessage(), $e->getCode(), 'generic_error');
         }
     }
 

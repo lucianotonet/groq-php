@@ -11,9 +11,9 @@ class GroqTest extends TestCase
      * Ensures an invalid API key results in a GroqException with "Invalid API Key".
      * This can only be verified against the real API.
      */
-    public function testInvalidApiKey()
+    public function test_invalid_api_key()
     {
-        if (!$this->live) {
+        if (! $this->live) {
             $this->markTestSkipped('Requires GROQ_LIVE_TESTS=1 to hit the real API.');
         }
 
@@ -34,7 +34,7 @@ class GroqTest extends TestCase
     /**
      * Tests listing available models.
      */
-    public function testListModels()
+    public function test_list_models()
     {
         $models = $this->groq->models()->list();
 
@@ -46,7 +46,7 @@ class GroqTest extends TestCase
     /**
      * Tests a basic chat completion.
      */
-    public function testChatCompletionWithValidApiKey()
+    public function test_chat_completion_with_valid_api_key()
     {
         $response = $this->groq->chat()->completions()->create([
             'model' => 'openai/gpt-oss-120b',
@@ -64,9 +64,9 @@ class GroqTest extends TestCase
     /**
      * Tests setting all available client options at once.
      */
-    public function testSetOptions()
+    public function test_set_options()
     {
-        $groq = new Groq('test-api-key-' . uniqid());
+        $groq = new Groq('test-api-key-'.uniqid());
 
         $newOptions = [
             'apiKey' => 'new_test_key',
@@ -78,7 +78,7 @@ class GroqTest extends TestCase
             'verify' => false,
             'debug' => true,
             'stream' => true,
-            'responseFormat' => 'json'
+            'responseFormat' => 'json',
         ];
 
         $groq->setOptions($newOptions);
@@ -100,14 +100,14 @@ class GroqTest extends TestCase
     /**
      * Tests setting only a subset of client options via reflection.
      */
-    public function testSetOptionsPartial()
+    public function test_set_options_partial()
     {
-        $mockApiKey = 'test-api-key-' . uniqid();
+        $mockApiKey = 'test-api-key-'.uniqid();
         $groq = new Groq($mockApiKey, ['timeout' => 10000]);
 
         $newOptions = [
             'timeout' => 20000,
-            'debug' => true
+            'debug' => true,
         ];
 
         $groq->setOptions($newOptions);

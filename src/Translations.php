@@ -6,14 +6,11 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\ResponseInterface;
-use LucianoTonet\GroqPHP\Stream;
 
 /**
  * Class Translations
- * This class handles the translation of spoken words in audio or video files 
+ * This class handles the translation of spoken words in audio or video files
  * to the specified language.
- * 
- * @package LucianoTonet\GroqPHP
  */
 class Translations
 {
@@ -21,7 +18,6 @@ class Translations
 
     /**
      * Translations constructor.
-     * @param Groq $groq
      */
     public function __construct(Groq $groq)
     {
@@ -40,8 +36,6 @@ class Translations
      *   vtt and srt formats are not supported.
      * - temperature: Specifies a value between 0 and 1 to control the variability of the translation output.
      *
-     * @param array $params
-     * @return array|string|Stream
      * @throws \InvalidArgumentException
      */
     public function create(array $params): array|string|Stream
@@ -51,7 +45,7 @@ class Translations
 
         try {
             $response = $this->groq->httpClient()->request('POST', 'audio/translations', [
-                'multipart' => $multipart
+                'multipart' => $multipart,
             ]);
 
             return $this->handleResponse($response, $params['response_format'] ?? 'json');
@@ -64,7 +58,7 @@ class Translations
                 }
                 throw GroqException::createFromResponse($e->getResponse());
             } else {
-                throw new GroqException('Unexpected error while creating translations: ' . $e->getMessage(), $e->getCode(), 'UnexpectedException', []);
+                throw new GroqException('Unexpected error while creating translations: '.$e->getMessage(), $e->getCode(), 'UnexpectedException', []);
             }
         }
     }
@@ -72,7 +66,6 @@ class Translations
     /**
      * Validates the input parameters.
      *
-     * @param array $params
      * @throws \InvalidArgumentException
      */
     private function validateParams(array $params): void
@@ -80,45 +73,42 @@ class Translations
         if (empty($params['file'])) {
             throw new \InvalidArgumentException('The "file" parameter is required.');
         }
-        if (!file_exists($params['file'])) {
+        if (! file_exists($params['file'])) {
             throw new \InvalidArgumentException('The specified file does not exist.');
         }
     }
 
     /**
      * Builds the multipart structure for the request.
-     *
-     * @param array $params
-     * @return array
      */
     private function buildMultipart(array $params): array
     {
         $multipart = [
             [
                 'name' => 'file',
-                'contents' => fopen($params['file'], 'r')
+                'contents' => fopen($params['file'], 'r'),
             ],
             [
                 'name' => 'model',
-                'contents' => $params['model'] ?? 'whisper-large-v3'
+                'contents' => $params['model'] ?? 'whisper-large-v3',
             ],
             [
                 'name' => 'temperature',
-                'contents' => $params['temperature'] ?? 0.0
+                'contents' => $params['temperature'] ?? 0.0,
             ],
         ];
 
-        if (!empty($params['prompt'])) {
+        if (! empty($params['prompt'])) {
             $multipart[] = [
                 'name' => 'prompt',
-                'contents' => $params['prompt']
+                'contents' => $params['prompt'],
             ];
         }
 
-        if (!empty($params['response_format'])) {
+        if (! empty($params['response_format'])) {
             $multipart[] = [
                 'name' => 'response_format',
-                'contents' => $params['response_format']
+                'contents' => $params['response_format'],
             ];
         }
 
@@ -127,10 +117,6 @@ class Translations
 
     /**
      * Handles the response of the request.
-     *
-     * @param ResponseInterface $response
-     * @param string $responseFormat
-     * @return array|string|Stream
      */
     private function handleResponse(ResponseInterface $response, string $responseFormat): array|string|Stream
     {
@@ -143,7 +129,7 @@ class Translations
         $data = json_decode($body, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new GroqException('Error decoding the JSON response: ' . json_last_error_msg(), 0, 'JsonDecodeError');
+            throw new GroqException('Error decoding the JSON response: '.json_last_error_msg(), 0, 'JsonDecodeError');
         }
 
         return $data;
@@ -151,22 +137,19 @@ class Translations
 
     /**
      * Streams the response from the request.
-     *
-     * @param Request $request
-     * @param array $options
-     * @return Stream
      */
     private function streamResponse(Request $request, array $options): Stream
     {
         try {
             $response = $this->groq->httpClient()->send($request, array_merge($options, ['stream' => true]));
+
             return new Stream($response);
         } catch (RequestException $e) {
             $responseBody = $e->getResponse() ? $e->getResponse()->getBody() : null;
             $responseBodyString = $responseBody ? (string) $responseBody : 'No response body available';
-            throw new GroqException('Failed to stream the response: ' . $responseBodyString, $e->getCode(), 'RequestException', []);
+            throw new GroqException('Failed to stream the response: '.$responseBodyString, $e->getCode(), 'RequestException', []);
         } catch (GuzzleException $e) {
-            throw new GroqException('An unexpected error occurred: ' . $e->getMessage(), $e->getCode(), 'UnexpectedException', []);
+            throw new GroqException('An unexpected error occurred: '.$e->getMessage(), $e->getCode(), 'UnexpectedException', []);
         }
     }
 }

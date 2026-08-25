@@ -1,27 +1,27 @@
 <?php
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__.'/vendor/autoload.php';
 
 use LucianoTonet\GroqPHP\Groq;
 use LucianoTonet\GroqPHP\GroqException;
 
- // Start of Selection
+// Start of Selection
 $dotenv = Dotenv\Dotenv::createUnsafeImmutable(__DIR__, '../.env', true);
 $dotenv->load();
 
 try {
     $groq = new Groq(getenv('GROQ_API_KEY'), [
-        'baseUrl' => getenv('GROQ_API_BASE')
+        'baseUrl' => getenv('GROQ_API_BASE'),
     ]);
 } catch (GroqException $e) {
     echo $e->getMessage();
-    die();
+    exit();
 }
 
 $accept = isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : '';
 $accept = explode(',', $accept);
 
-if (!in_array('text/html', $accept)) {
-    require __DIR__ . '/' . $_GET['page'] . '.php';
+if (! in_array('text/html', $accept)) {
+    require __DIR__.'/'.$_GET['page'].'.php';
     exit;
 }
 
@@ -69,11 +69,11 @@ if (!in_array('text/html', $accept)) {
         <div id="content" class="flex flex-1 gap-12">
             <?php
             if (isset($_GET['page'])) {
-                require __DIR__ . '/' . $_GET['page'] . '.php';
+                require __DIR__.'/'.$_GET['page'].'.php';
             } else {
-                echo "← Select an example";
+                echo '← Select an example';
             }
-            ?>
+?>
         </div>
 
     </div>

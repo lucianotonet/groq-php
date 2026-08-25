@@ -9,6 +9,7 @@ use LucianoTonet\GroqPHP\GroqException;
 class BatchManagerTest extends TestCase
 {
     private BatchManager $batchManager;
+
     private FileManager $fileManager;
 
     protected function setUp(): void
@@ -24,6 +25,7 @@ class BatchManagerTest extends TestCase
         for ($i = 0; $i < $maxRetries; $i++) {
             try {
                 $this->fileManager->delete($fileId);
+
                 return;
             } catch (GroqException $e) {
                 if (str_contains($e->getMessage(), 'file currently in use') && $i < $maxRetries - 1) {
@@ -40,20 +42,20 @@ class BatchManagerTest extends TestCase
         try {
             $this->batchManager->cancel($batchId);
         } catch (GroqException $e) {
-            if (!str_contains($e->getMessage(), 'cannot be cancelled')) {
+            if (! str_contains($e->getMessage(), 'cannot be cancelled')) {
                 throw $e;
             }
         }
     }
 
-    public function testCreateBatchForChatCompletions()
+    public function test_create_batch_for_chat_completions()
     {
-        $file = $this->fileManager->upload(__DIR__ . '/fixtures/batch_file.jsonl', 'batch');
+        $file = $this->fileManager->upload(__DIR__.'/fixtures/batch_file.jsonl', 'batch');
 
         $batch = $this->batchManager->create([
             'input_file_id' => $file->id,
             'endpoint' => '/v1/chat/completions',
-            'completion_window' => '24h'
+            'completion_window' => '24h',
         ]);
 
         $this->assertIsString($batch->id);
@@ -64,14 +66,14 @@ class BatchManagerTest extends TestCase
         $this->retryDelete($file->id);
     }
 
-    public function testCreateBatchForAudioTranscriptions()
+    public function test_create_batch_for_audio_transcriptions()
     {
-        $file = $this->fileManager->upload(__DIR__ . '/fixtures/batch_file_audio.jsonl', 'batch');
+        $file = $this->fileManager->upload(__DIR__.'/fixtures/batch_file_audio.jsonl', 'batch');
 
         $batch = $this->batchManager->create([
             'input_file_id' => $file->id,
             'endpoint' => '/v1/audio/transcriptions',
-            'completion_window' => '24h'
+            'completion_window' => '24h',
         ]);
 
         $this->assertIsString($batch->id);
@@ -82,14 +84,14 @@ class BatchManagerTest extends TestCase
         $this->retryDelete($file->id);
     }
 
-    public function testRetrieveBatch()
+    public function test_retrieve_batch()
     {
-        $file = $this->fileManager->upload(__DIR__ . '/fixtures/batch_file.jsonl', 'batch');
+        $file = $this->fileManager->upload(__DIR__.'/fixtures/batch_file.jsonl', 'batch');
 
         $batch = $this->batchManager->create([
             'input_file_id' => $file->id,
             'endpoint' => '/v1/chat/completions',
-            'completion_window' => '24h'
+            'completion_window' => '24h',
         ]);
 
         $retrievedBatch = $this->batchManager->retrieve($batch->id);
@@ -101,21 +103,21 @@ class BatchManagerTest extends TestCase
         $this->retryDelete($file->id);
     }
 
-    public function testListBatches()
+    public function test_list_batches()
     {
         $batches = $this->batchManager->list();
 
         $this->assertIsArray($batches['data']);
     }
 
-    public function testCancelBatch()
+    public function test_cancel_batch()
     {
-        $file = $this->fileManager->upload(__DIR__ . '/fixtures/batch_file.jsonl', 'batch');
+        $file = $this->fileManager->upload(__DIR__.'/fixtures/batch_file.jsonl', 'batch');
 
         $batch = $this->batchManager->create([
             'input_file_id' => $file->id,
             'endpoint' => '/v1/chat/completions',
-            'completion_window' => '24h'
+            'completion_window' => '24h',
         ]);
 
         $canceledBatch = $this->batchManager->cancel($batch->id);

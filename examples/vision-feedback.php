@@ -1,5 +1,8 @@
 <div class="max-w-3xl mx-auto w-full p-6">
 <?php
+
+use LucianoTonet\GroqPHP\GroqException;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $imagePath = $_FILES['image']['tmp_name'];
     $prompt = $_POST['prompt'];
@@ -12,11 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $response = $groq->vision()->analyze($imagePath, $prompt);
 
         echo "<p class='font-semibold mb-2'>Model response:</p>";
-        echo "<p>" . $response['choices'][0]['message']['content'] . "</p>";
+        echo '<p>'.$response['choices'][0]['message']['content'].'</p>';
 
         // Here you can process the feedback, if needed
-    } catch (LucianoTonet\GroqPHP\GroqException $err) {
-        echo "<p class='text-red-600'>Erro: " . $err->getMessage() . "</p>";
+    } catch (GroqException $err) {
+        echo "<p class='text-red-600'>Erro: ".$err->getMessage().'</p>';
     }
 }
 ?>

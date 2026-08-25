@@ -1,37 +1,33 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace LucianoTonet\GroqPHP;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
-use LucianoTonet\GroqPHP\GroqException;
-use LucianoTonet\GroqPHP\FileManager;
-use LucianoTonet\GroqPHP\BatchManager;
 use Psr\Http\Message\ResponseInterface;
-use LucianoTonet\GroqPHP\Vision;
-use LucianoTonet\GroqPHP\Responses;
 
 /**
  * Class Groq
- * @package LucianoTonet\GroqPHP
- *
- * The Groq class serves as the main interface for interacting with the Groq API.
- * It manages API key, base URL, and provides methods to create various service instances.
  */
 class Groq
 {
     private string $apiKey; // API key for authentication
+
     public string $baseUrl; // Base URL for the API
+
     public array $options; // Additional options for configuration
+
     private ?Client $httpClient = null; // Injectable HTTP client (for testing)
 
     /**
      * Groq constructor.
      * Initializes the Groq instance with an API key and options.
      *
-     * @param string|null $apiKey API key for authentication, defaults to environment variable
-     * @param array $options Configuration options for the Groq instance
+     * @param  string|null  $apiKey  API key for authentication, defaults to environment variable
+     * @param  array  $options  Configuration options for the Groq instance
+     *
      * @throws GroqException if the API key is not set
      */
     public function __construct(?string $apiKey = null, array $options = [])
@@ -40,35 +36,35 @@ class Groq
             ?? (isset($_ENV['GROQ_API_KEY']) ? $_ENV['GROQ_API_KEY'] : null)
             ?? getenv('GROQ_API_KEY');
 
-        if (!$apiKey) {
+        if (! $apiKey) {
             throw GroqException::apiKeyNotSet(); // Throw exception if API key is not provided
         }
 
         $this->apiKey = $apiKey; // Set the API key
         $this->options = $options; // Set the options
-        
+
         // Get base URL and ensure it ends with a forward slash
         $baseUrl = $options['baseUrl'] ?? $_ENV['GROQ_API_BASE'] ?? getenv('GROQ_API_BASE');
 
-        if (empty($baseUrl) || !is_string($baseUrl) || in_array($baseUrl, ['null', 'false'], true)) {
+        if (empty($baseUrl) || ! is_string($baseUrl) || in_array($baseUrl, ['null', 'false'], true)) {
             $baseUrl = 'https://api.groq.com/openai/v1';
         }
 
-        $this->baseUrl = rtrim($baseUrl, '/') . '/'; // Ensure trailing slash
+        $this->baseUrl = rtrim($baseUrl, '/').'/'; // Ensure trailing slash
     }
 
     /**
      * Sets additional options for the Groq instance.
      *
-     * @param array $options Options to be merged with existing options
-     * 
+     * @param  array  $options  Options to be merged with existing options
+     *
      * Authentication:
      *   - apiKey: (string) The API key for authentication
      *   - baseUrl: (string) The base URL for API requests (default: https://api.groq.com/openai/v1)
-     * 
+     *
      * Request Configuration:
      *   - timeout: (int) Request timeout in milliseconds
-     * 
+     *
      * Model Parameters:
      *   - model: (string) ID of the model to use
      *   - temperature: (float) Sampling temperature between 0 and 2 (default: 1)
@@ -76,17 +72,17 @@ class Groq
      *   - top_p: (float) Nucleus sampling between 0 and 1 (default: 1)
      *   - frequency_penalty: (float) Number between -2.0 and 2.0 (default: 0)
      *   - presence_penalty: (float) Number between -2.0 and 2.0 (default: 0)
-     * 
+     *
      * Response Options:
      *   - stream: (bool) Enable streaming responses (default: false)
      *   - response_format: (array) Format specification for model output
      *     Example: ['type' => 'json_object'] for JSON mode
-     * 
+     *
      * Tool Options:
      *   - tool_choice: (string|array) Tool selection mode (auto|none|specific)
      *   - parallel_tool_calls: (bool) Enable parallel tool calls (default: true)
      *   - tools: (array) List of tools the model may use
-     * 
+     *
      * Additional Options:
      *   - seed: (int|null) Integer for deterministic sampling
      *   - stop: (string|array|null) Up to 4 sequences where generation should stop
@@ -142,7 +138,7 @@ class Groq
     /**
      * Sends an HTTP request using the Guzzle client and returns the response.
      *
-     * @param Request $request The HTTP request to be sent
+     * @param  Request  $request  The HTTP request to be sent
      * @return ResponseInterface The response from the API
      */
     public function makeRequest(Request $request): ResponseInterface
@@ -153,7 +149,7 @@ class Groq
     /**
      * Injects a custom HTTP client (e.g., a mocked client for tests).
      *
-     * @param Client $httpClient The client to use for requests.
+     * @param  Client  $httpClient  The client to use for requests.
      */
     public function setHttpClient(Client $httpClient): void
     {
@@ -171,8 +167,8 @@ class Groq
             $this->httpClient = new Client([
                 'base_uri' => $this->baseUrl,
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $this->apiKey
-                ]
+                    'Authorization' => 'Bearer '.$this->apiKey,
+                ],
             ]);
         }
 

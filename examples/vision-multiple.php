@@ -1,5 +1,8 @@
 <div class="max-w-3xl mx-auto w-full p-6">
 <?php
+
+use LucianoTonet\GroqPHP\GroqException;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $prompt = $_POST['prompt'] ?? '';
     $imagePaths = $_FILES['images']['tmp_name'] ?? [];
@@ -8,19 +11,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($prompt)) {
         echo "<p class='text-red-600 font-semibold'>O prompt não pode estar vazio.</p>";
     } else {
-        echo "<p class='mb-4'><span class='font-semibold'>Prompt for all images:</span> " . htmlspecialchars($prompt) . "</p>";
+        echo "<p class='mb-4'><span class='font-semibold'>Prompt for all images:</span> ".htmlspecialchars($prompt).'</p>';
 
         foreach ($imagePaths as $index => $imagePath) {
             $tempDir = sys_get_temp_dir();
-            $tempImagePath = $tempDir . '/' . basename($_FILES['images']['name'][$index]);
+            $tempImagePath = $tempDir.'/'.basename($_FILES['images']['name'][$index]);
 
             if ($_FILES['images']['error'][$index] !== UPLOAD_ERR_OK) {
-                echo "<p class='text-red-600'>Image " . ($index + 1) . " upload error: " . $_FILES['images']['error'][$index] . "</p>";
+                echo "<p class='text-red-600'>Image ".($index + 1).' upload error: '.$_FILES['images']['error'][$index].'</p>';
+
                 continue;
             }
 
-            if (!move_uploaded_file($imagePath, $tempImagePath)) {
-                echo "<p class='text-red-600'>Failed to move image " . ($index + 1) . " to the temporary directory.</p>";
+            if (! move_uploaded_file($imagePath, $tempImagePath)) {
+                echo "<p class='text-red-600'>Failed to move image ".($index + 1).' to the temporary directory.</p>';
+
                 continue;
             }
 
@@ -28,12 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             try {
                 $response = $groq->vision()->analyze($tempImagePath, $prompt);
-                echo "<p class='mb-2 font-semibold'>Model response for image " . ($index + 1) . ":</p>";
-                echo "<p class='mb-4'>" . htmlspecialchars($response['choices'][0]['message']['content']) . "</p>";
-            } catch (LucianoTonet\GroqPHP\GroqException $err) {
-                echo "<p class='text-red-600'>Image " . ($index + 1) . " analysis error: " . htmlspecialchars($err->getMessage()) . "</p>";
+                echo "<p class='mb-2 font-semibold'>Model response for image ".($index + 1).':</p>';
+                echo "<p class='mb-4'>".htmlspecialchars($response['choices'][0]['message']['content']).'</p>';
+            } catch (GroqException $err) {
+                echo "<p class='text-red-600'>Image ".($index + 1).' analysis error: '.htmlspecialchars($err->getMessage()).'</p>';
             } catch (Exception $e) {
-                echo "<p class='text-red-600'>Erro: " . htmlspecialchars($e->getMessage()) . "</p>";
+                echo "<p class='text-red-600'>Erro: ".htmlspecialchars($e->getMessage()).'</p>';
             }
         }
     }

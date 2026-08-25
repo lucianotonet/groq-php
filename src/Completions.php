@@ -4,8 +4,8 @@ namespace LucianoTonet\GroqPHP;
 
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
-use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Psr7\Request;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class Completions
@@ -19,7 +19,7 @@ class Completions
      * Completions constructor.
      * Initializes the Completions instance with a Groq object.
      *
-     * @param Groq $groq The Groq instance for API interactions.
+     * @param  Groq  $groq  The Groq instance for API interactions.
      */
     public function __construct(Groq $groq)
     {
@@ -29,8 +29,9 @@ class Completions
     /**
      * Creates a completion based on the provided parameters.
      *
-     * @param array $params Parameters for creating the completion.
+     * @param  array  $params  Parameters for creating the completion.
      * @return array|Stream The response from the API or a stream.
+     *
      * @throws GroqException If an error occurs during the request.
      */
     public function create(array $params = []): array|Stream
@@ -47,16 +48,17 @@ class Completions
         } catch (RequestException $e) {
             throw $this->createGroqExceptionFromRequestException($e);
         } catch (GuzzleException $e) {
-            throw new GroqException('Unexpected error while creating the completion: ' . $e->getMessage(), $e->getCode(), 'api_error');
+            throw new GroqException('Unexpected error while creating the completion: '.$e->getMessage(), $e->getCode(), 'api_error');
         } catch (\Exception $e) {
-            throw new GroqException('Unexpected error: ' . $e->getMessage(), $e->getCode(), 'unknown_error');
+            throw new GroqException('Unexpected error: '.$e->getMessage(), $e->getCode(), 'unknown_error');
         }
     }
 
     /**
      * Validates the required parameters for the completion request.
      *
-     * @param array $params The parameters to validate.
+     * @param  array  $params  The parameters to validate.
+     *
      * @throws GroqException If required parameters are missing.
      */
     private function validateParams(array $params): void
@@ -72,7 +74,7 @@ class Completions
     /**
      * Prepares the parameters for the API request.
      *
-     * @param array $params The parameters to prepare.
+     * @param  array  $params  The parameters to prepare.
      */
     private function prepareParams(array &$params): void
     {
@@ -86,7 +88,7 @@ class Completions
     /**
      * Processes image content within the messages.
      *
-     * @param array $messages The messages containing image content.
+     * @param  array  $messages  The messages containing image content.
      */
     private function processImageContent(array &$messages): void
     {
@@ -107,7 +109,7 @@ class Completions
     /**
      * Processes the image URL and converts it to base64 if necessary.
      *
-     * @param string &$url The image URL to process.
+     * @param  string  &$url  The image URL to process.
      */
     private function processImageUrl(string &$url): void
     {
@@ -116,14 +118,14 @@ class Completions
         }
         if (file_exists($url)) {
             $imageData = base64_encode(file_get_contents($url));
-            $url = 'data:image/jpeg;base64,' . $imageData;
+            $url = 'data:image/jpeg;base64,'.$imageData;
         }
     }
 
     /**
      * Creates a request object for the API.
      *
-     * @param array $params The parameters for the request.
+     * @param  array  $params  The parameters for the request.
      * @return Request The created request object.
      */
     private function createRequest(array $params): Request
@@ -142,12 +144,12 @@ class Completions
             'stop' => $params['stop'] ?? null,
             'seed' => $params['seed'] ?? null,
             'parallel_tool_calls' => $params['parallel_tool_calls'] ?? null,
-            'frequency_penalty' => $params['frequency_penalty'] ?? 0, 
-            'presence_penalty' => $params['presence_penalty'] ?? 0, 
+            'frequency_penalty' => $params['frequency_penalty'] ?? 0,
+            'presence_penalty' => $params['presence_penalty'] ?? 0,
             'n' => $params['n'] ?? null,
-            'logprobs' => $params['logprobs'] ?? false, 
+            'logprobs' => $params['logprobs'] ?? false,
             'logit_bias' => $params['logit_bias'] ?? null,
-            'top_logprobs' => $params['top_logprobs'] ?? null, 
+            'top_logprobs' => $params['top_logprobs'] ?? null,
             'reasoning_format' => $params['reasoning_format'] ?? null,
             'include_reasoning' => $params['include_reasoning'] ?? null,
             'reasoning_effort' => $params['reasoning_effort'] ?? null,
@@ -163,10 +165,10 @@ class Completions
 
         return new Request(
             'POST',
-            $this->groq->baseUrl() . '/chat/completions',
+            $this->groq->baseUrl().'/chat/completions',
             [
-                "Content-Type" => "application/json",
-                "Authorization" => "Bearer " . $this->groq->apiKey(),
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer '.$this->groq->apiKey(),
             ],
             $body
         );
@@ -175,7 +177,7 @@ class Completions
     /**
      * Handles the API response and converts it to an array.
      *
-     * @param ResponseInterface $response The response from the API.
+     * @param  ResponseInterface  $response  The response from the API.
      * @return array The decoded response data.
      */
     private function handleResponse(ResponseInterface $response): array
@@ -186,14 +188,14 @@ class Completions
     /**
      * Creates a GroqException from a RequestException.
      *
-     * @param RequestException $e The original request exception.
+     * @param  RequestException  $e  The original request exception.
      * @return GroqException The created GroqException.
      */
     private function createGroqExceptionFromRequestException(RequestException $e): GroqException
     {
         $responseBody = $e->getResponse() ? (string) $e->getResponse()->getBody() : 'Response body not available';
         $errorData = json_decode($responseBody);
-        
+
         if (json_last_error() === JSON_ERROR_NONE && isset($errorData->error)) {
             return new GroqException(
                 $errorData->error->message ?? 'Unknown error',
@@ -208,22 +210,24 @@ class Completions
     /**
      * Streams the response from the API.
      *
-     * @param Request $request The HTTP request to send.
+     * @param  Request  $request  The HTTP request to send.
      * @return Stream The streamed response.
+     *
      * @throws GroqException If an error occurs during streaming.
      */
     private function streamResponse(Request $request): Stream
     {
         try {
             $response = $this->groq->httpClient()->send($request, ['stream' => true]);
+
             return new Stream($response);
         } catch (RequestException $e) {
             $responseBody = $e->getResponse() ? (string) $e->getResponse()->getBody() : 'Response body not available';
-            throw new GroqException('Failed to stream the response: ' . $responseBody, $e->getCode(), 'stream_error');
+            throw new GroqException('Failed to stream the response: '.$responseBody, $e->getCode(), 'stream_error');
         } catch (GuzzleException $e) {
-            throw new GroqException('Unexpected error while trying to stream the response: ' . $e->getMessage(), $e->getCode(), 'api_error');
+            throw new GroqException('Unexpected error while trying to stream the response: '.$e->getMessage(), $e->getCode(), 'api_error');
         } catch (\Exception $e) {
-            throw new GroqException('An unexpected error occurred: ' . $e->getMessage(), $e->getCode(), 'generic_error');
+            throw new GroqException('An unexpected error occurred: '.$e->getMessage(), $e->getCode(), 'generic_error');
         }
     }
 }

@@ -6,8 +6,6 @@ namespace LucianoTonet\GroqPHP;
  * Class Audio
  * This class provides methods to work with audio-related functionalities,
  * including obtaining transcription and translation services.
- * 
- * @package LucianoTonet\GroqPHP
  */
 class Audio
 {
@@ -15,7 +13,8 @@ class Audio
 
     /**
      * Audio constructor.
-     * @param Groq $groq An instance of the Groq class used for API interactions.
+     *
+     * @param  Groq  $groq  An instance of the Groq class used for API interactions.
      */
     public function __construct(Groq $groq)
     {

@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
 use LucianoTonet\GroqPHP\Groq;
 
@@ -20,7 +20,7 @@ $screen = $groq->chat()->completions()->create([
 
 $verdict = $screen['choices'][0]['message']['content'];
 
-echo "Safeguard verdict: " . $verdict . "\n";
+echo 'Safeguard verdict: '.$verdict."\n";
 
 if (str_starts_with($verdict, 'unsafe')) {
     echo "Request blocked by content moderation.\n";
@@ -35,4 +35,4 @@ $response = $groq->chat()->completions()->create([
     ],
 ]);
 
-echo $response['choices'][0]['message']['content'] . "\n";
+echo $response['choices'][0]['message']['content']."\n";

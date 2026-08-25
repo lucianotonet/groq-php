@@ -2,39 +2,40 @@
 
 namespace LucianoTonet\GroqPHP;
 
-use LucianoTonet\GroqPHP\GroqException;
-
 class File
 {
     private array $data;
+
     private array $requiredFields = [
         'id',
         'bytes',
         'created_at',
         'filename',
-        'purpose'
+        'purpose',
     ];
+
     private array $validStatuses = [
         'processed',
         'processing',
         'failed',
         'uploaded',
         'error',
-        'deleted'
+        'deleted',
     ];
+
     private array $validPurposes = ['batch'];
 
     public function __construct(array $data)
     {
         $this->validateRequiredFields($data);
         $this->validatePurpose($data['purpose']);
-        
-        if (!isset($data['status'])) {
+
+        if (! isset($data['status'])) {
             $data['status'] = 'uploaded';
         } else {
             $this->validateStatus($data['status']);
         }
-        
+
         $this->data = $data;
     }
 
@@ -78,8 +79,8 @@ class File
         $bytes = $this->bytes;
         $units = ['B', 'KB', 'MB', 'GB'];
         $factor = floor((strlen((string) $bytes) - 1) / 3);
-        
-        return sprintf("%.2f %s", $bytes / pow(1024, $factor), $units[$factor]);
+
+        return sprintf('%.2f %s', $bytes / pow(1024, $factor), $units[$factor]);
     }
 
     /**
@@ -87,7 +88,7 @@ class File
      */
     public function getCreatedAt(): \DateTime
     {
-        return new \DateTime('@' . $this->created_at);
+        return new \DateTime('@'.$this->created_at);
     }
 
     /**
@@ -97,23 +98,26 @@ class File
     {
         $now = time();
         $elapsed = $now - $this->created_at;
-        
+
         if ($elapsed < 60) {
             return "{$elapsed} seconds ago";
         }
-        
+
         if ($elapsed < 3600) {
             $minutes = floor($elapsed / 60);
-            return "{$minutes} minute" . ($minutes > 1 ? 's' : '') . " ago";
+
+            return "{$minutes} minute".($minutes > 1 ? 's' : '').' ago';
         }
-        
+
         if ($elapsed < 86400) {
             $hours = floor($elapsed / 3600);
-            return "{$hours} hour" . ($hours > 1 ? 's' : '') . " ago";
+
+            return "{$hours} hour".($hours > 1 ? 's' : '').' ago';
         }
-        
+
         $days = floor($elapsed / 86400);
-        return "{$days} day" . ($days > 1 ? 's' : '') . " ago";
+
+        return "{$days} day".($days > 1 ? 's' : '').' ago';
     }
 
     /**
@@ -135,7 +139,7 @@ class File
     private function validateRequiredFields(array $data): void
     {
         foreach ($this->requiredFields as $field) {
-            if (!isset($data[$field])) {
+            if (! isset($data[$field])) {
                 throw new GroqException(
                     "Missing required field: {$field}",
                     400,
@@ -144,7 +148,7 @@ class File
             }
         }
 
-        if (!is_int($data['bytes']) || $data['bytes'] < 0) {
+        if (! is_int($data['bytes']) || $data['bytes'] < 0) {
             throw new GroqException(
                 'Invalid bytes value. Must be a non-negative integer.',
                 400,
@@ -152,7 +156,7 @@ class File
             );
         }
 
-        if (!is_int($data['created_at']) || $data['created_at'] <= 0) {
+        if (! is_int($data['created_at']) || $data['created_at'] <= 0) {
             throw new GroqException(
                 'Invalid created_at value. Must be a positive integer timestamp.',
                 400,
@@ -163,9 +167,9 @@ class File
 
     private function validateStatus(string $status): void
     {
-        if (!in_array($status, $this->validStatuses)) {
+        if (! in_array($status, $this->validStatuses)) {
             throw new GroqException(
-                "Invalid file status: {$status}. Valid statuses are: " . implode(', ', $this->validStatuses),
+                "Invalid file status: {$status}. Valid statuses are: ".implode(', ', $this->validStatuses),
                 400,
                 'invalid_request'
             );
@@ -174,7 +178,7 @@ class File
 
     private function validatePurpose(string $purpose): void
     {
-        if (!in_array($purpose, $this->validPurposes)) {
+        if (! in_array($purpose, $this->validPurposes)) {
             throw new GroqException(
                 "Invalid file purpose: {$purpose}. Only 'batch' is supported.",
                 400,
@@ -207,7 +211,7 @@ class File
             'created' => $this->getTimeElapsed(),
             'extension' => $this->getExtension(),
             'is_ready' => $this->isReady(),
-            'has_failed' => $this->hasFailed()
+            'has_failed' => $this->hasFailed(),
         ];
     }
-} 
+}

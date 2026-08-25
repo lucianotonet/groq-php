@@ -2,9 +2,9 @@
 
 namespace LucianoTonet\GroqPHP;
 
-use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Psr7\MultipartStream;
 use GuzzleHttp\Psr7\Request;
-use LucianoTonet\GroqPHP\GroqException;
 
 class FileManager
 {
@@ -18,22 +18,23 @@ class FileManager
     ];
 
     private array $allowedExtensions = [
-        'jsonl'
+        'jsonl',
     ];
 
     private array $supportedEndpoints = [
         '/v1/chat/completions',
         '/v1/audio/transcriptions',
-        '/v1/audio/translations'
+        '/v1/audio/translations',
     ];
 
     private Groq $groq;
+
     private ?string $cacheDir = null;
 
     /**
      * FileManager constructor.
-     * @param Groq $groq
-     * @param string|null $cacheDir Optional directory for caching downloaded files
+     *
+     * @param  string|null  $cacheDir  Optional directory for caching downloaded files
      */
     public function __construct(Groq $groq, ?string $cacheDir = null)
     {
@@ -48,8 +49,8 @@ class FileManager
      */
     public function setCacheDir(string $dir): void
     {
-        if (!is_dir($dir)) {
-            if (!mkdir($dir, 0755, true)) {
+        if (! is_dir($dir)) {
+            if (! mkdir($dir, 0755, true)) {
                 throw new GroqException(
                     "Failed to create cache directory: {$dir}",
                     500,
@@ -58,7 +59,7 @@ class FileManager
             }
         }
 
-        if (!is_writable($dir)) {
+        if (! is_writable($dir)) {
             throw new GroqException(
                 "Cache directory is not writable: {$dir}",
                 500,
@@ -72,8 +73,9 @@ class FileManager
     /**
      * Uploads a file for batch processing
      *
-     * @param string $filePath Path to the file
-     * @param string $purpose Purpose of the file (only 'batch' is supported)
+     * @param  string  $filePath  Path to the file
+     * @param  string  $purpose  Purpose of the file (only 'batch' is supported)
+     *
      * @throws GroqException
      */
     public function upload(string $filePath, string $purpose): File
@@ -95,22 +97,23 @@ class FileManager
                 'POST',
                 'files',
                 [],
-                new \GuzzleHttp\Psr7\MultipartStream([
+                new MultipartStream([
                     [
                         'name' => 'purpose',
-                        'contents' => $purpose
+                        'contents' => $purpose,
                     ],
                     [
                         'name' => 'file',
                         'contents' => fopen($filePath, 'r'),
-                        'filename' => basename($filePath)
-                    ]
+                        'filename' => basename($filePath),
+                    ],
                 ])
             ));
 
             $data = json_decode($response->getBody()->getContents(), true);
+
             return new File($data);
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
+        } catch (ClientException $e) {
             $this->handleApiError($e);
         }
     }
@@ -118,8 +121,9 @@ class FileManager
     /**
      * Lists files with optional filtering
      *
-     * @param string|null $purpose Filter by purpose
-     * @param array $params Additional parameters (limit, after, order)
+     * @param  string|null  $purpose  Filter by purpose
+     * @param  array  $params  Additional parameters (limit, after, order)
+     *
      * @throws GroqException
      */
     public function list(?string $purpose = null, ?array $params = []): array
@@ -130,12 +134,12 @@ class FileManager
             'after' => $params['after'] ?? null,
             'order' => $params['order'] ?? 'desc',
             'created_after' => $params['created_after'] ?? null,
-            'created_before' => $params['created_before'] ?? null
+            'created_before' => $params['created_before'] ?? null,
         ]);
 
         try {
             $response = $this->groq->makeRequest(new Request('GET', 'files', [
-                'query' => $query
+                'query' => $query,
             ]));
 
             $data = json_decode($response->getBody()->getContents(), true);
@@ -144,7 +148,7 @@ class FileManager
             }, $data['data']);
 
             return $data;
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
+        } catch (ClientException $e) {
             $this->handleApiError($e);
         }
     }
@@ -152,7 +156,8 @@ class FileManager
     /**
      * Retrieves file information
      *
-     * @param string $fileId File ID
+     * @param  string  $fileId  File ID
+     *
      * @throws GroqException
      */
     public function retrieve(string $fileId): File
@@ -160,8 +165,9 @@ class FileManager
         try {
             $response = $this->groq->makeRequest(new Request('GET', "files/{$fileId}"));
             $data = json_decode($response->getBody()->getContents(), true);
+
             return new File($data);
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
+        } catch (ClientException $e) {
             $this->handleApiError($e);
         }
     }
@@ -169,15 +175,17 @@ class FileManager
     /**
      * Deletes a file
      *
-     * @param string $fileId File ID
+     * @param  string  $fileId  File ID
+     *
      * @throws GroqException
      */
     public function delete(string $fileId): array
     {
         try {
             $response = $this->groq->makeRequest(new Request('DELETE', "files/{$fileId}"));
+
             return json_decode($response->getBody()->getContents(), true);
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
+        } catch (ClientException $e) {
             $this->handleApiError($e);
         }
     }
@@ -185,8 +193,9 @@ class FileManager
     /**
      * Downloads a file's content
      *
-     * @param string $fileId File ID
-     * @param bool $useCache Whether to use cached content if available
+     * @param  string  $fileId  File ID
+     * @param  bool  $useCache  Whether to use cached content if available
+     *
      * @throws GroqException
      */
     public function download(string $fileId, bool $useCache = true): string
@@ -207,7 +216,7 @@ class FileManager
             }
 
             return $content;
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
+        } catch (ClientException $e) {
             $this->handleApiError($e);
         }
     }
@@ -215,12 +224,13 @@ class FileManager
     /**
      * Validates a file before upload
      *
-     * @param string $filePath Path to the file
+     * @param  string  $filePath  Path to the file
+     *
      * @throws GroqException
      */
     private function validateFileType(string $filePath): void
     {
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             throw new GroqException(
                 'File not found',
                 400,
@@ -245,9 +255,9 @@ class FileManager
         }
 
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-        if (!in_array($extension, $this->allowedExtensions)) {
+        if (! in_array($extension, $this->allowedExtensions)) {
             throw new GroqException(
-                'Invalid file extension. Supported extensions are: ' . implode(', ', $this->allowedExtensions),
+                'Invalid file extension. Supported extensions are: '.implode(', ', $this->allowedExtensions),
                 400,
                 'invalid_request'
             );
@@ -256,9 +266,9 @@ class FileManager
         $fileInfo = new \finfo(FILEINFO_MIME_TYPE);
         $mimeType = $fileInfo->file($filePath);
 
-        if (!in_array($mimeType, $this->allowedMimeTypes)) {
+        if (! in_array($mimeType, $this->allowedMimeTypes)) {
             throw new GroqException(
-                'Invalid file type. File must be a valid JSONL file. You provided: ' . $mimeType,
+                'Invalid file type. File must be a valid JSONL file. You provided: '.$mimeType,
                 400,
                 'invalid_request'
             );
@@ -268,7 +278,8 @@ class FileManager
     /**
      * Validates JSONL file content
      *
-     * @param string $filePath Path to the file
+     * @param  string  $filePath  Path to the file
+     *
      * @throws GroqException
      */
     private function validateFileContent(string $filePath): void
@@ -287,7 +298,7 @@ class FileManager
         while (($line = fgets($handle)) !== false) {
             $lineNumber++;
             $line = trim($line);
-            
+
             if (empty($line)) {
                 continue;
             }
@@ -295,14 +306,14 @@ class FileManager
             $decoded = json_decode($line, true);
             if ($decoded === null) {
                 throw new GroqException(
-                    "Invalid JSON on line {$lineNumber}: " . json_last_error_msg(),
+                    "Invalid JSON on line {$lineNumber}: ".json_last_error_msg(),
                     400,
                     'invalid_request'
                 );
             }
 
             // Validate required fields for batch requests
-            if (!isset($decoded['custom_id']) || !is_string($decoded['custom_id'])) {
+            if (! isset($decoded['custom_id']) || ! is_string($decoded['custom_id'])) {
                 throw new GroqException(
                     "Missing or invalid 'custom_id' field on line {$lineNumber}",
                     400,
@@ -310,7 +321,7 @@ class FileManager
                 );
             }
 
-            if (!isset($decoded['method']) || $decoded['method'] !== 'POST') {
+            if (! isset($decoded['method']) || $decoded['method'] !== 'POST') {
                 throw new GroqException(
                     "Missing or invalid 'method' field on line {$lineNumber}. Only POST method is supported.",
                     400,
@@ -318,7 +329,7 @@ class FileManager
                 );
             }
 
-            if (!isset($decoded['url']) || !str_starts_with($decoded['url'], '/v1/')) {
+            if (! isset($decoded['url']) || ! str_starts_with($decoded['url'], '/v1/')) {
                 throw new GroqException(
                     "Missing or invalid 'url' field on line {$lineNumber}. URL must start with '/v1/'",
                     400,
@@ -327,15 +338,15 @@ class FileManager
             }
 
             // Validate endpoint
-            if (!in_array($decoded['url'], $this->supportedEndpoints)) {
+            if (! in_array($decoded['url'], $this->supportedEndpoints)) {
                 throw new GroqException(
-                    "Invalid endpoint '{$decoded['url']}' on line {$lineNumber}. Supported endpoints are: " . implode(', ', $this->supportedEndpoints),
+                    "Invalid endpoint '{$decoded['url']}' on line {$lineNumber}. Supported endpoints are: ".implode(', ', $this->supportedEndpoints),
                     400,
                     'invalid_request'
                 );
             }
 
-            if (!isset($decoded['body']) || !is_array($decoded['body'])) {
+            if (! isset($decoded['body']) || ! is_array($decoded['body'])) {
                 throw new GroqException(
                     "Missing or invalid 'body' field on line {$lineNumber}",
                     400,
@@ -343,7 +354,7 @@ class FileManager
                 );
             }
 
-            if (!isset($decoded['body']['model']) || !is_string($decoded['body']['model'])) {
+            if (! isset($decoded['body']['model']) || ! is_string($decoded['body']['model'])) {
                 throw new GroqException(
                     "Missing or invalid 'model' field in body on line {$lineNumber}",
                     400,
@@ -353,14 +364,14 @@ class FileManager
 
             // Validate specific endpoints
             if ($decoded['url'] === '/v1/chat/completions') {
-                if (!isset($decoded['body']['messages']) || !is_array($decoded['body']['messages'])) {
+                if (! isset($decoded['body']['messages']) || ! is_array($decoded['body']['messages'])) {
                     throw new GroqException(
                         "Missing or invalid 'messages' field for chat completion on line {$lineNumber}",
                         400,
                         'invalid_request'
                     );
                 }
-                
+
                 // Validate messages array is not empty and has required fields
                 if (empty($decoded['body']['messages'])) {
                     throw new GroqException(
@@ -369,9 +380,9 @@ class FileManager
                         'invalid_request'
                     );
                 }
-                
+
                 foreach ($decoded['body']['messages'] as $index => $message) {
-                    if (!isset($message['role']) || !isset($message['content'])) {
+                    if (! isset($message['role']) || ! isset($message['content'])) {
                         throw new GroqException(
                             "Message at index {$index} is missing required fields 'role' or 'content' on line {$lineNumber}",
                             400,
@@ -380,16 +391,16 @@ class FileManager
                     }
                 }
             } elseif (str_contains($decoded['url'], '/v1/audio/')) {
-                if (!isset($decoded['body']['url']) || !filter_var($decoded['body']['url'], FILTER_VALIDATE_URL)) {
+                if (! isset($decoded['body']['url']) || ! filter_var($decoded['body']['url'], FILTER_VALIDATE_URL)) {
                     throw new GroqException(
                         "Missing or invalid audio 'url' field on line {$lineNumber}",
                         400,
                         'invalid_request'
                     );
                 }
-                
+
                 // Validate audio-specific fields
-                if (!isset($decoded['body']['language'])) {
+                if (! isset($decoded['body']['language'])) {
                     throw new GroqException(
                         "Missing required field 'language' for audio request on line {$lineNumber}",
                         400,
@@ -405,7 +416,7 @@ class FileManager
     /**
      * Gets file content from cache
      *
-     * @param string $fileId File ID
+     * @param  string  $fileId  File ID
      */
     private function getFromCache(string $fileId): ?string
     {
@@ -414,7 +425,7 @@ class FileManager
         }
 
         $cachePath = "{$this->cacheDir}/{$fileId}";
-        if (!file_exists($cachePath)) {
+        if (! file_exists($cachePath)) {
             return null;
         }
 
@@ -424,8 +435,8 @@ class FileManager
     /**
      * Saves file content to cache
      *
-     * @param string $fileId File ID
-     * @param string $content File content
+     * @param  string  $fileId  File ID
+     * @param  string  $content  File content
      */
     private function saveToCache(string $fileId, string $content): void
     {
@@ -440,10 +451,9 @@ class FileManager
     /**
      * Handles API errors
      *
-     * @param \GuzzleHttp\Exception\ClientException $e
      * @throws GroqException
      */
-    private function handleApiError(\GuzzleHttp\Exception\ClientException $e): never
+    private function handleApiError(ClientException $e): never
     {
         $response = $e->getResponse();
         $errorBody = json_decode($response->getBody()->getContents(), true);

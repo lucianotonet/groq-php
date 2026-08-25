@@ -9,7 +9,7 @@ class BuiltInToolsTest extends TestCase
     /**
      * Ensures the built-in tool identifiers are exposed as constants.
      */
-    public function testToolIdentifiers(): void
+    public function test_tool_identifiers(): void
     {
         $this->assertSame('web_search', BuiltInTools::WEB_SEARCH);
         $this->assertSame('visit_website', BuiltInTools::VISIT_WEBSITE);
@@ -20,7 +20,7 @@ class BuiltInToolsTest extends TestCase
     /**
      * Ensures compound() builds the compound_custom payload correctly.
      */
-    public function testCompoundCustomBuilder(): void
+    public function test_compound_custom_builder(): void
     {
         $payload = BuiltInTools::compound([BuiltInTools::WEB_SEARCH, BuiltInTools::CODE_INTERPRETER]);
 
@@ -36,7 +36,7 @@ class BuiltInToolsTest extends TestCase
     /**
      * Ensures document() and documentFromFile() build valid document payloads.
      */
-    public function testDocumentBuilders(): void
+    public function test_document_builders(): void
     {
         $textDoc = BuiltInTools::document('Context text', 'doc-1');
         $this->assertSame('text', $textDoc['source']['type']);
@@ -52,7 +52,7 @@ class BuiltInToolsTest extends TestCase
     /**
      * Ensures compound_custom is forwarded to the API request.
      */
-    public function testCompoundCustomIsSent(): void
+    public function test_compound_custom_is_sent(): void
     {
         $this->groq->chat()->completions()->create([
             'model' => 'groq/compound',
@@ -73,7 +73,7 @@ class BuiltInToolsTest extends TestCase
     /**
      * Ensures documents, search_settings and citation_options are forwarded.
      */
-    public function testDocumentsAndSearchSettingsAreSent(): void
+    public function test_documents_and_search_settings_are_sent(): void
     {
         $this->groq->chat()->completions()->create([
             'model' => 'groq/compound',

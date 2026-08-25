@@ -21,10 +21,13 @@
 </form>
 
 <?php
+
+use LucianoTonet\GroqPHP\GroqException;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $originalFileName = $_FILES['audio']['name'];
     $tmpFilePath = $_FILES['audio']['tmp_name'];
-    $newFilePath = sys_get_temp_dir() . '/' . $originalFileName;
+    $newFilePath = sys_get_temp_dir().'/'.$originalFileName;
 
     try {
         move_uploaded_file($tmpFilePath, $newFilePath);
@@ -47,8 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             echo json_encode($translation, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); // Returns the response as JSON
         }
-    } catch (LucianoTonet\GroqPHP\GroqException $e) {
-        echo "<strong>Error:</strong> <br><pre>" . htmlspecialchars($e->getMessage()) . "</pre>";
+    } catch (GroqException $e) {
+        echo '<strong>Error:</strong> <br><pre>'.htmlspecialchars($e->getMessage()).'</pre>';
     } finally {
         if (file_exists($newFilePath)) {
             unlink($newFilePath);

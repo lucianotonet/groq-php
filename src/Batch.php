@@ -5,15 +5,16 @@ namespace LucianoTonet\GroqPHP;
 class Batch
 {
     private array $data;
+
     private array $requiredFields = [
         'id',
         'object',
         'endpoint',
         'input_file_id',
         'completion_window',
-        'status'
+        'status',
     ];
-    
+
     private array $validStatuses = [
         'validating',
         'in_progress',
@@ -22,17 +23,17 @@ class Batch
         'expired',
         'cancelled',
         'cancelling',
-        'finalizing'
+        'finalizing',
     ];
-    
+
     private array $validEndpoints = [
         '/v1/chat/completions',
         '/v1/audio/transcriptions',
-        '/v1/audio/translations'
+        '/v1/audio/translations',
     ];
 
     private array $validCompletionWindows = [
-        '24h', '48h', '72h', '96h', '120h', '144h', '168h', '7d'
+        '24h', '48h', '72h', '96h', '120h', '144h', '168h', '7d',
     ];
 
     public function __construct(array $data)
@@ -41,7 +42,7 @@ class Batch
         $this->validateStatus($data['status']);
         $this->validateEndpoint($data['endpoint']);
         $this->validateCompletionWindow($data['completion_window']);
-        
+
         $this->data = $data;
     }
 
@@ -66,18 +67,19 @@ class Batch
      */
     public function getProgress(): float
     {
-        if (!isset($this->data['request_counts'])) {
+        if (! isset($this->data['request_counts'])) {
             return 0.0;
         }
 
         $counts = $this->data['request_counts'];
         $total = $counts['total'] ?? 0;
-        
+
         if ($total === 0) {
             return 0.0;
         }
 
         $completed = $counts['completed'] ?? 0;
+
         return round(($completed / $total) * 100, 2);
     }
 
@@ -94,7 +96,7 @@ class Batch
      */
     public function getCompletionTime(): ?float
     {
-        if (!isset($this->data['completed_at']) || !isset($this->data['created_at'])) {
+        if (! isset($this->data['completed_at']) || ! isset($this->data['created_at'])) {
             return null;
         }
 
@@ -106,7 +108,7 @@ class Batch
      */
     public function getTimeRemaining(): ?float
     {
-        if (!isset($this->data['expires_at'])) {
+        if (! isset($this->data['expires_at'])) {
             return null;
         }
 
@@ -123,7 +125,7 @@ class Batch
     private function validateRequiredFields(array $data): void
     {
         foreach ($this->requiredFields as $field) {
-            if (!isset($data[$field])) {
+            if (! isset($data[$field])) {
                 throw new GroqException(
                     "Missing required field: {$field}",
                     400,
@@ -135,9 +137,9 @@ class Batch
 
     private function validateStatus(string $status): void
     {
-        if (!in_array($status, $this->validStatuses)) {
+        if (! in_array($status, $this->validStatuses)) {
             throw new GroqException(
-                "Invalid batch status: {$status}. Valid statuses are: " . implode(', ', $this->validStatuses),
+                "Invalid batch status: {$status}. Valid statuses are: ".implode(', ', $this->validStatuses),
                 400,
                 'invalid_request'
             );
@@ -146,7 +148,7 @@ class Batch
 
     private function validateEndpoint(string $endpoint): void
     {
-        if (!in_array($endpoint, $this->validEndpoints)) {
+        if (! in_array($endpoint, $this->validEndpoints)) {
             throw new GroqException(
                 'Invalid endpoint. Only /v1/chat/completions is supported',
                 400,
@@ -155,11 +157,11 @@ class Batch
         }
     }
 
-    private function validateCompletionWindow(string $window): void 
+    private function validateCompletionWindow(string $window): void
     {
-        if (!in_array($window, $this->validCompletionWindows)) {
+        if (! in_array($window, $this->validCompletionWindows)) {
             throw new GroqException(
-                'Invalid completion_window. Valid windows are: ' . implode(', ', $this->validCompletionWindows),
+                'Invalid completion_window. Valid windows are: '.implode(', ', $this->validCompletionWindows),
                 400,
                 'invalid_request'
             );
@@ -191,11 +193,11 @@ class Batch
             'request_counts' => $this->data['request_counts'] ?? [
                 'total' => 0,
                 'completed' => 0,
-                'failed' => 0
+                'failed' => 0,
             ],
             'created_at' => $this->data['created_at'],
             'completed_at' => $this->data['completed_at'] ?? null,
-            'expires_at' => $this->data['expires_at'] ?? null
+            'expires_at' => $this->data['expires_at'] ?? null,
         ];
     }
-} 
+}

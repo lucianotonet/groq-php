@@ -7,7 +7,7 @@ use LucianoTonet\GroqPHP\Responses;
 
 class ResponsesTest extends TestCase
 {
-    public function testCreateReturnsResponseObject(): void
+    public function test_create_returns_response_object(): void
     {
         $response = $this->groq->responses()->create([
             'model' => 'openai/gpt-oss-120b',
@@ -19,7 +19,7 @@ class ResponsesTest extends TestCase
         $this->assertSame('Hello from the Responses API.', Responses::outputText($response));
     }
 
-    public function testStructuredOutput(): void
+    public function test_structured_output(): void
     {
         $response = $this->groq->responses()->create([
             'model' => 'openai/gpt-oss-120b',
@@ -40,7 +40,7 @@ class ResponsesTest extends TestCase
         $this->assertSame('UltraSound Headphones', $data['product_name']);
     }
 
-    public function testStreamingYieldsTextDeltas(): void
+    public function test_streaming_yields_text_deltas(): void
     {
         $stream = $this->groq->responses()->create([
             'model' => 'openai/gpt-oss-120b',
@@ -58,7 +58,7 @@ class ResponsesTest extends TestCase
         $this->assertStringContainsString('Responses API', $text);
     }
 
-    public function testMissingModelThrows(): void
+    public function test_missing_model_throws(): void
     {
         $this->expectException(GroqException::class);
         $this->expectExceptionMessage('Missing required parameter: model');
@@ -66,7 +66,7 @@ class ResponsesTest extends TestCase
         $this->groq->responses()->create(['input' => 'hi']);
     }
 
-    public function testMissingInputThrows(): void
+    public function test_missing_input_throws(): void
     {
         $this->expectException(GroqException::class);
         $this->expectExceptionMessage('Missing required parameter: input');

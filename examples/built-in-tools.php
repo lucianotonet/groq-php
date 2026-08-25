@@ -1,9 +1,9 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
-use LucianoTonet\GroqPHP\Groq;
 use LucianoTonet\GroqPHP\BuiltInTools;
+use LucianoTonet\GroqPHP\Groq;
 
 $groq = new Groq(getenv('GROQ_API_KEY'));
 
@@ -22,7 +22,7 @@ $response = $groq->chat()->completions()->create([
 ]);
 
 echo "=== Compound (built-in tools) ===\n";
-echo $response['choices'][0]['message']['content'] . "\n";
+echo $response['choices'][0]['message']['content']."\n";
 
 // 2) RAG with documents + citations.
 $response = $groq->chat()->completions()->create([
@@ -37,4 +37,4 @@ $response = $groq->chat()->completions()->create([
 ]);
 
 echo "\n=== Documents (RAG) ===\n";
-echo $response['choices'][0]['message']['content'] . "\n";
+echo $response['choices'][0]['message']['content']."\n";

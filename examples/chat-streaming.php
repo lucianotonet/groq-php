@@ -1,6 +1,9 @@
 <div>
 <?php
-require __DIR__ . '/_input.php';
+
+use LucianoTonet\GroqPHP\GroqException;
+
+require __DIR__.'/_input.php';
 ob_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -14,15 +17,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'messages' => [
                 [
                     'role' => 'user',
-                    'content' => $message
-                ]
+                    'content' => $message,
+                ],
             ],
-            'stream' => true
+            'stream' => true,
         ]);
 
         foreach ($response->chunks() as $chunk) {
             if (isset($chunk['choices'][0]['delta']['role'])) {
-                echo "<strong>" . $chunk['choices'][0]['delta']['role'] . ":</strong> ";
+                echo '<strong>'.$chunk['choices'][0]['delta']['role'].':</strong> ';
             }
 
             if (isset($chunk['choices'][0]['delta']['content'])) {
@@ -33,8 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ob_flush(); // Clears the output buffer
             flush(); // Sends data to the client
         }
-    } catch (\LucianoTonet\GroqPHP\GroqException $err) {
-        echo "<strong>assistant:</strong><br>Sorry, an error occurred: " . $err->getMessage() . "<br>";
+    } catch (GroqException $err) {
+        echo '<strong>assistant:</strong><br>Sorry, an error occurred: '.$err->getMessage().'<br>';
     }
 }
 ?>

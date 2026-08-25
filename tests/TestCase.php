@@ -2,9 +2,9 @@
 
 namespace LucianoTonet\GroqPHP\Tests;
 
+use Dotenv\Dotenv;
 use LucianoTonet\GroqPHP\Groq;
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Dotenv\Dotenv;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -26,6 +26,7 @@ abstract class TestCase extends BaseTestCase
 
         if ($this->live) {
             $this->setUpLive();
+
             return;
         }
 
@@ -42,7 +43,7 @@ abstract class TestCase extends BaseTestCase
         }
 
         $apiKey = getenv('GROQ_API_KEY');
-        if (!$apiKey) {
+        if (! $apiKey) {
             $this->markTestSkipped('GROQ_API_KEY not found in environment variables.');
         }
 

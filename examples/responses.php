@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
 use LucianoTonet\GroqPHP\Groq;
 use LucianoTonet\GroqPHP\Responses;
@@ -14,7 +14,7 @@ $response = $groq->responses()->create([
 ]);
 
 echo "=== Basic response ===\n";
-echo Responses::outputText($response) . "\n";
+echo Responses::outputText($response)."\n";
 
 // 2) Structured output (Responses API shape: text.format)
 $response = $groq->responses()->create([
@@ -35,7 +35,7 @@ $response = $groq->responses()->create([
 ]);
 
 echo "\n=== Structured output ===\n";
-echo Responses::outputText($response) . "\n";
+echo Responses::outputText($response)."\n";
 
 // 3) Streaming
 $stream = $groq->responses()->create([

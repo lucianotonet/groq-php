@@ -1,5 +1,8 @@
 <div class="max-w-3xl mx-auto w-full p-6">
 <?php
+
+use LucianoTonet\GroqPHP\GroqException;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $prompt = $_POST['prompt'];
 
@@ -7,24 +10,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $tempDir = sys_get_temp_dir();
-        $imagePath = $tempDir . '/' . basename($_FILES['image']['name']);
-        
+        $imagePath = $tempDir.'/'.basename($_FILES['image']['name']);
+
         if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-            throw new Exception("Upload error: " . $_FILES['image']['error']);
+            throw new Exception('Upload error: '.$_FILES['image']['error']);
         }
 
-        if (!move_uploaded_file($_FILES['image']['tmp_name'], $imagePath)) {
-            throw new Exception("Failed to move the file to the temporary directory.");
+        if (! move_uploaded_file($_FILES['image']['tmp_name'], $imagePath)) {
+            throw new Exception('Failed to move the file to the temporary directory.');
         }
 
         $response = $groq->vision()->analyze($imagePath, $prompt);
 
         echo "<p class='font-semibold mb-2'>Model response:</p>";
-        echo "<p>" . $response['choices'][0]['message']['content'] . "</p>";
-    } catch (LucianoTonet\GroqPHP\GroqException $err) {
-        echo "<p class='text-red-600'>Erro Groq: " . $err->getMessage() . "</p>";
+        echo '<p>'.$response['choices'][0]['message']['content'].'</p>';
+    } catch (GroqException $err) {
+        echo "<p class='text-red-600'>Erro Groq: ".$err->getMessage().'</p>';
     } catch (Exception $e) {
-        echo "<p class='text-red-600'>Erro: " . $e->getMessage() . "</p>";
+        echo "<p class='text-red-600'>Erro: ".$e->getMessage().'</p>';
     } finally {
         if (isset($imagePath) && file_exists($imagePath)) {
             unlink($imagePath);

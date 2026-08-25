@@ -1,17 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace LucianoTonet\GroqPHP;
-
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Request;
 
 /**
  * Class Reasoning
  * This class handles the Reasoning feature of the Groq API.
  * It provides methods to perform step-by-step reasoning tasks.
- * 
- * @package LucianoTonet\GroqPHP
  */
 class Reasoning
 {
@@ -19,7 +15,6 @@ class Reasoning
 
     /**
      * Reasoning constructor.
-     * @param Groq $groq
      */
     public function __construct(Groq $groq)
     {
@@ -29,40 +24,41 @@ class Reasoning
     /**
      * Performs a reasoning task with step-by-step analysis.
      *
-     * @param string $prompt The question or task to reason about
-     * @param array $options Additional options for the reasoning
-     *   - model: (string) The model to use (required)
-     *   - temperature: (float) Controls randomness (0.0 to 2.0)
-     *   - max_completion_tokens: (int) Maximum tokens in response
-     *   - stream: (bool) Whether to stream the response
-     *   - top_p: (float) Controls diversity (0.0 to 1.0)
-     *   - frequency_penalty: (float) Penalizes repeated tokens
-     *   - presence_penalty: (float) Penalizes repeated topics
-     *   - stop: (string|array) Stop sequences to end generation
-     *   - system_prompt: (string) Custom system prompt to guide the model's behavior
-     *   - reasoning_format: (string) Controls how model reasoning is presented:
-     *     - "parsed": Separates reasoning into a dedicated field
-     *     - "raw": Includes reasoning within think tags in content (default)
- *     - "hidden": Returns only the final answer
- *     Note: Must be "parsed" or "hidden" when using tool calling or JSON mode
- *   - include_reasoning: (bool) Whether to include reasoning in message.reasoning.
- *     Mutually exclusive with reasoning_format.
- *   - reasoning_effort: (string) Reasoning effort for supported models
- *     ("none"|"default" for qwen3.6-27b; "low"|"medium"|"high" for openai/gpt-oss)
- *     Note: openai/gpt-oss models do not accept reasoning_format; "hidden" is mapped
- *           to include_reasoning=false, while "raw"/"parsed" are rejected.
+     * @param  string  $prompt  The question or task to reason about
+     * @param  array  $options  Additional options for the reasoning
+     *                          - model: (string) The model to use (required)
+     *                          - temperature: (float) Controls randomness (0.0 to 2.0)
+     *                          - max_completion_tokens: (int) Maximum tokens in response
+     *                          - stream: (bool) Whether to stream the response
+     *                          - top_p: (float) Controls diversity (0.0 to 1.0)
+     *                          - frequency_penalty: (float) Penalizes repeated tokens
+     *                          - presence_penalty: (float) Penalizes repeated topics
+     *                          - stop: (string|array) Stop sequences to end generation
+     *                          - system_prompt: (string) Custom system prompt to guide the model's behavior
+     *                          - reasoning_format: (string) Controls how model reasoning is presented:
+     *                          - "parsed": Separates reasoning into a dedicated field
+     *                          - "raw": Includes reasoning within think tags in content (default)
+     *                          - "hidden": Returns only the final answer
+     *                          Note: Must be "parsed" or "hidden" when using tool calling or JSON mode
+     *                          - include_reasoning: (bool) Whether to include reasoning in message.reasoning.
+     *                          Mutually exclusive with reasoning_format.
+     *                          - reasoning_effort: (string) Reasoning effort for supported models
+     *                          ("none"|"default" for qwen3.6-27b; "low"|"medium"|"high" for openai/gpt-oss)
+     *                          Note: openai/gpt-oss models do not accept reasoning_format; "hidden" is mapped
+     *                          to include_reasoning=false, while "raw"/"parsed" are rejected.
      * @return array|Stream The reasoning response
+     *
      * @throws GroqException If there is an error in the reasoning process
      */
     public function analyze(string $prompt, array $options = []): array|Stream
     {
-        if (!isset($options['model'])) {
+        if (! isset($options['model'])) {
             throw new GroqException('The model parameter is required for reasoning tasks', 400, 'invalid_request');
         }
 
         // Validates reasoning_format if provided
-        if (isset($options['reasoning_format']) && 
-            !in_array($options['reasoning_format'], ['parsed', 'raw', 'hidden'])) {
+        if (isset($options['reasoning_format']) &&
+            ! in_array($options['reasoning_format'], ['parsed', 'raw', 'hidden'])) {
             throw new GroqException(
                 'Invalid reasoning_format. Must be one of: parsed, raw, hidden',
                 400,
@@ -92,15 +88,15 @@ class Reasoning
         $messages = [
             [
                 'role' => 'user',
-                'content' => $prompt
-            ]
+                'content' => $prompt,
+            ],
         ];
 
         // Add system prompt only if provided
         if (isset($options['system_prompt'])) {
             array_unshift($messages, [
                 'role' => 'system',
-                'content' => $options['system_prompt']
+                'content' => $options['system_prompt'],
             ]);
             unset($options['system_prompt']); // Remove to avoid interference with the API
         }
@@ -125,8 +121,8 @@ class Reasoning
                 } elseif (in_array($options['reasoning_format'], ['raw', 'parsed'], true)) {
                     throw new GroqException(
                         'reasoning_format "raw"/"parsed" is not supported by openai/gpt-oss models. '
-                        . 'Use "hidden" to hide reasoning or omit reasoning_format '
-                        . '(reasoning is returned in message.reasoning by default).',
+                        .'Use "hidden" to hide reasoning or omit reasoning_format '
+                        .'(reasoning is returned in message.reasoning by default).',
                         400,
                         'invalid_request'
                     );
@@ -138,4 +134,4 @@ class Reasoning
 
         return $this->groq->chat()->completions()->create($requestOptions);
     }
-} 
+}

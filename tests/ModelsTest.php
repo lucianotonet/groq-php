@@ -1,14 +1,13 @@
 <?php
+
 namespace LucianoTonet\GroqPHP\Tests;
-
-
 
 class ModelsTest extends TestCase
 {
     /**
      * Tests listing all available models.
      */
-    public function testListModels()
+    public function test_list_models()
     {
         $models = $this->groq->models()->list();
 
@@ -20,7 +19,7 @@ class ModelsTest extends TestCase
     /**
      * Tests retrieving a single model by its ID.
      */
-    public function testRetrieveModel()
+    public function test_retrieve_model()
     {
         $model = $this->groq->models()->retrieve('openai/gpt-oss-20b');
 

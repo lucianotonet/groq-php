@@ -13,16 +13,19 @@ namespace LucianoTonet\GroqPHP;
 class BuiltInTools
 {
     public const WEB_SEARCH = 'web_search';
+
     public const VISIT_WEBSITE = 'visit_website';
+
     public const CODE_INTERPRETER = 'code_interpreter';
+
     public const WOLFRAM_ALPHA = 'wolfram_alpha';
 
     /**
      * Builds the `compound_custom` parameter to restrict which built-in tools
      * a Compound system is allowed to use.
      *
-     * @param string[] $enabledTools List of BuiltInTools::* identifiers.
-     * @param string|null $version Optional Compound system version (e.g. "latest").
+     * @param  string[]  $enabledTools  List of BuiltInTools::* identifiers.
+     * @param  string|null  $version  Optional Compound system version (e.g. "latest").
      * @return array The `compound_custom` payload.
      */
     public static function compound(array $enabledTools, ?string $version = null): array
@@ -43,8 +46,8 @@ class BuiltInTools
     /**
      * Builds a document from raw text for use in the `documents` parameter.
      *
-     * @param string $text The document text.
-     * @param string|null $id Optional identifier used for citations.
+     * @param  string  $text  The document text.
+     * @param  string|null  $id  Optional identifier used for citations.
      * @return array The document payload.
      */
     public static function document(string $text, ?string $id = null): array
@@ -67,8 +70,8 @@ class BuiltInTools
      * Builds a document backed by an uploaded file for use in the `documents`
      * parameter.
      *
-     * @param string $fileId The ID of a file uploaded via the Files API.
-     * @param string|null $id Optional identifier used for citations.
+     * @param  string  $fileId  The ID of a file uploaded via the Files API.
+     * @param  string|null  $id  Optional identifier used for citations.
      * @return array The document payload.
      */
     public static function documentFromFile(string $fileId, ?string $id = null): array

@@ -4,32 +4,24 @@ namespace LucianoTonet\GroqPHP\Tests;
 
 use LucianoTonet\GroqPHP\Groq;
 use LucianoTonet\GroqPHP\GroqException;
-use PHPUnit\Framework\TestCase;
 
 class GroqTest extends TestCase
 {
-    private Groq $groq;
-
-    /**
-     * Loads environment variables and initializes the Groq client.
-     */
-    protected function setUp(): void
-    {
-        $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__, '../.env');
-        $dotenv->load();
-        $this->groq = new Groq($_ENV['GROQ_API_KEY']);
-    }
-
     /**
      * Ensures an invalid API key results in a GroqException with "Invalid API Key".
+     * This can only be verified against the real API.
      */
     public function testInvalidApiKey()
     {
+        if (!$this->live) {
+            $this->markTestSkipped('Requires GROQ_LIVE_TESTS=1 to hit the real API.');
+        }
+
         $groq = new Groq('invalid_api_key');
 
         $this->expectException(GroqException::class);
-        $this->expectExceptionCode(0); // Error code will be 0 for invalid API keys
-        $this->expectExceptionMessage('Invalid API Key'); // Error message will be 'Invalid API Key'
+        $this->expectExceptionCode(0);
+        $this->expectExceptionMessage('Invalid API Key');
 
         $groq->chat()->completions()->create([
             'model' => 'openai/gpt-oss-120b',
@@ -40,19 +32,19 @@ class GroqTest extends TestCase
     }
 
     /**
-     * Tests listing available models from the Groq API.
+     * Tests listing available models.
      */
     public function testListModels()
     {
-        $models = $this->groq->models()->list();        
+        $models = $this->groq->models()->list();
 
         $this->assertIsArray($models);
         $this->assertNotEmpty($models);
-        $this->assertArrayHasKey('data', $models); // Verify that the 'data' key is present
+        $this->assertArrayHasKey('data', $models);
     }
 
     /**
-     * Tests a basic chat completion using a valid API key.
+     * Tests a basic chat completion.
      */
     public function testChatCompletionWithValidApiKey()
     {
@@ -69,42 +61,13 @@ class GroqTest extends TestCase
         $this->assertArrayHasKey('content', $response['choices'][0]['message']);
     }
 
-    // public function testAudioTranscription()
-    // {
-    //     $audioFile = __DIR__ . '/test_audio.mp3';
-    //     $response = $this->groq->audio()->transcriptions()->create([
-    //         'file' => $audioFile,
-    //         'model' => 'whisper-large-v3',
-    //         'response_format' => 'json',
-    //     ]);
-
-    //     $this->assertArrayHasKey('text', $response);
-    //     $this->assertNotEmpty($response['text']);
-    // }
-
-    // public function testAudioTranslation()
-    // {
-    //     $audioFile = __DIR__ . '/test_audio.mp3';
-    //     $response = $this->groq->audio()->translations()->create([
-    //         'file' => $audioFile,
-    //         'model' => 'whisper-large-v3',
-    //         'response_format' => 'json',
-    //     ]);
-
-    //     $this->assertArrayHasKey('text', $response);
-    //     $this->assertNotEmpty($response['text']);
-    // }
-
     /**
      * Tests setting all available client options at once.
      */
     public function testSetOptions()
     {
-        // Setup
-        $initialApiKey = $_ENV['GROQ_API_KEY'];
-        $groq = new Groq($initialApiKey);
-        
-        // Test setting new options
+        $groq = new Groq('test-api-key-' . uniqid());
+
         $newOptions = [
             'apiKey' => 'new_test_key',
             'baseUrl' => 'https://test-api.groq.com',
@@ -117,16 +80,12 @@ class GroqTest extends TestCase
             'stream' => true,
             'responseFormat' => 'json'
         ];
-        
+
         $groq->setOptions($newOptions);
-        
-        // Verify API key was updated
-        $this->assertEquals('new_test_key', $groq->apiKey());        
-        
-        // Get actual options
+
+        $this->assertEquals('new_test_key', $groq->apiKey());
         $actualOptions = $groq->options;
-        
-        // Verify all options were set correctly
+
         $this->assertEquals($newOptions['baseUrl'], $groq->baseUrl);
         $this->assertEquals($newOptions['timeout'], $actualOptions['timeout']);
         $this->assertEquals($newOptions['maxRetries'], $actualOptions['maxRetries']);
@@ -143,31 +102,24 @@ class GroqTest extends TestCase
      */
     public function testSetOptionsPartial()
     {
-        // Setup - usar uma chave fixa para teste em vez da variável de ambiente
         $mockApiKey = 'test-api-key-' . uniqid();
         $groq = new Groq($mockApiKey, ['timeout' => 10000]);
-        
-        // Test setting only some options
+
         $newOptions = [
             'timeout' => 20000,
             'debug' => true
         ];
-        
+
         $groq->setOptions($newOptions);
-        
-        // Create a reflection class to access private properties
+
         $reflection = new \ReflectionClass($groq);
         $optionsProperty = $reflection->getProperty('options');
         $optionsProperty->setAccessible(true);
-        
-        // Get actual options
+
         $actualOptions = $optionsProperty->getValue($groq);
-        
-        // Verify specific options were updated
+
         $this->assertEquals(20000, $actualOptions['timeout']);
         $this->assertEquals(true, $actualOptions['debug']);
-        
-        // Verify API key remained unchanged
         $this->assertEquals($mockApiKey, $groq->apiKey());
     }
 }

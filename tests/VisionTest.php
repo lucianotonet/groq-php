@@ -50,6 +50,10 @@ class VisionTest extends TestCase
      */
     public function testVisionAnalysisWithUrlImage()
     {
+        if (!$this->live) {
+            $this->markTestSkipped('Requires GROQ_LIVE_TESTS=1 (fetches image over network).');
+        }
+
         try {
             $imageUrl = 'https://raw.githubusercontent.com/lucianotonet/groq-php/main/art.png';
             $response = $this->groq->vision()->analyze($imageUrl, 'Describe this image');
@@ -81,6 +85,10 @@ class VisionTest extends TestCase
      */
     public function testVisionAnalysisWithInvalidUrl()
     {
+        if (!$this->live) {
+            $this->markTestSkipped('Requires GROQ_LIVE_TESTS=1 (depends on real API error).');
+        }
+
         $prompt = "What do you see in this image?";
         $invalidUrl = "https://invalid-url.com/image.png";
 

@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (\LucianoTonet\GroqPHP\GroqException $err) {
         echo $err->getCode() . "<br>" . $err->getMessage() . "<br>" . $err->getType() . "<br>";
         print_r($err->getHeaders());
-        echo "<strong>assistant:</strong><br>Desculpe, não consegui entender sua solicitação. Tente novamente.<br>";
+            echo "<strong>assistant:</strong><br>Sorry, I could not understand your request. Please try again.<br>";
         exit;
     }
 
@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (\LucianoTonet\GroqPHP\GroqException $err) {
             echo $err->getCode() . "<br>" . $err->getMessage() . "<br>" . $err->getType() . "<br>";
             print_r($err->getHeaders());
-            echo "<strong>assistant:</strong><br>Desculpe, não consegui entender sua solicitação. Tente novamente.<br>";
+        echo "<strong>assistant:</strong><br>Sorry, I could not understand your request. Please try again.<br>";
             exit;
         }
     }

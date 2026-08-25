@@ -1,16 +1,16 @@
 <?php
 /**
- * Este exemplo demonstra o uso de Structured Outputs (json_schema + strict)
- * para garantir que a resposta do modelo siga exatamente um esquema JSON.
+ * This example demonstrates the use of Structured Outputs (json_schema + strict)
+ * to ensure the model's response follows exactly a JSON schema.
  */
 
 require __DIR__ . '/vendor/autoload.php';
 
-// Carrega as variáveis de ambiente
+// Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-// Inicializa o cliente Groq com a chave API
+// Initialize the Groq client with the API key
 $groq = new LucianoTonet\GroqPHP\Groq([
     'api_key' => $_ENV['GROQ_API_KEY'],
 ]);

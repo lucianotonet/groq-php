@@ -29,12 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo $chunk['choices'][0]['delta']['content'];
             }
 
-            // Chame ob_flush() e flush() na ordem correta
-            ob_flush(); // Limpa o buffer de saída
-            flush(); // Envia os dados para o cliente
+            // Call ob_flush() and flush() in the correct order
+            ob_flush(); // Clears the output buffer
+            flush(); // Sends data to the client
         }
     } catch (\LucianoTonet\GroqPHP\GroqException $err) {
-        echo "<strong>assistant:</strong><br>Desculpe, ocorreu um erro: " . $err->getMessage() . "<br>";
+        echo "<strong>assistant:</strong><br>Sorry, an error occurred: " . $err->getMessage() . "<br>";
     }
 }
 ?>

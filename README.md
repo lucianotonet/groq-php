@@ -19,6 +19,8 @@ Using on Laravel? Check this out: [GroqLaravel](https://github.com/lucianotonet/
 - [x] [Vision](#5-vision)
 - [x] [Reasoning](#6-reasoning)
 - [x] [Files and Batch Processing](#7-files-and-batch-processing)
+- [x] [Built-in Tools & Compound (web search, code execution, citations)](#9-built-in-tools--compound)
+- [x] [Documents (RAG) & Citations](#10-documents-rag--citations)
 
 ## Installation
 
@@ -55,6 +57,12 @@ List available models.
 ```php
 $models = $groq->models()->list();
 print_r($models['data']);
+// print_r output (formatted):
+// Array (
+//   [0] => Array ( [id] => openai/gpt-oss-20b [object] => model [owned_by] => OpenAI )
+//   [1] => Array ( [id] => whisper-large-v3 [object] => model [owned_by] => Groq )
+//   ...
+// )
 ```
 
 Retrieve a single model by its ID:
@@ -62,6 +70,7 @@ Retrieve a single model by its ID:
 ```php
 $model = $groq->models()->retrieve('openai/gpt-oss-20b');
 echo $model['id'];
+// Output: openai/gpt-oss-20b
 ```
 
 ### 2. Chat (Completions)
@@ -84,6 +93,20 @@ try {
     ]);
 
     echo $response['choices'][0]['message']['content'];
+    // Expected response structure (formatted):
+    // {
+    //   "id": "chatcmpl-9a8b7c6d",
+    //   "object": "chat.completion",
+    //   "model": "openai/gpt-oss-20b",
+    //   "choices": [
+    //     {
+    //       "index": 0,
+    //       "message": { "role": "assistant", "content": "Low latency is critical because ..." },
+    //       "finish_reason": "stop"
+    //     }
+    //   ],
+    //   "usage": { "prompt_tokens": 15, "completion_tokens": 120, "total_tokens": 135 }
+    // }
 } catch (\LucianoTonet\GroqPHP\GroqException $e) {
     echo 'Error: ' . $e->getMessage();
 }
@@ -107,6 +130,13 @@ foreach ($response->chunks() as $chunk) {
         flush();
     }
 }
+
+// Streamed chunk structure (formatted):
+// {
+//   "id": "chatcmpl-...",
+//   "choices": [ { "delta": { "role": "assistant", "content": "Once" }, "finish_reason": null } ]
+// }
+// Chunks stream until finish_reason: "stop" (then a final [DONE] signal).
 ```
 
 **JSON Mode:**
@@ -123,6 +153,12 @@ $response = $groq->chat()->completions()->create([
 
 $content = $response['choices'][0]['message']['content'];
 echo json_encode(json_decode($content), JSON_PRETTY_PRINT); // Display formatted JSON
+// Output (formatted JSON):
+// {
+//   "location": "London",
+//   "temperature": "15",
+//   "unit": "Celsius"
+// }
 ```
 
 **Structured Outputs (`json_schema`):**
@@ -157,6 +193,11 @@ $response = $groq->chat()->completions()->create([
 
 $result = json_decode($response['choices'][0]['message']['content'], true);
 echo $result['product_name'];
+// Output (formatted JSON):
+// {
+//   "product_name": "UltraSound Headphones",
+//   "rating": 5
+// }
 ```
 
 **Additional Parameters (Chat Completions):**
@@ -233,6 +274,22 @@ if (isset($response['choices'][0]['message']['tool_calls'])) {
     // Direct response, no tool_calls
     echo $response['choices'][0]['message']['content'];
 }
+
+// When the model requests a tool, the first response includes:
+// {
+//   "choices": [
+//     {
+//       "message": {
+//         "role": "assistant",
+//         "tool_calls": [
+//           { "id": "call_abc", "type": "function", "function": { "name": "getNbaScore", "arguments": "{\"team_name\":\"Lakers\"}" } }
+//         ]
+//       }
+//     }
+//   ]
+// }
+// After calling getNbaScore() and sending the result back, the final echoed
+// content is, e.g.: "The Lakers currently have 100 points."
 ```
 
 **Advanced Tool Calling (with multiple tools and parallel calls):**
@@ -261,6 +318,13 @@ try {
     ]);
 
     echo json_encode($transcription, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    // Output (formatted JSON):
+    // {
+    //   "text": "Hello, how can I help you today",
+    //   "language": "english",
+    //   "duration": 3.2,
+    //   "segments": [ { "start": 0.0, "end": 2.1, "text": "Hello, how can I help you today" } ]
+    // }
 } catch (\LucianoTonet\GroqPHP\GroqException $e) {
     echo "Error: " . $e->getMessage();
 }
@@ -315,6 +379,9 @@ try {
 } catch (\LucianoTonet\GroqPHP\GroqException $e) {
     echo "Error: " . $e->getMessage();
 }
+
+// Method 1 prints: "Audio file saved successfully!"
+// Method 2 streams raw WAV audio bytes (Content-Type: audio/wav).
 ```
 
 - **Models:** `'canopylabs/orpheus-v1-english'` (English), `'canopylabs/orpheus-arabic-saudi'` (Arabic)
@@ -348,6 +415,15 @@ try {
         'temperature' => 0.7,
         'max_completion_tokens' => 100
     ]);
+
+    echo $response['choices'][0]['message']['content'];
+    // Expected response structure (formatted):
+    // {
+    //   "choices": [
+    //     { "message": { "role": "assistant", "content": "I see a sunset over the mountains..." }, "finish_reason": "stop" }
+    //   ],
+    //   "usage": { "prompt_tokens": 120, "completion_tokens": 40, "total_tokens": 160 }
+    // }
 } catch (\LucianoTonet\GroqPHP\GroqException $e) {
     echo 'Error: ' . $e->getMessage();
 }
@@ -382,6 +458,13 @@ try {
     );
 
     echo $response['choices'][0]['message']['content'];
+    // Expected response structure (formatted):
+    // {
+    //   "choices": [
+    //     { "message": { "role": "assistant", "content": "<think>Photosynthesis converts light...</think>\nPhotosynthesis is the process by which..." }, "finish_reason": "stop" }
+    //   ],
+    //   "usage": { "prompt_tokens": ..., "completion_tokens": ..., "total_tokens": ... }
+    // }
 } catch (\LucianoTonet\GroqPHP\GroqException $e) {
     echo "Error: " . $e->getMessage();
 }
@@ -480,6 +563,12 @@ $content = $fileManager->download('file_id');
 
 // Delete file
 $fileManager->delete('file_id');
+
+// Expected response structures (formatted):
+// upload()    -> { "id": "file_abc123", "object": "file", "bytes": 1234, "filename": "file.jsonl", "purpose": "batch" }
+// list()      -> { "object": "list", "data": [ { "id": "file_abc123", "filename": "file.jsonl" } ], "has_more": false }
+// retrieve()  -> { "id": "file_abc123", "object": "file", "bytes": 1234, "filename": "file.jsonl", "purpose": "batch" }
+// download()  -> raw file contents as a string
 ```
 
 #### Batch Processing
@@ -510,6 +599,13 @@ $summary = $batch->getSummary();
 
 // Cancel batch
 $batch = $batchManager->cancel('batch_id');
+
+// Expected response structures (formatted):
+// create()   -> { "id": "batch_abc123", "object": "batch", "status": "validating", "endpoint": "/v1/chat/completions", "completion_window": "24h" }
+// list()     -> { "object": "list", "data": [ { "id": "batch_abc123", "status": "completed" } ], "has_more": false }
+// retrieve() -> { "id": "batch_abc123", "status": "completed", "request_counts": { "total": 10, "completed": 10, "failed": 0 } }
+// cancel()   -> { "id": "batch_abc123", "status": "cancelling" }
+// getSummary() -> { "total": 10, "completed": 10, "failed": 0 }
 ```
 
 **File Requirements:**
@@ -574,9 +670,84 @@ try {
         echo "Invalid JSON: " . $e->getFailedGeneration();
     }
 }
+
+// Output:
+// Groq Error: Incorrect API key provided
+// Type: authentication_error
+// Code: 401
 ```
 
 The `GroqException` class provides static methods for creating specific exceptions like `invalidRequest()`, `authenticationError()`, etc., following a factory pattern.
+
+### 9. Built-in Tools & Compound
+
+Groq's Compound systems (`groq/compound`, `groq/compound-mini`) ship server-side tools
+(web search, visit website, code execution, Wolfram Alpha) that run without any local
+function-calling setup. Use `LucianoTonet\GroqPHP\BuiltInTools` to build the
+`compound_custom` payload:
+
+```php
+use LucianoTonet\GroqPHP\Groq;
+use LucianoTonet\GroqPHP\BuiltInTools;
+
+$groq = new Groq(getenv('GROQ_API_KEY'));
+
+$response = $groq->chat()->completions()->create([
+    'model' => 'groq/compound',
+    'messages' => [
+        ['role' => 'user', 'content' => 'What happened in AI last week?'],
+    ],
+    'compound_custom' => BuiltInTools::compound([
+        BuiltInTools::WEB_SEARCH,
+        BuiltInTools::CODE_INTERPRETER,
+    ]),
+    'search_settings' => ['exclude_domains' => ['wikipedia.org']],
+    'citation_options' => 'enabled',
+]);
+
+echo $response['choices'][0]['message']['content'];
+// Expected response structure (formatted):
+// {
+//   "choices": [
+//     { "message": { "role": "assistant", "content": "Last week's AI highlights included new open-weight releases and faster inference benchmarks." }, "finish_reason": "stop" }
+//   ],
+//   "citations": [ { "url": "https://example.com/article", "title": "..." } ]  // present when citation_options=enabled
+// }
+```
+
+See `examples/built-in-tools.php` for a runnable script.
+
+### 10. Documents (RAG) & Citations
+
+Provide context documents directly in the request via the `documents` parameter. When
+`citation_options` is `enabled`, the model includes citations referencing those documents:
+
+```php
+use LucianoTonet\GroqPHP\BuiltInTools;
+
+$response = $groq->chat()->completions()->create([
+    'model' => 'groq/compound',
+    'messages' => [
+        ['role' => 'user', 'content' => 'Summarize the provided document'],
+    ],
+    'documents' => [
+        BuiltInTools::document('Groq is a fast inference platform...', 'doc-1'),
+    ],
+    'citation_options' => 'enabled',
+]);
+
+echo $response['choices'][0]['message']['content'];
+// Expected response structure (formatted):
+// {
+//   "choices": [
+//     { "message": { "role": "assistant", "content": "Groq is a fast AI inference platform focused on low-latency LLM serving." }, "finish_reason": "stop" }
+//   ],
+//   "citations": [ { "document": "doc-1", "url": "...", "title": "..." } ]  // present when citation_options=enabled
+// }
+```
+
+`BuiltInTools::document()` builds a text document; `BuiltInTools::documentFromFile()`
+builds one backed by a file previously uploaded via the Files API.
 
 ## Examples
 
@@ -605,9 +776,9 @@ Finally, you can access the examples in your browser at `http://127.0.0.1:8000`.
 
 ## Tests
 
-The `tests/` folder contains unit tests. Run them with `composer test`. Tests require the `GROQ_API_KEY` environment variable to be set.
+The `tests/` folder contains unit tests. Run them with `composer test`. By default they run against an offline mock and need no API key; set `GROQ_LIVE_TESTS=1` (and a `GROQ_API_KEY`) to exercise the real API.
 
-> **Note:** Tests make real API calls to Groq and consume API credits. For this reason, our CI pipeline runs tests only on PHP 8.2. If you need to test with different PHP versions, please do so locally and be mindful of API usage.
+> **Note:** The default test suite runs against an offline mock (no API credits). Live tests that hit the real Groq API run only on a nightly schedule and require `GROQ_LIVE_TESTS=1` plus a `GROQ_API_KEY`. To run live tests locally: `GROQ_LIVE_TESTS=1 composer test`.
 
 ## Requirements
 

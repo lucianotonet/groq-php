@@ -108,7 +108,7 @@
     ?>
     <label for="language" class="text-sm mt-4">Idioma:</label>
     <select id="language" name="language" class="border border-black p-2 w-96">
-        <option disabled selected>Selecione um idioma</option>
+        <option disabled selected>Select a language</option>
         <?php foreach ($supportedLanguages as $code => $name): ?>
             <option value="<?php echo $code; ?>"><?php echo $code; ?> - <?php echo ucfirst($name); ?></option>
         <?php endforeach; ?>
@@ -121,8 +121,8 @@
         <option value="text">text</option>
     </select>
 
-    <label for="prompt" class="text-sm mt-4">Prompt (opcional):</label>
-    <textarea id="prompt" name="prompt" placeholder="Prompt (opcional)" class="border border-black p-2 w-96" rows="4"></textarea>   
+    <label for="prompt" class="text-sm mt-4">Prompt (optional):</label>
+    <textarea id="prompt" name="prompt" placeholder="Prompt (optional)" class="border border-black p-2 w-96" rows="4"></textarea>   
     <button type="submit" class="bg-black text-white p-2 mt-4 w-96">Transcrever</button>
 </form>
 
@@ -153,17 +153,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $transcription = $groq->audio()->transcriptions()->create($transcriptionParams);
         
         if ($_POST['response_format'] === 'verbose_json') {
-            // Aqui você pode processar a transcrição para incluir timestamps, se necessário
+            // Here you can process the transcription to include timestamps, if needed
             echo '<pre class="text-xs">';
             echo json_encode($transcription, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             echo '</pre>';
         } elseif ($_POST['response_format'] === 'text') {
-            // Retorna apenas o texto da transcrição
+            // Returns only the transcription text
             echo '<p class="text-xs">';
             echo $transcription ?? '';
             echo '</p>';
         } else {
-            // Formato padrão é json
+            // Default format is json
             echo '<pre class="text-xs">';
             echo json_encode($transcription, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             echo '</pre>';

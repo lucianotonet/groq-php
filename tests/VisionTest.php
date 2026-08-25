@@ -8,7 +8,7 @@ class VisionTest extends TestCase
 {
     private string $testImagePath;
     private string $testImageUrl;
-    private string $defaultModel = 'mixtral-8x7b-vision';
+    private string $defaultModel = 'qwen/qwen3.6-27b';
 
     protected function setUp(): void
     {

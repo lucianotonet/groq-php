@@ -153,17 +153,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $transcription = $groq->audio()->transcriptions()->create($transcriptionParams);
         
         if ($_POST['response_format'] === 'verbose_json') {
-            // Aqui você pode processar a transcrição para incluir timestamps, se necessário
+            // Here you can process the transcription to include timestamps, if needed
             echo '<pre class="text-xs">';
             echo json_encode($transcription, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             echo '</pre>';
         } elseif ($_POST['response_format'] === 'text') {
-            // Retorna apenas o texto da transcrição
+            // Returns only the transcription text
             echo '<p class="text-xs">';
             echo $transcription ?? '';
             echo '</p>';
         } else {
-            // Formato padrão é json
+            // Default format is json
             echo '<pre class="text-xs">';
             echo json_encode($transcription, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             echo '</pre>';

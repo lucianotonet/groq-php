@@ -1,16 +1,16 @@
 <?php
 /**
- * Este exemplo mostra como utilizar a API de Text-to-Speech do GroqCloud
- * para converter texto em áudio.
+ * This example shows how to use the GroqCloud Text-to-Speech API
+ * to convert text into audio.
  */
 
 require __DIR__ . '/vendor/autoload.php';
 
-// Carrega as variáveis de ambiente
+// Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-// Inicializa o cliente Groq com a chave API
+// Initialize the Groq client with the API key
 $groq = new LucianoTonet\GroqPHP\Groq([
     'api_key' => $_ENV['GROQ_API_KEY'],
 ]);
@@ -19,25 +19,25 @@ try {
     echo "Exemplo de Text-to-Speech (TTS)\n";
     echo "-------------------------------\n\n";
 
-    // Definir o texto que será convertido em áudio
+    // Define the text to be converted into audio
     $text = "Hello! This is an example of converting text to speech using the GroqCloud API.";
     echo "Texto a ser convertido: \"$text\"\n\n";
 
-    // Exemplo 1: Salvar o áudio diretamente em um arquivo
+    // Example 1: Save the audio directly to a file
     echo "Exemplo 1: Salvando o áudio em um arquivo...\n";
     $outputFile = __DIR__ . '/output/speech_example.wav';
     
-    // Verifica se o diretório de saída existe, senão cria
+    // Check if the output directory exists, otherwise create it
     if (!file_exists(__DIR__ . '/output')) {
         mkdir(__DIR__ . '/output', 0755, true);
     }
     
-    // Cria o áudio e salva no arquivo
+    // Create the audio and save it to the file
     $result = $groq->audio()->speech()
         ->model('canopylabs/orpheus-v1-english')
         ->input($text)
-        ->voice('troy') // Escolhe a voz
-        ->responseFormat('wav')  // Formato de saída
+        ->voice('troy') // Choose the voice
+        ->responseFormat('wav')  // Output format
         ->save($outputFile);
     
     if ($result) {
@@ -47,7 +47,7 @@ try {
         echo "Falha ao salvar o áudio.\n\n";
     }
     
-    // Exemplo 2: Obter o conteúdo do áudio como stream
+    // Example 2: Get the audio content as a stream
     echo "Exemplo 2: Obtendo o conteúdo do áudio como stream...\n";
     $audioStream = $groq->audio()->speech()
         ->model('canopylabs/orpheus-v1-english')
@@ -55,8 +55,8 @@ try {
         ->voice('troy')
         ->create();
     
-    // Você pode processar o stream conforme necessário
-    // Por exemplo, enviá-lo diretamente para o navegador com os headers apropriados:
+    // You can process the stream as needed
+    // For example, send it directly to the browser with the appropriate headers:
     /*
     header('Content-Type: audio/wav');
     header('Content-Disposition: inline; filename="speech.wav"');
@@ -65,7 +65,7 @@ try {
     
     echo "Stream de áudio obtido com sucesso!\n";
     
-    // Exemplo 3: Utilizar voz em árabe
+    // Example 3: Use an Arabic voice
     echo "\nExemplo 3: Utilizando o modelo de árabe...\n";
     $arabicText = "مرحبا! هذا مثال على تحويل النص إلى كلام باستخدام واجهة برمجة تطبيقات GroqCloud.";
     $outputFileArabic = __DIR__ . '/output/speech_arabic.wav';

@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "<p class='font-semibold mb-2'>Resposta do Modelo:</p>";
         echo "<p>" . $response['choices'][0]['message']['content'] . "</p>";
 
-        // Aqui você pode processar o feedback, se necessário
+        // Here you can process the feedback, if needed
     } catch (LucianoTonet\GroqPHP\GroqException $err) {
         echo "<p class='text-red-600'>Erro: " . $err->getMessage() . "</p>";
     }

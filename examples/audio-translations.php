@@ -43,9 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $translation = $groq->audio()->translations()->create($translationParams);
 
         if ($translationParams['response_format'] === 'text') {
-            echo $translation; // Retorna a resposta em texto diretamente
+            echo $translation; // Returns the response as plain text directly
         } else {
-            echo json_encode($translation, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); // Retorna a resposta em JSON
+            echo json_encode($translation, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); // Returns the response as JSON
         }
     } catch (LucianoTonet\GroqPHP\GroqException $e) {
         echo "<strong>Error:</strong> <br><pre>" . htmlspecialchars($e->getMessage()) . "</pre>";

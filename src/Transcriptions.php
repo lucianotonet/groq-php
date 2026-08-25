@@ -37,13 +37,14 @@ class Transcriptions
      * - response_format: Defines the format of the response. The default is "json".
      *   Use "verbose_json" to receive timestamps for audio segments.
      *   Use "text" to return a plain text response.
-     *   vtt and srt formats are not supported.
-     * - temperature: Specifies a value between 0 and 1 to control the variability of the transcription.
-     * - language: Specifies the language for the transcription (optional; Whisper will automatically detect if not specified).
-     *   Use ISO 639-1 language codes (e.g., "en" for English, "fr" for French, etc.).
-     *   Specifying a language can improve the accuracy and speed of the transcription.
-     * - timestamp_granularities[] is not supported.
-     *
+ *   vtt and srt formats are not supported.
+ * - temperature: Specifies a value between 0 and 1 to control the variability of the transcription.
+ * - language: Specifies the language for the transcription (optional; Whisper will automatically detect if not specified).
+ *   Use ISO 639-1 language codes (e.g., "en" for English, "fr" for French, etc.).
+ *   Specifying a language can improve the accuracy and speed of the transcription.
+ * - timestamp_granularities[]: Array of granularities to populate. Requires response_format "verbose_json".
+ *   Accepts "word", "segment", or both (e.g., ["word", "segment"]). Defaults to ["segment"].
+ *
      * @param array $params
      * @return array|string|Stream
      */
@@ -134,6 +135,13 @@ class Transcriptions
             $multipart[] = [
                 'name' => 'response_format',
                 'contents' => $params['response_format']
+            ];
+        }
+
+        if (isset($params['timestamp_granularities'])) {
+            $multipart[] = [
+                'name' => 'timestamp_granularities[]',
+                'contents' => $params['timestamp_granularities']
             ];
         }
 

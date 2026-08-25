@@ -19,6 +19,8 @@ class Speech
     private string $input;
     private string $voice;
     private string $responseFormat;
+    private ?int $sampleRate = null;
+    private ?float $speed = null;
 
     /**
      * Speech constructor.
@@ -31,6 +33,8 @@ class Speech
         $this->input = '';
         $this->voice = '';
         $this->responseFormat = 'wav';
+        $this->sampleRate = null;
+        $this->speed = null;
     }
 
     /**
@@ -82,6 +86,32 @@ class Speech
     }
 
     /**
+     * Set the sample rate (in Hz) of the generated audio.
+     * Forwarded to the Groq TTS API for models that support it.
+     *
+     * @param int $sampleRate The sample rate in Hz (e.g., 24000, 44100)
+     * @return $this
+     */
+    public function sampleRate(int $sampleRate): self
+    {
+        $this->sampleRate = $sampleRate;
+        return $this;
+    }
+
+    /**
+     * Set the speaking speed multiplier.
+     * Forwarded to the Groq TTS API for models that support it (e.g., 0.5–2.0).
+     *
+     * @param float $speed The speed multiplier
+     * @return $this
+     */
+    public function speed(float $speed): self
+    {
+        $this->speed = $speed;
+        return $this;
+    }
+
+    /**
      * Create a speech file from the provided text.
      * 
      * @return resource|string The audio content as a stream resource or string
@@ -125,6 +155,14 @@ class Speech
             'voice' => $this->voice,
             'response_format' => $this->responseFormat
         ];
+
+        if ($this->sampleRate !== null) {
+            $payload['sample_rate'] = $this->sampleRate;
+        }
+
+        if ($this->speed !== null) {
+            $payload['speed'] = $this->speed;
+        }
 
         try {
             $response = $this->groq->httpClient()->post('audio/speech', [

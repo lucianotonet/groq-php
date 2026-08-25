@@ -10,6 +10,9 @@ class GroqTest extends TestCase
 {
     private Groq $groq;
 
+    /**
+     * Loads environment variables and initializes the Groq client.
+     */
     protected function setUp(): void
     {
         $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__, '../.env');
@@ -17,6 +20,9 @@ class GroqTest extends TestCase
         $this->groq = new Groq($_ENV['GROQ_API_KEY']);
     }
 
+    /**
+     * Ensures an invalid API key results in a GroqException with "Invalid API Key".
+     */
     public function testInvalidApiKey()
     {
         $groq = new Groq('invalid_api_key');
@@ -26,13 +32,16 @@ class GroqTest extends TestCase
         $this->expectExceptionMessage('Invalid API Key'); // Error message will be 'Invalid API Key'
 
         $groq->chat()->completions()->create([
-            'model' => 'llama3-70b-8192',
+            'model' => 'openai/gpt-oss-120b',
             'messages' => [
                 ['role' => 'user', 'content' => 'Hello, world!'],
             ],
         ]);
     }
 
+    /**
+     * Tests listing available models from the Groq API.
+     */
     public function testListModels()
     {
         $models = $this->groq->models()->list();        
@@ -42,10 +51,13 @@ class GroqTest extends TestCase
         $this->assertArrayHasKey('data', $models); // Verify that the 'data' key is present
     }
 
+    /**
+     * Tests a basic chat completion using a valid API key.
+     */
     public function testChatCompletionWithValidApiKey()
     {
         $response = $this->groq->chat()->completions()->create([
-            'model' => 'llama3-70b-8192',
+            'model' => 'openai/gpt-oss-120b',
             'messages' => [
                 ['role' => 'user', 'content' => 'Hello, world!'],
             ],
@@ -83,6 +95,9 @@ class GroqTest extends TestCase
     //     $this->assertNotEmpty($response['text']);
     // }
 
+    /**
+     * Tests setting all available client options at once.
+     */
     public function testSetOptions()
     {
         // Setup
@@ -123,6 +138,9 @@ class GroqTest extends TestCase
         $this->assertEquals($newOptions['responseFormat'], $actualOptions['responseFormat']);
     }
 
+    /**
+     * Tests setting only a subset of client options via reflection.
+     */
     public function testSetOptionsPartial()
     {
         // Setup - usar uma chave fixa para teste em vez da variável de ambiente

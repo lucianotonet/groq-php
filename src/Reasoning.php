@@ -43,8 +43,10 @@ class Reasoning
      *   - reasoning_format: (string) Controls how model reasoning is presented:
      *     - "parsed": Separates reasoning into a dedicated field
      *     - "raw": Includes reasoning within think tags in content (default)
-     *     - "hidden": Returns only the final answer
-     *     Note: Must be "parsed" or "hidden" when using tool calling or JSON mode
+ *     - "hidden": Returns only the final answer
+ *     Note: Must be "parsed" or "hidden" when using tool calling or JSON mode
+ *     Note: openai/gpt-oss models do not accept reasoning_format; "hidden" is mapped
+ *           to include_reasoning=false, while "raw"/"parsed" are rejected.
      * @return array|Stream The reasoning response
      * @throws GroqException If there is an error in the reasoning process
      */
@@ -92,8 +94,34 @@ class Reasoning
 
         $requestOptions = array_merge([
             'messages' => $messages,
-            'reasoning_format' => 'raw' // Default value
         ], $options);
+
+        // openai/gpt-oss models do not accept the reasoning_format parameter.
+        $isGptOss = isset($requestOptions['model'])
+            && str_starts_with($requestOptions['model'], 'openai/gpt-oss');
+
+        if ($isGptOss) {
+            // gpt-oss models reject reasoning_format. They control chain-of-thought
+            // via include_reasoning (default: true, which returns message.reasoning).
+            unset($requestOptions['reasoning_format']);
+
+            if (isset($options['reasoning_format'])) {
+                if ($options['reasoning_format'] === 'hidden') {
+                    // Keep the reasoning out of the response.
+                    $requestOptions['include_reasoning'] = false;
+                } elseif (in_array($options['reasoning_format'], ['raw', 'parsed'], true)) {
+                    throw new GroqException(
+                        'reasoning_format "raw"/"parsed" is not supported by openai/gpt-oss models. '
+                        . 'Use "hidden" to hide reasoning or omit reasoning_format '
+                        . '(reasoning is returned in message.reasoning by default).',
+                        400,
+                        'invalid_request'
+                    );
+                }
+            }
+        } else {
+            $requestOptions['reasoning_format'] = $options['reasoning_format'] ?? 'raw';
+        }
 
         return $this->groq->chat()->completions()->create($requestOptions);
     }

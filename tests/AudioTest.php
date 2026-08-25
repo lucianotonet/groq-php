@@ -2,6 +2,7 @@
 
 namespace LucianoTonet\GroqPHP\Tests;
 
+use LucianoTonet\GroqPHP\GroqException;
 use LucianoTonet\GroqPHP\Speech;
 
 class AudioTest extends TestCase
@@ -10,6 +11,9 @@ class AudioTest extends TestCase
     private string $expectedTranscription = "Hello, how can I help you today";
     private string $testOutputPath;
 
+    /**
+     * Sets up the test environment with fixture paths.
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -17,6 +21,9 @@ class AudioTest extends TestCase
         $this->testOutputPath = __DIR__ . '/fixtures/output.wav';
     }
 
+    /**
+     * Removes the generated speech output file after each test.
+     */
     protected function tearDown(): void
     {
         parent::tearDown();
@@ -25,6 +32,9 @@ class AudioTest extends TestCase
         }
     }
 
+    /**
+     * Tests audio transcription using whisper-large-v3 against the API.
+     */
     public function testAudioTranscription()
     {
         $response = $this->groq->audio()->transcriptions()->create([
@@ -43,6 +53,9 @@ class AudioTest extends TestCase
         );
     }
 
+    /**
+     * Tests audio translation using whisper-large-v3 against the API.
+     */
     public function testAudioTranslation()
     {
         $response = $this->groq->audio()->translations()->create([
@@ -62,34 +75,46 @@ class AudioTest extends TestCase
     }
 
     /**
-     * Este teste requer aceitação dos termos de uso do modelo playai-tts
-     * no console do Groq (https://console.groq.com/playground?model=playai-tts).
-     * Por isso, está comentado para não quebrar o build.
+     * Valida a geração de áudio (TTS) Orpheus contra a API real.
+     * Faz uma chamada real à API, então requer GROQ_API_KEY.
      */
-    /*
     public function testSpeechGeneration()
     {
-        $result = $this->groq->audio()->speech()
-            ->model('playai-tts')
+        $speech = $this->groq->audio()->speech()
+            ->model('canopylabs/orpheus-v1-english')
             ->input('This is a test of the Groq PHP speech functionality.')
-            ->voice('Bryan-PlayAI')
-            ->responseFormat('wav')
-            ->save($this->testOutputPath);
+            ->voice('troy')
+            ->responseFormat('wav');
+
+        try {
+            $result = $speech->save($this->testOutputPath);
+        } catch (GroqException $e) {
+            if (str_contains($e->getMessage(), 'terms acceptance')
+                || str_contains($e->getMessage(), 'model_terms_required')) {
+                $this->markTestSkipped(
+                    'Orpheus model terms must be accepted at '
+                    . 'https://console.groq.com/playground?model=canopylabs/orpheus-v1-english'
+                );
+            }
+            throw $e;
+        }
             
         $this->assertTrue($result);
         $this->assertFileExists($this->testOutputPath);
         $this->assertGreaterThan(0, filesize($this->testOutputPath));
     }
-    */
 
+    /**
+     * Tests the fluent Speech builder methods and instance type.
+     */
     public function testSpeechImplementation()
     {
         $speech = $this->groq->audio()->speech();
         
         // Verificar se os métodos fluentes estão disponíveis
-        $speech = $speech->model('playai-tts')
+        $speech = $speech->model('canopylabs/orpheus-v1-english')
             ->input('Test text')
-            ->voice('Bryan-PlayAI')
+            ->voice('troy')
             ->responseFormat('wav');
         
         // Verificar se a instância é do tipo correto
@@ -98,5 +123,34 @@ class AudioTest extends TestCase
         // Verificar se os métodos create e save existem
         $this->assertTrue(method_exists($speech, 'create'), 'O método create() não existe na classe Speech');
         $this->assertTrue(method_exists($speech, 'save'), 'O método save() não existe na classe Speech');
+    }
+
+    /**
+     * Ensures Speech rejects non-wav response formats for Orpheus.
+     */
+    public function testSpeechRejectsUnsupportedResponseFormat()
+    {
+        $speech = $this->groq->audio()->speech()
+            ->model('canopylabs/orpheus-v1-english')
+            ->input('Test text')
+            ->voice('troy')
+            ->responseFormat('mp3');
+
+        $this->expectException(GroqException::class);
+        $speech->create();
+    }
+
+    /**
+     * Ensures Speech rejects input longer than 200 characters.
+     */
+    public function testSpeechRejectsLongInput()
+    {
+        $speech = $this->groq->audio()->speech()
+            ->model('canopylabs/orpheus-v1-english')
+            ->input(str_repeat('a', 201))
+            ->voice('troy');
+
+        $this->expectException(GroqException::class);
+        $speech->create();
     }
 }

@@ -13,7 +13,7 @@ class ChatTest extends TestCase
   public function testBasicChatCompletion()
   {
     $response = $this->groq->chat()->completions()->create([
-      'model' => 'llama-3.1-8b-instant',
+      'model' => 'openai/gpt-oss-20b',
       'messages' => [
         [
           'role' => 'user',
@@ -36,7 +36,7 @@ class ChatTest extends TestCase
   public function testStreamingChatCompletion()
   {
     $stream = $this->groq->chat()->completions()->create([
-      'model' => 'llama-3.1-8b-instant',
+      'model' => 'openai/gpt-oss-20b',
       'messages' => [
         [
           'role' => 'user',
@@ -75,7 +75,7 @@ class ChatTest extends TestCase
   public function testJsonModeCompletion()
   {
     $response = $this->groq->chat()->completions()->create([
-      'model' => 'llama-3.1-8b-instant',
+      'model' => 'openai/gpt-oss-20b',
       'messages' => [
         ['role' => 'system', 'content' => 'You are a JSON API. You must respond with valid JSON only.'],
         ['role' => 'user', 'content' => 'Return a simple JSON with: name="John", age=30']
@@ -105,7 +105,7 @@ class ChatTest extends TestCase
     $this->expectException(GroqException::class);
     
     $this->groq->chat()->completions()->create([
-      'model' => 'llama-3.1-8b-instant',
+      'model' => 'openai/gpt-oss-20b',
       'messages' => [] // Mensagens vazias devem gerar erro
     ]);
   }
@@ -134,7 +134,7 @@ class ChatTest extends TestCase
   public function testStreamingBufferControl()
   {
     $stream = $this->groq->chat()->completions()->create([
-      'model' => 'llama-3.1-8b-instant',
+      'model' => 'openai/gpt-oss-20b',
       'messages' => [
         ['role' => 'user', 'content' => 'Count from 1 to 5']
       ],

@@ -21,7 +21,7 @@ $requests = [
         'method' => 'POST',
         'url' => '/v1/chat/completions',
         'body' => [
-            'model' => 'llama-3.1-8b-instant',
+            'model' => 'openai/gpt-oss-20b',
             'messages' => [
                 ['role' => 'system', 'content' => 'You are a helpful assistant.'],
                 ['role' => 'user', 'content' => 'What is 2+2?']
@@ -33,7 +33,7 @@ $requests = [
         'method' => 'POST',
         'url' => '/v1/chat/completions',
         'body' => [
-            'model' => 'llama-3.1-8b-instant',
+            'model' => 'openai/gpt-oss-20b',
             'messages' => [
                 ['role' => 'system', 'content' => 'You are a helpful assistant.'],
                 ['role' => 'user', 'content' => 'What is 3+3?']
@@ -51,11 +51,11 @@ file_put_contents($jsonlFile, $jsonlContent);
 
 try {
     echo "Uploading JSONL file...\n";
-    $file = $groq->files()->upload($jsonlFile, 'jsonl');
+    $file = $groq->files()->upload($jsonlFile, 'batch');
     echo "File uploaded successfully. ID: {$file->id}\n";
 
     echo "\nListing files...\n";
-    $files = $groq->files()->list('jsonl', ['limit' => 10]);
+    $files = $groq->files()->list('batch', ['limit' => 10]);
     echo "Found " . count($files['data']) . " files\n";
 
     echo "\nDownloading file content...\n";

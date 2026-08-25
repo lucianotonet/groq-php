@@ -10,6 +10,7 @@ use LucianoTonet\GroqPHP\FileManager;
 use LucianoTonet\GroqPHP\BatchManager;
 use Psr\Http\Message\ResponseInterface;
 use LucianoTonet\GroqPHP\Vision;
+use LucianoTonet\GroqPHP\Responses;
 
 /**
  * Class Groq
@@ -246,5 +247,15 @@ class Groq
     public function batches(): BatchManager
     {
         return new BatchManager($this);
+    }
+
+    /**
+     * Creates a new Responses instance (Responses API, beta).
+     *
+     * @return Responses A new instance of the Responses class
+     */
+    public function responses(): Responses
+    {
+        return new Responses($this);
     }
 }

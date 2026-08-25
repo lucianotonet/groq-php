@@ -279,9 +279,9 @@ try {
 - **Models:** `'canopylabs/orpheus-v1-english'` (English), `'canopylabs/orpheus-arabic-saudi'` (Arabic)
 - **Parameters:**
   - `model()`: The TTS model to use
-  - `input()`: Text to convert to speech
+  - `input()`: Text to convert to speech (Orpheus models accept a maximum of 200 characters)
   - `voice()`: Voice identifier (e.g., "troy")
-  - `responseFormat()`: Output format (default: "wav")
+  - `responseFormat()`: Output format. Orpheus models only support `"wav"` (default)
 - **Methods:**
   - `create()`: Returns audio content as stream
   - `save($filePath)`: Saves audio to a file and returns success boolean

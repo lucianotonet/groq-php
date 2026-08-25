@@ -20,7 +20,7 @@ try {
     echo "-------------------------------\n\n";
 
     // Definir o texto que será convertido em áudio
-    $text = "Olá! Este é um exemplo de conversão de texto para voz utilizando a API do GroqCloud.";
+    $text = "Hello! This is an example of converting text to speech using the GroqCloud API.";
     echo "Texto a ser convertido: \"$text\"\n\n";
 
     // Exemplo 1: Salvar o áudio diretamente em um arquivo

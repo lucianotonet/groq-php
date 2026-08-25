@@ -23,6 +23,7 @@ class Groq
     private string $apiKey; // API key for authentication
     public string $baseUrl; // Base URL for the API
     public array $options; // Additional options for configuration
+    private ?Client $httpClient = null; // Injectable HTTP client (for testing)
 
     /**
      * Groq constructor.
@@ -145,16 +146,36 @@ class Groq
      */
     public function makeRequest(Request $request): ResponseInterface
     {
-        $client = new Client([
-            'base_uri' => $this->baseUrl,
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->apiKey
-            ]
-        ]); // Create a new Guzzle client
+        return $this->httpClient()->send($request);
+    }
 
-        $response = $client->send($request); // Send the request and return the response
+    /**
+     * Injects a custom HTTP client (e.g., a mocked client for tests).
+     *
+     * @param Client $httpClient The client to use for requests.
+     */
+    public function setHttpClient(Client $httpClient): void
+    {
+        $this->httpClient = $httpClient;
+    }
 
-        return $response;
+    /**
+     * Returns the HTTP client, creating a default one if none was injected.
+     *
+     * @return Client The HTTP client used for requests.
+     */
+    public function httpClient(): Client
+    {
+        if ($this->httpClient === null) {
+            $this->httpClient = new Client([
+                'base_uri' => $this->baseUrl,
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->apiKey
+                ]
+            ]);
+        }
+
+        return $this->httpClient;
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace LucianoTonet\GroqPHP;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
@@ -51,14 +50,10 @@ class Transcriptions
     public function create(array $params): array|string|Stream
     {
         $this->validateParams($params); // Validate parameters
-        $client = new Client();
         $multipart = $this->buildMultipart($params);
 
         try {
-            $response = $client->request('POST', $this->groq->baseUrl() . '/audio/transcriptions', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->groq->apiKey()
-                ],
+            $response = $this->groq->httpClient()->request('POST', 'audio/transcriptions', [
                 'multipart' => $multipart
             ]);
 
@@ -179,8 +174,7 @@ class Transcriptions
     private function streamResponse(Request $request, array $options): Stream
     {
         try {
-            $client = new Client();
-            $response = $client->send($request, array_merge($options, ['stream' => true]));
+            $response = $this->groq->httpClient()->send($request, array_merge($options, ['stream' => true]));
             return new Stream($response);
         } catch (RequestException $e) {
             $responseBody = $e->getResponse() ? ($e->getResponse()->getBody() ? (string) $e->getResponse()->getBody() : 'Response body is empty') : 'No response body available';

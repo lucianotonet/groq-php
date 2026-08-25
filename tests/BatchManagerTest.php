@@ -2,21 +2,19 @@
 
 namespace LucianoTonet\GroqPHP\Tests;
 
-use LucianoTonet\GroqPHP\Groq;
 use LucianoTonet\GroqPHP\BatchManager;
 use LucianoTonet\GroqPHP\FileManager;
 use LucianoTonet\GroqPHP\GroqException;
-use PHPUnit\Framework\TestCase;
 
 class BatchManagerTest extends TestCase
 {
-    private Groq $groq;
     private BatchManager $batchManager;
     private FileManager $fileManager;
 
     protected function setUp(): void
     {
-        $this->groq = new Groq(getenv('GROQ_API_KEY'));
+        parent::setUp();
+
         $this->batchManager = new BatchManager($this->groq);
         $this->fileManager = new FileManager($this->groq);
     }

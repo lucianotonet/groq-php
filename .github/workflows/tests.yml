@@ -7,15 +7,15 @@ on:
     branches: [ main ]
   release:
     types: [ published ]
+  schedule:
+    - cron: '0 6 * * *'   # nightly real-API run (consumes Groq credits)
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    # Rodando apenas com PHP 8.2 para economizar créditos da API,
-    # já que os testes fazem chamadas reais à API do Groq
     strategy:
       matrix:
-        php-version: ['8.2']
+        php-version: ['8.2', '8.3', '8.4']
 
     steps:
     - uses: actions/checkout@v4
@@ -25,7 +25,6 @@ jobs:
       with:
         php-version: ${{ matrix.php-version }}
         extensions: fileinfo, json
-        coverage: xdebug
 
     - name: Validate composer.json
       run: composer validate --strict
@@ -42,10 +41,14 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
-    - name: Create .env file
-      run: |
-        echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" > .env
-        echo "GROQ_API_BASE=https://api.groq.com/openai/v1" >> .env
+    # Mock suite: no network, no API key, no credits consumed.
+    - name: Run mock test suite
+      run: composer test
 
-    - name: Run test suite
+    # Live suite: only on the nightly schedule, using the repository secret.
+    - name: Run live test suite (real API)
+      if: github.event_name == 'schedule'
+      env:
+        GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        GROQ_LIVE_TESTS: '1'
       run: composer test

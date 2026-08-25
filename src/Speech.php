@@ -2,7 +2,6 @@
 
 namespace LucianoTonet\GroqPHP;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
@@ -128,18 +127,10 @@ class Speech
         ];
 
         try {
-            $client = new Client([
-                'base_uri' => $this->groq->baseUrl(),
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->groq->apiKey(),
-                    'Content-Type' => 'application/json'
-                ]
-            ]);
-
-            $response = $client->post('audio/speech', [
+            $response = $this->groq->httpClient()->post('audio/speech', [
                 'json' => $payload
             ]);
-            
+
             return $response->getBody();
         } catch (RequestException $e) {
             $responseBody = $e->getResponse() ? ($e->getResponse()->getBody() ? (string) $e->getResponse()->getBody() : 'Response body is empty') : 'No response body available';

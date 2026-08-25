@@ -16,7 +16,7 @@ $groq = new LucianoTonet\GroqPHP\Groq([
 ]);
 
 try {
-    echo "Exemplo de Text-to-Speech (TTS)\n";
+    echo "Text-to-Speech (TTS) example\n";
     echo "-------------------------------\n\n";
 
     // Define the text to be converted into audio
@@ -24,7 +24,7 @@ try {
     echo "Texto a ser convertido: \"$text\"\n\n";
 
     // Example 1: Save the audio directly to a file
-    echo "Exemplo 1: Salvando o áudio em um arquivo...\n";
+    echo "Example 1: Saving audio to a file...\n";
     $outputFile = __DIR__ . '/output/speech_example.wav';
     
     // Check if the output directory exists, otherwise create it
@@ -42,13 +42,13 @@ try {
     
     if ($result) {
         echo "Áudio salvo com sucesso em: $outputFile\n";
-        echo "Tamanho do arquivo: " . filesize($outputFile) . " bytes\n\n";
+        echo "File size: " . filesize($outputFile) . " bytes\n\n";
     } else {
-        echo "Falha ao salvar o áudio.\n\n";
+        echo "Failed to save audio.\n\n";
     }
     
     // Example 2: Get the audio content as a stream
-    echo "Exemplo 2: Obtendo o conteúdo do áudio como stream...\n";
+    echo "Example 2: Getting audio content as a stream...\n";
     $audioStream = $groq->audio()->speech()
         ->model('canopylabs/orpheus-v1-english')
         ->input('This is another example text that will be converted to speech.')
@@ -63,10 +63,10 @@ try {
     echo $audioStream;
     */
     
-    echo "Stream de áudio obtido com sucesso!\n";
+    echo "Audio stream retrieved successfully!\n";
     
     // Example 3: Use an Arabic voice
-    echo "\nExemplo 3: Utilizando o modelo de árabe...\n";
+    echo "\nExample 3: Using the Arabic model...\n";
     $arabicText = "مرحبا! هذا مثال على تحويل النص إلى كلام باستخدام واجهة برمجة تطبيقات GroqCloud.";
     $outputFileArabic = __DIR__ . '/output/speech_arabic.wav';
     
@@ -78,9 +78,9 @@ try {
     
     if ($result) {
         echo "Áudio em árabe salvo com sucesso em: $outputFileArabic\n";
-        echo "Tamanho do arquivo: " . filesize($outputFileArabic) . " bytes\n";
+        echo "File size: " . filesize($outputFileArabic) . " bytes\n";
     } else {
-        echo "Falha ao salvar o áudio em árabe.\n";
+        echo "Failed to save Arabic audio.\n";
     }
     
 } catch (Exception $e) {

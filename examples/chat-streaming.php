@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flush(); // Sends data to the client
         }
     } catch (\LucianoTonet\GroqPHP\GroqException $err) {
-        echo "<strong>assistant:</strong><br>Desculpe, ocorreu um erro: " . $err->getMessage() . "<br>";
+        echo "<strong>assistant:</strong><br>Sorry, an error occurred: " . $err->getMessage() . "<br>";
     }
 }
 ?>

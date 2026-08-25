@@ -14,8 +14,8 @@
         <option value="text">text</option>
     </select>
 
-    <label for="prompt" class="text-sm mt-4">Prompt (opcional):</label>
-    <textarea id="prompt" name="prompt" placeholder="Prompt (opcional)" class="border border-black p-2 w-96" rows="4"></textarea>   
+    <label for="prompt" class="text-sm mt-4">Prompt (optional):</label>
+    <textarea id="prompt" name="prompt" placeholder="Prompt (optional)" class="border border-black p-2 w-96" rows="4"></textarea>   
 
     <button type="submit" class="bg-black text-white p-2 mt-4 w-96">Traduzir</button>
 </form>

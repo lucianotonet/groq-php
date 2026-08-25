@@ -78,4 +78,35 @@ class ReasoningTest extends TestCase
             $this->fail("Error in reasoning streaming: " . $e->getMessage());
         }
     }
+
+    public function testGptOssRejectsRawReasoningFormat()
+    {
+        $this->expectException(GroqException::class);
+
+        $this->groq->reasoning()->analyze("Why is the sky blue?", [
+            'model' => 'openai/gpt-oss-20b',
+            'reasoning_format' => 'raw'
+        ]);
+    }
+
+    public function testGptOssHiddenReasoningExcludesReasoning()
+    {
+        $prompt = "Why does ice float in water?";
+        $options = [
+            'model' => 'openai/gpt-oss-20b',
+            'reasoning_format' => 'hidden'
+        ];
+
+        try {
+            $response = $this->groq->reasoning()->analyze($prompt, $options);
+        } catch (GroqException $e) {
+            $this->fail("Error in gpt-oss hidden reasoning: " . $e->getMessage());
+        }
+
+        $this->assertArrayHasKey('choices', $response);
+        $this->assertNotEmpty($response['choices']);
+
+        $message = $response['choices'][0]['message'] ?? [];
+        $this->assertArrayNotHasKey('reasoning', $message);
+    }
 } 

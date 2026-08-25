@@ -150,6 +150,7 @@ class Completions
             'logit_bias' => $params['logit_bias'] ?? null,
             'top_logprobs' => $params['top_logprobs'] ?? null, 
             'reasoning_format' => $params['reasoning_format'] ?? null,
+            'include_reasoning' => $params['include_reasoning'] ?? null,
             'service_tier' => $params['service_tier'] ?? null,
             'user' => $params['user'] ?? null,
         ], function ($value) {

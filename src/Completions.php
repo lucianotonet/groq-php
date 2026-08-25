@@ -154,9 +154,7 @@ class Completions
             'include_reasoning' => $params['include_reasoning'] ?? null,
             'reasoning_effort' => $params['reasoning_effort'] ?? null,
             'service_tier' => $params['service_tier'] ?? null,
-            'documents' => $params['documents'] ?? null,
             'search_settings' => $params['search_settings'] ?? null,
-            'citation_options' => $params['citation_options'] ?? null,
             'compound_custom' => $params['compound_custom'] ?? null,
             'user' => $params['user'] ?? null,
         ], function ($value) {

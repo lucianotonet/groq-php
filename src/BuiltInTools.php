@@ -3,12 +3,9 @@
 namespace LucianoTonet\GroqPHP;
 
 /**
- * Helpers for Groq's built-in (server-side) tools and document/RAG features.
- *
- * These features are exposed on the Chat Completions endpoint via the
- * `compound_custom`, `search_settings`, `citation_options` and `documents`
- * request parameters. See https://console.groq.com/docs/compound/built-in-tools
- * and the Chat Completions API reference.
+ * Helpers for Groq's built-in (server-side) tools, available on the Compound
+ * systems (`compound-beta`, `compound-beta-mini`) via the `compound_custom`
+ * request parameter. See https://console.groq.com/docs/compound/built-in-tools.
  */
 class BuiltInTools
 {
@@ -41,52 +38,5 @@ class BuiltInTools
         }
 
         return $custom;
-    }
-
-    /**
-     * Builds a document from raw text for use in the `documents` parameter.
-     *
-     * @param  string  $text  The document text.
-     * @param  string|null  $id  Optional identifier used for citations.
-     * @return array The document payload.
-     */
-    public static function document(string $text, ?string $id = null): array
-    {
-        $document = [
-            'source' => [
-                'type' => 'text',
-                'text' => $text,
-            ],
-        ];
-
-        if ($id !== null) {
-            $document['id'] = $id;
-        }
-
-        return $document;
-    }
-
-    /**
-     * Builds a document backed by an uploaded file for use in the `documents`
-     * parameter.
-     *
-     * @param  string  $fileId  The ID of a file uploaded via the Files API.
-     * @param  string|null  $id  Optional identifier used for citations.
-     * @return array The document payload.
-     */
-    public static function documentFromFile(string $fileId, ?string $id = null): array
-    {
-        $document = [
-            'source' => [
-                'type' => 'resource',
-                'file_id' => $fileId,
-            ],
-        ];
-
-        if ($id !== null) {
-            $document['id'] = $id;
-        }
-
-        return $document;
     }
 }

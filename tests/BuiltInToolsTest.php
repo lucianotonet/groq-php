@@ -34,34 +34,30 @@ class BuiltInToolsTest extends TestCase
     }
 
     /**
-     * Ensures document() and documentFromFile() build valid document payloads.
-     */
-    public function test_document_builders(): void
-    {
-        $textDoc = BuiltInTools::document('Context text', 'doc-1');
-        $this->assertSame('text', $textDoc['source']['type']);
-        $this->assertSame('Context text', $textDoc['source']['text']);
-        $this->assertSame('doc-1', $textDoc['id']);
-
-        $fileDoc = BuiltInTools::documentFromFile('file-abc', 'doc-2');
-        $this->assertSame('resource', $fileDoc['source']['type']);
-        $this->assertSame('file-abc', $fileDoc['source']['file_id']);
-        $this->assertSame('doc-2', $fileDoc['id']);
-    }
-
-    /**
      * Ensures compound_custom is forwarded to the API request.
+     *
+     * The Compound systems are exposed on the `compound-beta` / `compound-beta-mini`
+     * models. In mock mode we assert the captured request body; in live mode we
+     * assert the API returns a well-formed completion.
      */
     public function test_compound_custom_is_sent(): void
     {
-        $this->groq->chat()->completions()->create([
-            'model' => 'groq/compound',
+        $params = [
+            'model' => 'compound-beta',
             'messages' => [
                 ['role' => 'user', 'content' => 'Search for recent AI news'],
             ],
             'compound_custom' => BuiltInTools::compound([BuiltInTools::WEB_SEARCH]),
-        ]);
+        ];
 
+        if ($this->live) {
+            $response = $this->groq->chat()->completions()->create($params);
+            $this->assertArrayHasKey('choices', $response);
+
+            return;
+        }
+
+        $this->groq->chat()->completions()->create($params);
         $request = MockRouter::lastChatRequest();
         $this->assertArrayHasKey('compound_custom', $request);
         $this->assertSame(
@@ -71,29 +67,29 @@ class BuiltInToolsTest extends TestCase
     }
 
     /**
-     * Ensures documents, search_settings and citation_options are forwarded.
+     * Ensures search_settings is forwarded to the API request.
      */
-    public function test_documents_and_search_settings_are_sent(): void
+    public function test_search_settings_is_sent(): void
     {
-        $this->groq->chat()->completions()->create([
-            'model' => 'groq/compound',
+        $params = [
+            'model' => 'compound-beta',
             'messages' => [
-                ['role' => 'user', 'content' => 'Summarize the document'],
+                ['role' => 'user', 'content' => 'Search for recent AI news'],
             ],
-            'documents' => [BuiltInTools::document('Important context', 'doc-1')],
+            'compound_custom' => BuiltInTools::compound([BuiltInTools::WEB_SEARCH]),
             'search_settings' => ['exclude_domains' => ['wikipedia.org']],
-            'citation_options' => 'enabled',
-        ]);
+        ];
 
+        if ($this->live) {
+            $response = $this->groq->chat()->completions()->create($params);
+            $this->assertArrayHasKey('choices', $response);
+
+            return;
+        }
+
+        $this->groq->chat()->completions()->create($params);
         $request = MockRouter::lastChatRequest();
-        $this->assertArrayHasKey('documents', $request);
-        $this->assertSame('text', $request['documents'][0]['source']['type']);
-        $this->assertSame('doc-1', $request['documents'][0]['id']);
-
         $this->assertArrayHasKey('search_settings', $request);
         $this->assertSame(['wikipedia.org'], $request['search_settings']['exclude_domains']);
-
-        $this->assertArrayHasKey('citation_options', $request);
-        $this->assertSame('enabled', $request['citation_options']);
     }
 }

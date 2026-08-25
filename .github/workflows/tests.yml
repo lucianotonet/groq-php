@@ -7,8 +7,7 @@ on:
     branches: [ main ]
   release:
     types: [ published ]
-  schedule:
-    - cron: '0 6 * * *'   # nightly real-API run (consumes Groq credits)
+  workflow_dispatch:
 
 jobs:
   test:
@@ -41,14 +40,9 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
-    # Mock suite: no network, no API key, no credits consumed.
-    - name: Run mock test suite
-      run: composer test
-
-    # Live suite: only on the nightly schedule, using the repository secret.
-    - name: Run live test suite (real API)
-      if: github.event_name == 'schedule'
+    # Offline mock suite: no network, no API key, no credits consumed.
+    # Live (real-API) tests are run locally with GROQ_LIVE_TESTS=1, not in CI.
+    - name: Run test suite (offline mock)
       env:
-        GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-        GROQ_LIVE_TESTS: '1'
+        GROQ_LIVE_TESTS: '0'
       run: composer test

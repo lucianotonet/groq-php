@@ -81,6 +81,10 @@ class AudioTest extends TestCase
      */
     public function test_transcription_forwards_url(): void
     {
+        if ($this->live) {
+            $this->markTestSkipped('Mock-only: asserts the forwarded request body.');
+        }
+
         $this->groq->audio()->transcriptions()->create([
             'url' => 'https://example.com/audio.mp3',
             'model' => 'whisper-large-v3',
@@ -96,6 +100,10 @@ class AudioTest extends TestCase
      */
     public function test_transcription_forwards_timestamp_granularities(): void
     {
+        if ($this->live) {
+            $this->markTestSkipped('Mock-only: asserts the forwarded request body.');
+        }
+
         $this->groq->audio()->transcriptions()->create([
             'file' => $this->testAudioPath,
             'model' => 'whisper-large-v3',

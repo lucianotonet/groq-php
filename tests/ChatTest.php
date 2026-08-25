@@ -175,6 +175,10 @@ class ChatTest extends TestCase
      */
     public function test_disable_tool_validation_is_forwarded(): void
     {
+        if ($this->live) {
+            $this->markTestSkipped('Mock-only: asserts the forwarded request body.');
+        }
+
         $this->groq->chat()->completions()->create([
             'model' => 'openai/gpt-oss-20b',
             'messages' => [

@@ -18,7 +18,7 @@ class ReasoningTest extends TestCase
     {
         $prompt = "Why does ice float in water?";
         $options = [
-            'model' => "deepseek-r1-distill-llama-70b",
+            'model' => "qwen/qwen3.6-27b",
             'reasoning_format' => "raw"
         ];
 
@@ -40,7 +40,7 @@ class ReasoningTest extends TestCase
         $options = [
             'temperature' => 0.6,
             'max_completion_tokens' => 1024,
-            'model' => "deepseek-r1-distill-llama-70b",
+            'model' => "qwen/qwen3.6-27b",
             'reasoning_format' => "raw"
         ];
 
@@ -59,7 +59,7 @@ class ReasoningTest extends TestCase
         $prompt = "Explain quantum entanglement.";
         $options = [
             'stream' => true,
-            'model' => "deepseek-r1-distill-llama-70b",
+            'model' => "qwen/qwen3.6-27b",
         ];
 
         try {

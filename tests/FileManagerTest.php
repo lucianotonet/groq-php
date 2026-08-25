@@ -81,7 +81,7 @@ class FileManagerTest extends TestCase
             'method' => 'POST',
             'url' => '/v1/invalid/endpoint',
             'body' => [
-                'model' => 'llama3-8b-8192',
+                'model' => 'openai/gpt-oss-20b',
                 'messages' => [['role' => 'user', 'content' => 'test']]
             ]
         ]) . "\n";
@@ -153,7 +153,7 @@ class FileManagerTest extends TestCase
             'method' => 'POST',
             'url' => '/v1/chat/completions',
             'body' => [
-                'model' => 'llama3-8b-8192',
+                'model' => 'openai/gpt-oss-20b',
                 'messages' => [
                     ['invalid_field' => 'test'] // Missing role and content
                 ]

@@ -26,7 +26,7 @@ class GroqTest extends TestCase
         $this->expectExceptionMessage('Invalid API Key'); // Error message will be 'Invalid API Key'
 
         $groq->chat()->completions()->create([
-            'model' => 'llama3-70b-8192',
+            'model' => 'openai/gpt-oss-120b',
             'messages' => [
                 ['role' => 'user', 'content' => 'Hello, world!'],
             ],
@@ -45,7 +45,7 @@ class GroqTest extends TestCase
     public function testChatCompletionWithValidApiKey()
     {
         $response = $this->groq->chat()->completions()->create([
-            'model' => 'llama3-70b-8192',
+            'model' => 'openai/gpt-oss-120b',
             'messages' => [
                 ['role' => 'user', 'content' => 'Hello, world!'],
             ],

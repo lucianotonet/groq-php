@@ -70,7 +70,7 @@ $groq = new Groq(getenv('GROQ_API_KEY'));
 
 try {
     $response = $groq->chat()->completions()->create([
-        'model' => 'llama3-8b-8192', // Or another supported model
+        'model' => 'openai/gpt-oss-20b', // Or another supported model
         'messages' => [
             ['role' => 'user', 'content' => 'Explain the importance of low latency in LLMs'],
         ],
@@ -86,7 +86,7 @@ try {
 
 ```php
 $response = $groq->chat()->completions()->create([
-    'model' => 'llama3-8b-8192',
+    'model' => 'openai/gpt-oss-20b',
     'messages' => [
         ['role' => 'user', 'content' => 'Tell me a short story'],
     ],
@@ -106,7 +106,7 @@ foreach ($response->chunks() as $chunk) {
 
 ```php
 $response = $groq->chat()->completions()->create([
-    'model' => 'llama3-70b-8192',
+        'model' => 'openai/gpt-oss-120b',
     'messages' => [
         ['role' => 'system', 'content' => 'You are an API and must respond only with valid JSON.'],
         ['role' => 'user', 'content' => 'Give me information about the current weather in London'],
@@ -163,7 +163,7 @@ $tools = [
 ];
 
 $response = $groq->chat()->completions()->create([
-    'model' => 'llama3-groq-70b-8192-tool-use-preview', // Model that supports tool calling
+        'model' => 'openai/gpt-oss-120b', // Model that supports tool calling
     'messages' => $messages,
     'tool_choice' => 'auto',
     'tools' => $tools
@@ -184,7 +184,7 @@ if (isset($response['choices'][0]['message']['tool_calls'])) {
 
     // Second call to the model with tool response:
     $response = $groq->chat()->completions()->create([
-        'model' => 'llama3-groq-70b-8192-tool-use-preview',
+        'model' => 'openai/gpt-oss-120b',
         'messages' => $messages
     ]);
     echo $response['choices'][0]['message']['content'];
@@ -249,9 +249,9 @@ $groq = new Groq(getenv('GROQ_API_KEY'));
 try {
     // Method 1: Save to file
     $result = $groq->audio()->speech()
-        ->model('playai-tts')  // 'playai-tts' for English, 'playai-tts-arabic' for Arabic
+        ->model('canopylabs/orpheus-v1-english')  // 'canopylabs/orpheus-v1-english' for English, 'canopylabs/orpheus-arabic-saudi' for Arabic
         ->input('Hello, this text will be converted to speech')
-        ->voice('Bryan-PlayAI')  // Voice identifier
+        ->voice('troy')  // Voice identifier
         ->responseFormat('wav')  // Output format
         ->save('output.wav');
     
@@ -261,9 +261,9 @@ try {
     
     // Method 2: Get as stream
     $audioStream = $groq->audio()->speech()
-        ->model('playai-tts')
+        ->model('canopylabs/orpheus-v1-english')
         ->input('This is another example text')
-        ->voice('Bryan-PlayAI')
+        ->voice('troy')
         ->create();
     
     // Use the stream (e.g., send to browser)
@@ -276,11 +276,11 @@ try {
 }
 ```
 
-- **Models:** `'playai-tts'` (English), `'playai-tts-arabic'` (Arabic)
+- **Models:** `'canopylabs/orpheus-v1-english'` (English), `'canopylabs/orpheus-arabic-saudi'` (Arabic)
 - **Parameters:**
   - `model()`: The TTS model to use
   - `input()`: Text to convert to speech
-  - `voice()`: Voice identifier (e.g., "Bryan-PlayAI")
+  - `voice()`: Voice identifier (e.g., "troy")
   - `responseFormat()`: Output format (default: "wav")
 - **Methods:**
   - `create()`: Returns audio content as stream
@@ -313,7 +313,7 @@ try {
 ```
 
 **Vision Model:**
-The vision functionality uses the `meta-llama/llama-4-scout-17b-16e-instruct` model by default, which supports:
+The vision functionality uses the `qwen/qwen3.6-27b` model by default, which supports:
 - Local image analysis (up to 4MB)
 - URL image analysis (up to 20MB)
 - Multi-turn conversations
@@ -333,7 +333,7 @@ try {
     $response = $groq->reasoning()->analyze(
         'Explain the process of photosynthesis.',
         [
-            'model' => 'deepseek-r1-distill-llama-70b',
+            'model' => 'qwen/qwen3.6-27b',
             'reasoning_format' => 'raw', // 'raw' (default), 'parsed', 'hidden'
             'temperature' => 0.6,
             'max_completion_tokens' => 10240
@@ -367,7 +367,7 @@ The reasoning feature supports three output formats:
    $response = $groq->reasoning()->analyze(
        "Explain quantum entanglement.",
        [
-           'model' => 'deepseek-r1-distill-llama-70b',
+            'model' => 'qwen/qwen3.6-27b',
            'reasoning_format' => 'raw'
        ]
    );
@@ -382,7 +382,7 @@ The reasoning feature supports three output formats:
    $response = $groq->reasoning()->analyze(
        "Solve this math problem: 3x + 7 = 22",
        [
-           'model' => 'deepseek-r1-distill-llama-70b',
+            'model' => 'qwen/qwen3.6-27b',
            'reasoning_format' => 'parsed'
        ]
    );
@@ -401,7 +401,7 @@ The reasoning feature supports three output formats:
    $response = $groq->reasoning()->analyze(
        "What is the capital of France?",
        [
-           'model' => 'deepseek-r1-distill-llama-70b',
+            'model' => 'qwen/qwen3.6-27b',
            'reasoning_format' => 'hidden'
        ]
    );
@@ -480,9 +480,9 @@ $batch = $batchManager->cancel('batch_id');
 
 **Example JSONL file:**
 ```jsonl
-{"custom_id": "chat-request-1", "method": "POST", "url": "/v1/chat/completions", "body": {"model": "llama-3.1-8b-instant", "messages": [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "What is quantum computing?"}]}}
+{"custom_id": "chat-request-1", "method": "POST", "url": "/v1/chat/completions", "body": {"model": "openai/gpt-oss-20b", "messages": [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "What is quantum computing?"}]}}
 {"custom_id": "audio-request-1", "method": "POST", "url": "/v1/audio/transcriptions", "body": {"model": "whisper-large-v3", "language": "en", "url": "https://github.com/voxserv/audio_quality_testing_samples/raw/refs/heads/master/testaudio/8000/test01_20s.wav", "response_format": "verbose_json", "timestamp_granularities": ["segment"]}}
-{"custom_id": "chat-request-2", "method": "POST", "url": "/v1/chat/completions", "body": {"model": "llama-3.3-70b-versatile", "messages": [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "Explain machine learning in simple terms."}]}}
+{"custom_id": "chat-request-2", "method": "POST", "url": "/v1/chat/completions", "body": {"model": "openai/gpt-oss-120b", "messages": [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "Explain machine learning in simple terms."}]}}
 {"custom_id":"audio-request-2","method":"POST","url":"/v1/audio/translations","body":{"model":"whisper-large-v3","language":"en","url":"https://console.groq.com/audio/batch/sample-zh.wav","response_format":"verbose_json","timestamp_granularities":["segment"]}}
 ```
 

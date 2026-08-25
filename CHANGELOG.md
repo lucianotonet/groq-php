@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.4.0] - 2026-08-25
+
+### Added
+- Responses API client (`Groq::responses()`): OpenAI-compatible `input`/`output` model responses with streaming, structured outputs (`text.format`), and reasoning controls.
+- Built-in (server-side) tools & Compound support: `LucianoTonet\GroqPHP\BuiltInTools` helpers for `compound_custom`, plus `documents`, `search_settings`, and `citation_options` on Chat Completions (RAG & citations).
+- `Speech::sampleRate()` and `Speech::speed()` fluent setters forwarded to the TTS API.
+- Forwarding of `timestamp_granularities[]` in Transcriptions (Groq supports it with `response_format=verbose_json`).
+- Documentation: Prompt Caching & Content Moderation (safeguard models).
+- Offline mock test layer (`tests/MockRouter`) so the suite runs without network or API credits; CI runs mocked by default with a nightly live job.
+
+### Changed
+- Documentation refreshed and verified against `console.groq.com/docs` (model defaults, Vision, Reasoning, deprecated models, features).
+
+### Fixed
+- `Transcriptions` docblock incorrectly claimed `timestamp_granularities[]` was unsupported.
+
 ## [v1.3.0] - 2025-03-23
 
 ### Breaking Changes in Files/Batches Module

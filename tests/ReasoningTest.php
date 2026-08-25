@@ -105,6 +105,34 @@ class ReasoningTest extends TestCase
     }
 
     /**
+     * Tests reasoning_effort with a gpt-oss model.
+     */
+    public function testReasoningEffort()
+    {
+        $response = $this->groq->reasoning()->analyze('Why does ice float in water?', [
+            'model' => 'openai/gpt-oss-20b',
+            'reasoning_effort' => 'low',
+        ]);
+
+        $this->assertArrayHasKey('choices', $response);
+        $this->assertNotEmpty($response['choices']);
+    }
+
+    /**
+     * Ensures reasoning_format and include_reasoning cannot be combined.
+     */
+    public function testReasoningFormatAndIncludeReasoningAreMutuallyExclusive()
+    {
+        $this->expectException(GroqException::class);
+
+        $this->groq->reasoning()->analyze('Test?', [
+            'model' => 'qwen/qwen3.6-27b',
+            'reasoning_format' => 'raw',
+            'include_reasoning' => true,
+        ]);
+    }
+
+    /**
      * Ensures gpt-oss with hidden reasoning does not return message.reasoning.
      */
     public function testGptOssHiddenReasoningExcludesReasoning()

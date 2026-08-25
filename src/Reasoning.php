@@ -45,6 +45,10 @@ class Reasoning
      *     - "raw": Includes reasoning within think tags in content (default)
  *     - "hidden": Returns only the final answer
  *     Note: Must be "parsed" or "hidden" when using tool calling or JSON mode
+ *   - include_reasoning: (bool) Whether to include reasoning in message.reasoning.
+ *     Mutually exclusive with reasoning_format.
+ *   - reasoning_effort: (string) Reasoning effort for supported models
+ *     ("none"|"default" for qwen3.6-27b; "low"|"medium"|"high" for openai/gpt-oss)
  *     Note: openai/gpt-oss models do not accept reasoning_format; "hidden" is mapped
  *           to include_reasoning=false, while "raw"/"parsed" are rejected.
      * @return array|Stream The reasoning response
@@ -71,6 +75,15 @@ class Reasoning
             isset($options['reasoning_format']) && $options['reasoning_format'] === 'raw') {
             throw new GroqException(
                 'reasoning_format must be "parsed" or "hidden" when using JSON mode',
+                400,
+                'invalid_request'
+            );
+        }
+
+        // reasoning_format and include_reasoning are mutually exclusive in the API
+        if (isset($options['reasoning_format']) && isset($options['include_reasoning'])) {
+            throw new GroqException(
+                'reasoning_format and include_reasoning are mutually exclusive and cannot be used together',
                 400,
                 'invalid_request'
             );

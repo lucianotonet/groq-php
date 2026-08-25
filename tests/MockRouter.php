@@ -59,7 +59,7 @@ class MockRouter
             return self::modelsList();
         }
 
-        if (preg_match('#/models/([^/]+)$#', $path, $matches)) {
+        if (preg_match('#/models/(.+)$#', $path, $matches)) {
             return self::model($matches[1]);
         }
 

@@ -90,7 +90,7 @@ class Groq
      *   - seed: (int|null) Integer for deterministic sampling
      *   - stop: (string|array|null) Up to 4 sequences where generation should stop
      *   - user: (string|null) Unique identifier for end-user tracking
-     *   - service_tier: (string|null) Service tier to use (auto|flex)
+     *   - service_tier: (string|null) Service tier to use (auto|on_demand|flex|performance|null)
      */
     public function setOptions(array $options): void
     {

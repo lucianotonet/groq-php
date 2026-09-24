@@ -25,7 +25,7 @@ class ReasoningTest extends TestCase
     {
         $prompt = 'Why does ice float in water?';
         $options = [
-            'model' => 'qwen/qwen3.6-27b',
+            'model' => 'qwen/qwen3.8-27b',
             'reasoning_format' => 'raw',
         ];
 
@@ -50,7 +50,7 @@ class ReasoningTest extends TestCase
         $options = [
             'temperature' => 0.6,
             'max_completion_tokens' => 1024,
-            'model' => 'qwen/qwen3.6-27b',
+            'model' => 'qwen/qwen3.8-27b',
             'reasoning_format' => 'raw',
         ];
 
@@ -72,7 +72,7 @@ class ReasoningTest extends TestCase
         $prompt = 'Explain quantum entanglement.';
         $options = [
             'stream' => true,
-            'model' => 'qwen/qwen3.6-27b',
+            'model' => 'qwen/qwen3.8-27b',
         ];
 
         try {
@@ -127,7 +127,7 @@ class ReasoningTest extends TestCase
         $this->expectException(GroqException::class);
 
         $this->groq->reasoning()->analyze('Test?', [
-            'model' => 'qwen/qwen3.6-27b',
+            'model' => 'qwen/qwen3.8-27b',
             'reasoning_format' => 'raw',
             'include_reasoning' => true,
         ]);

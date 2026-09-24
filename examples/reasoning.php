@@ -8,7 +8,7 @@ use LucianoTonet\GroqPHP\GroqException;
 
         // Collect all form options
         $options = [
-            'model' => $_POST['model'] ?? 'qwen/qwen3.6-27b',
+            'model' => $_POST['model'] ?? 'qwen/qwen3.8-27b',
             'temperature' => isset($_POST['temperature']) ? floatval($_POST['temperature']) : null,
             'max_completion_tokens' => isset($_POST['max_completion_tokens']) ? intval($_POST['max_completion_tokens']) : null,
             'top_p' => isset($_POST['top_p']) ? floatval($_POST['top_p']) : null,
@@ -61,7 +61,7 @@ use LucianoTonet\GroqPHP\GroqException;
         <div>
             <label for="model" class="block text-sm font-medium text-gray-700 mb-1">Model</label>
             <select name="model" class="w-full border border-gray-300 rounded p-2 text-sm">
-                <option value="qwen/qwen3.6-27b">Qwen 3.6 27B</option>
+                <option value="qwen/qwen3.8-27b">Qwen 3.8 27B</option>
                 <option value="openai/gpt-oss-120b">OpenAI GPT-OSS 120B</option>
             </select>
         </div>

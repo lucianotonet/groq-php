@@ -5,35 +5,73 @@ namespace LucianoTonet\GroqPHP;
 /**
  * Helpers for Groq's built-in (server-side) tools and document/RAG features.
  *
- * These features are exposed on the Chat Completions endpoint via the
- * `compound_custom`, `search_settings`, `citation_options` and `documents`
- * request parameters. See https://console.groq.com/docs/compound/built-in-tools
- * and the Chat Completions API reference.
+ * Preferred path (current API): pass tool type objects via the Chat Completions
+ * `tools` parameter on GPT-OSS models (`openai/gpt-oss-20b`, `openai/gpt-oss-120b`):
+ *
+ *   tools: BuiltInTools::tools([BuiltInTools::BROWSER_SEARCH, BuiltInTools::CODE_INTERPRETER])
+ *
+ * Legacy path: `compound_custom` / `search_settings` were used with Compound systems
+ * (`groq/compound`, `compound-beta`, etc.). Those model IDs were decommissioned
+ * (see https://console.groq.com/docs/deprecations). `BuiltInTools::compound()` is
+ * retained only for clients that still need the payload shape.
  *
  * Note: `documents` and `citation_options` (RAG) are supported only on models
  * that enable them. The historical RAG models (`llama-3.3-70b-versatile`,
  * `llama-3.1-8b-instant`) were retired on 2026-08-16 for free/developer tiers;
- * on those tiers the current models (e.g. `openai/gpt-oss-*`, `qwen/qwen3.6-27b`,
- * `compound-beta`) reject `documents` with "not supported with this model". This
- * library forwards both parameters as-is and lets the API enforce model support.
+ * this library forwards both parameters as-is and lets the API enforce support.
+ *
+ * @see https://console.groq.com/docs/tool-use/built-in-tools
  */
 class BuiltInTools
 {
+    /** GPT-OSS built-in browser/web search tool type. */
+    public const BROWSER_SEARCH = 'browser_search';
+
+    /**
+     * Legacy Compound tool id (prefer BROWSER_SEARCH on GPT-OSS).
+     *
+     * @deprecated Use BROWSER_SEARCH with BuiltInTools::tools() on GPT-OSS models.
+     */
     public const WEB_SEARCH = 'web_search';
 
+    /**
+     * Legacy Compound tool id (not available on GPT-OSS).
+     *
+     * @deprecated Compound systems were decommissioned.
+     */
     public const VISIT_WEBSITE = 'visit_website';
 
     public const CODE_INTERPRETER = 'code_interpreter';
 
+    /**
+     * Legacy Compound tool id (not available on GPT-OSS).
+     *
+     * @deprecated Compound systems were decommissioned.
+     */
     public const WOLFRAM_ALPHA = 'wolfram_alpha';
 
     /**
-     * Builds the `compound_custom` parameter to restrict which built-in tools
-     * a Compound system is allowed to use.
+     * Builds the Chat Completions `tools` array for GPT-OSS built-in tools.
+     *
+     * @param  string[]  $types  List of tool type identifiers (e.g. BuiltInTools::BROWSER_SEARCH).
+     * @return array<int, array{type: string}>
+     */
+    public static function tools(array $types): array
+    {
+        return array_map(
+            static fn (string $type): array => ['type' => $type],
+            array_values($types)
+        );
+    }
+
+    /**
+     * Builds the legacy `compound_custom` parameter for Compound systems.
      *
      * @param  string[]  $enabledTools  List of BuiltInTools::* identifiers.
      * @param  string|null  $version  Optional Compound system version (e.g. "latest").
      * @return array The `compound_custom` payload.
+     *
+     * @deprecated Compound model IDs were decommissioned. Prefer tools() on GPT-OSS.
      */
     public static function compound(array $enabledTools, ?string $version = null): array
     {

@@ -10,7 +10,7 @@ class VisionTest extends TestCase
 
     private string $testImageUrl;
 
-    private string $defaultModel = 'qwen/qwen3.6-27b';
+    private string $defaultModel = 'qwen/qwen3.8-27b';
 
     /**
      * Creates a test image and initializes the Vision client with the default model.

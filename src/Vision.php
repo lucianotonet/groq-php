@@ -6,7 +6,7 @@ class Vision
 {
     private Groq $groq;
 
-    private string $defaultModel = 'qwen/qwen3.6-27b';
+    private string $defaultModel = 'qwen/qwen3.8-27b';
 
     public function __construct(Groq $groq)
     {
